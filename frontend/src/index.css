@@ -209,3 +209,18 @@ button, a, input, textarea {
 @media (max-width: 900px) { .why-section__intro { grid-template-columns: 1fr; gap: 1.5rem; } .why-section__summary { margin-left: 0; } .why-section__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .why-card { min-height: 29rem; } }
 @media (max-width: 580px) { .why-section { padding-inline: 1rem; } .why-section h2 { letter-spacing: -.055em; } .why-section__desktop-break { display: none; } .why-section__cards { grid-template-columns: 1fr; } .why-card { min-height: 25rem; } .why-preview { min-height: 15rem; } }
 @media (prefers-reduced-motion: reduce) { .why-reveal, .why-section--visible .why-reveal { opacity: 1; transform: none; animation: none; } .why-section--visible .why-card--quiet .why-blocks i { animation: none; } }
+
+/* Infinite Logo Marquee Animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-33.333333%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+

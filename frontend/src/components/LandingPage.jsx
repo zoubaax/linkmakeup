@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Header from './landing/Header';
 import HeroSection from './landing/HeroSection';
+import LogoTicker from './landing/LogoTicker';
+import QuoteSection from './landing/QuoteSection';
 import WhySection from './landing/WhySection';
 import FeaturesSection from './landing/FeaturesSection';
 import PresetsSection from './landing/PresetsSection';
@@ -26,16 +28,22 @@ export default function LandingPage() {
       {/* 2. Floating Hero Section */}
       <HeroSection />
 
-      {/* 3. Why LinkMakeup Section (Parley-style 4 Cards) */}
+      {/* 3. Infinite Logo Ticker (Platform Ecosystem Marquee) */}
+      <LogoTicker />
+
+      {/* 4. Brand Manifesto Section (GSAP ScrollReveal) */}
+      <QuoteSection />
+
+      {/* 5. Why LinkMakeup Section (Glassy Stacking Cards) */}
       <WhySection />
 
-      {/* 4. High Performance Server & Architecture Section */}
+      {/* 6. High Performance Server & Architecture Section */}
       <FeaturesSection />
 
-      {/* 5. Interactive Theme Studio Section */}
+      {/* 7. Interactive Theme Studio Section */}
       <PresetsSection />
 
-      {/* 6. Trust Bar & Footer */}
+      {/* 8. Trust Bar & Footer */}
       <Footer />
     </div>
   );
