@@ -80,6 +80,13 @@ class ApiService {
     });
   }
 
+  static async updateProfile(profileData) {
+    return this.request('/profiles/me', {
+      method: 'PATCH',
+      body: JSON.stringify(profileData),
+    });
+  }
+
   static async getPublicProfile(username) {
     return this.request(`/profiles/${encodeURIComponent(username)}`);
   }

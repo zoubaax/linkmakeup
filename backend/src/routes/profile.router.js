@@ -10,7 +10,8 @@ router.get('/profiles/check-availability', ProfileController.checkUsernameAvaila
 // GET /api/v1/profiles/:username (Public profile view)
 router.get('/profiles/:username', ProfileController.getPublicProfile);
 
-// POST /api/v1/profiles (Protected - Create profile username during onboarding)
+// Protected routes
 router.post('/profiles', requireAuth, ProfileController.createProfile);
+router.patch('/profiles/me', requireAuth, ProfileController.updateProfile);
 
 export default router;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ApiService from '../services/api';
 
 export default function UsernameOnboarding({ user, onProfileCreated, onSignOut }) {
@@ -8,14 +8,39 @@ export default function UsernameOnboarding({ user, onProfileCreated, onSignOut }
       ? user.name
       : ''
   );
+  const [avatarUrl, setAvatarUrl] = useState(
+    user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user?.email || 'user')}`
+  );
   const [availability, setAvailability] = useState({ loading: false, available: null, reason: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const fileInputRef = useRef(null);
 
-  // Automatically derive avatar from Google OAuth picture or email hash
-  const avatarUrl =
-    user?.avatarUrl ||
-    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user?.email || 'user')}`;
+  // Handle local image file upload
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrorMsg('Please select a valid image file (PNG, JPG, WebP, etc.)');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMsg('Image size should be less than 5MB.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64Image = event.target?.result;
+      if (base64Image) {
+        setAvatarUrl(base64Image);
+        setErrorMsg('');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Check username availability as user types
   useEffect(() => {
@@ -70,7 +95,7 @@ export default function UsernameOnboarding({ user, onProfileCreated, onSignOut }
       }
     } catch (err) {
       setErrorMsg(err.message || 'Failed to create profile. Please try again.');
-    } fontally: {
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -79,15 +104,26 @@ export default function UsernameOnboarding({ user, onProfileCreated, onSignOut }
     <div className="w-full max-w-lg mx-auto">
       <div className="p-8 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl shadow-violet-950/40 backdrop-blur-xl space-y-6">
         
-        {/* Automatic Profile Picture from Google / Email */}
+        {/* Profile Picture Upload Header */}
         <div className="text-center space-y-3">
-          <div className="relative w-20 h-20 rounded-full bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-amber-400 mx-auto p-0.5 shadow-xl shadow-violet-500/25">
+          <div className="relative group w-20 h-20 rounded-full bg-gradient-to-tr from-violet-500 via-fuchsia-500 to-amber-400 mx-auto p-0.5 shadow-xl shadow-violet-500/25 cursor-pointer" onClick={() => fileInputRef.current?.click()}>
             <img
               src={avatarUrl}
               alt={displayName || user?.email}
               className="w-full h-full rounded-full object-cover border-2 border-slate-950 bg-slate-900"
             />
+            <div className="absolute inset-0 rounded-full bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
+              Upload
+            </div>
           </div>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageUpload}
+            accept="image/*"
+            className="hidden"
+          />
 
           <div>
             <span className="px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-semibold">

@@ -1,1 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+
+@theme {
+  /* Warm earthy palette */
+  --color-cream: #F7F3EE;
+  --color-cream-dark: #EEE8DF;
+  --color-warm-white: #FDFAF6;
+  --color-terra: #C4622A;
+  --color-terra-light: #D97A45;
+  --color-terra-dark: #A0491D;
+  --color-amber-warm: #E5973A;
+  --color-charcoal: #1C1814;
+  --color-charcoal-mid: #3A342C;
+  --color-charcoal-soft: #6B5E52;
+  --color-stone: #9C8B7A;
+  --color-stone-light: #C5B8AC;
+  --color-warm-border: #DDD3C6;
+
+  /* Typography */
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
+}
+
+html, body {
+  background-color: var(--color-cream);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-terra);
+  color: white;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-cream-dark); }
+::-webkit-scrollbar-thumb { background: var(--color-stone); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-terra); }

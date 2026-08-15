@@ -3,6 +3,9 @@ import { ApiResponse, ApiError } from '../utils/apiResponse.js';
 import { env } from '../config/env.js';
 import { z } from 'zod';
 import { OAuth2Client } from 'google-auth-library';
+import { db } from '../config/db.js';
+import { profiles } from '../models/schema.js';
+import { eq } from 'drizzle-orm';
 
 const googleClient = new OAuth2Client(
   env.googleClientId,
@@ -139,11 +142,29 @@ export class AuthController {
     }
   }
 
-  // 5. Fetch Current User Identity
+  // 5. Fetch Current User Identity + Profile
   static async getCurrentUser(req, res, next) {
     try {
       const user = req.user;
-      return ApiResponse.success(res, 'Current authenticated user retrieved', { user });
+
+      // Also fetch the user's profile to determine if onboarding is complete
+      const profileResult = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.userId, user.id))
+        .limit(1);
+
+      const profile = profileResult[0] || null;
+
+      return ApiResponse.success(res, 'Current authenticated user retrieved', {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          avatarUrl: user.avatarUrl,
+        },
+        profile,
+      });
     } catch (err) {
       next(err);
     }
