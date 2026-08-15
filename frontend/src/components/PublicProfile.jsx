@@ -7,8 +7,9 @@ import { SkeletonProfile } from './ui/Skeleton';
 import { DEFAULT_THEME } from '../utils/themePresets';
 import { StatusPill } from './StatusPill';
 
-export default function PublicProfile() {
-  const { username } = useParams();
+export default function PublicProfile({ usernameOverride } = {}) {
+  const params = useParams();
+  const username = usernameOverride || params.username;
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);

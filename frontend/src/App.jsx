@@ -6,7 +6,41 @@ import OnboardingPage from './components/OnboardingPage';
 import PublicProfile from './components/PublicProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 
+/**
+ * Detect if the app is being loaded from a user subdomain
+ * e.g. allo.linkmakeup.com → returns "allo"
+ * Returns null for the root domain or localhost
+ */
+function getSubdomainUsername() {
+  const hostname = window.location.hostname;
+  const appDomain = import.meta.env.VITE_APP_DOMAIN || 'linkmakeup.com';
+
+  // Skip subdomains on localhost
+  if (hostname === 'localhost' || hostname === '127.0.0.1') return null;
+
+  // Skip www and the root domain itself
+  if (hostname === appDomain || hostname === `www.${appDomain}`) return null;
+
+  // Check if it's a subdomain of appDomain
+  if (hostname.endsWith(`.${appDomain}`)) {
+    const sub = hostname.replace(`.${appDomain}`, '');
+    // Ignore known infrastructure subdomains
+    if (['api', 'www', 'app', 'mail', 'admin'].includes(sub)) return null;
+    return sub;
+  }
+
+  return null;
+}
+
 export default function App() {
+  const subdomainUser = getSubdomainUsername();
+
+  // If loaded from a user subdomain (e.g. allo.linkmakeup.com),
+  // render their public profile directly — no routing needed
+  if (subdomainUser) {
+    return <PublicProfile usernameOverride={subdomainUser} />;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
