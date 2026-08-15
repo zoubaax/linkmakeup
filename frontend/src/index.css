@@ -148,7 +148,6 @@ button, a, input, textarea {
   transition-timing-function: ease-out;
 }
 
-<<<<<<< Updated upstream
 /* Landing: Why section */
 .why-section {
   overflow: hidden;
@@ -225,7 +224,6 @@ button, a, input, textarea {
   animation-play-state: paused;
 }
 
-=======
 .image-cropper {
   --rc-border-color: rgb(52 211 153 / 0.95);
   --rc-focus-color: #10b981;
@@ -248,4 +246,3 @@ button, a, input, textarea {
 .image-cropper .ReactCrop__drag-handle:focus {
   background-color: var(--rc-focus-color);
 }
->>>>>>> Stashed changes
