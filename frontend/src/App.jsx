@@ -35,41 +35,39 @@ function getSubdomainUsername() {
 export default function App() {
   const subdomainUser = getSubdomainUsername();
 
-  // If loaded from a user subdomain (e.g. allo.linkmakeup.com),
-  // render their public profile directly — no routing needed
-  if (subdomainUser) {
-    return <PublicProfile usernameOverride={subdomainUser} />;
-  }
-
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<AuthPage initialMode="signin" />} />
-        <Route path="/signup" element={<AuthPage initialMode="signup" />} />
+      {subdomainUser ? (
+        <PublicProfile usernameOverride={subdomainUser} />
+      ) : (
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<AuthPage initialMode="signin" />} />
+          <Route path="/signup" element={<AuthPage initialMode="signup" />} />
 
-        <Route
-          path="/onboarding"
-          element={
-            <ProtectedRoute requiresNoProfile>
-              <OnboardingPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute requiresNoProfile>
+                <OnboardingPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute requiresProfile>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute requiresProfile>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/:username" element={<PublicProfile />} />
+          <Route path="/:username" element={<PublicProfile />} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      )}
     </BrowserRouter>
   );
 }
