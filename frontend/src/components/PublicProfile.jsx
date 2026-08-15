@@ -43,6 +43,42 @@ export default function PublicProfile({ usernameOverride } = {}) {
 
   const { profile, links } = data;
 
+  useEffect(() => {
+    if (!profile) return;
+    const title = profile.displayName ? `${profile.displayName} | LinkMakeup` : 'LinkMakeup';
+    document.title = title;
+
+    const metaTags = [
+      { property: 'og:title', content: profile.displayName || 'LinkMakeup' },
+      { property: 'og:description', content: profile.role || profile.bio || `Check out ${profile.displayName}'s profile on LinkMakeup.` },
+      { property: 'og:image', content: profile.avatarUrl || '' },
+      { property: 'og:url', content: window.location.href },
+      { name: 'twitter:title', content: profile.displayName || 'LinkMakeup' },
+      { name: 'twitter:description', content: profile.role || profile.bio || `Check out ${profile.displayName}'s profile on LinkMakeup.` },
+      { name: 'twitter:image', content: profile.avatarUrl || '' },
+      { name: 'twitter:card', content: 'summary' },
+    ];
+
+    const createdTags = [];
+    metaTags.forEach(({ property, name, content }) => {
+      if (!content) return;
+      const selector = property ? `meta[property="${property}"]` : `meta[name="${name}"]`;
+      let element = document.querySelector(selector);
+      if (!element) {
+        element = document.createElement('meta');
+        if (property) element.setAttribute('property', property);
+        if (name) element.setAttribute('name', name);
+        document.head.appendChild(element);
+        createdTags.push(element);
+      }
+      element.setAttribute('content', content);
+    });
+
+    return () => {
+      document.title = 'LinkMakeup';
+    };
+  }, [profile]);
+
   return (
     <ProfilePageView
       profile={profile}

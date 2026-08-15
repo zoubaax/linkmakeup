@@ -9,6 +9,7 @@ router.get('/profiles/check-availability', ProfileController.checkUsernameAvaila
 
 // GET /api/v1/profiles/:username (Public profile view)
 router.get('/profiles/:username', ProfileController.getPublicProfile);
+router.get('/profiles/:username/og', ProfileController.getPublicProfileOgHtml);
 
 // Protected routes
 router.post('/profiles', requireAuth, ProfileController.createProfile);

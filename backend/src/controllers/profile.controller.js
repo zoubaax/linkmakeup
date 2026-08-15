@@ -112,4 +112,47 @@ export class ProfileController {
       next(err);
     }
   }
+
+  static async getPublicProfileOgHtml(req, res, next) {
+    try {
+      const { username } = req.params;
+      const profileData = await ProfileService.getPublicProfileByUsername(username);
+
+      if (!profileData || !profileData.profile) {
+        return res.status(404).send('<!DOCTYPE html><html><head><title>Linktree Profile Not Found</title></head><body>Profile Not Found</body></html>');
+      }
+
+      const p = profileData.profile;
+      const title = `${p.displayName || username} | LinkMakeup`;
+      const description = p.role || p.bio || `Check out ${p.displayName || username}'s links on LinkMakeup.`;
+      const image = p.avatarUrl || 'https://linkmakeup.com/logo-d.png';
+
+      const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${title}</title>
+  <meta name="description" content="${description}">
+  <meta property="og:site_name" content="LinkMakeup">
+  <meta property="og:title" content="${p.displayName || username}">
+  <meta property="og:description" content="${description}">
+  <meta property="og:image" content="${image}">
+  <meta property="og:type" content="profile">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${p.displayName || username}">
+  <meta name="twitter:description" content="${description}">
+  <meta name="twitter:image" content="${image}">
+</head>
+<body>
+  <h1>${p.displayName || username}</h1>
+  <p>${description}</p>
+</body>
+</html>`;
+
+      res.setHeader('Content-Type', 'text/html');
+      return res.send(html);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
