@@ -1,10 +1,10 @@
-# LinkUp — Project Context
+# LinkMakeup — Project Context
 
 ## 1. Overview
 
-LinkUp is a platform for creating a personal public page where users can collect and share their important links in one place.
+LinkMakeup is a platform for creating a personal public page where users can collect and share their important links in one place.
 
-The long-term vision is to evolve LinkUp from a simple link aggregation tool into a personal digital identity platform that can eventually support:
+The long-term vision is to evolve LinkMakeup from a simple link aggregation tool into a personal digital identity platform that can eventually support:
 
 - Links
 - Social profiles
@@ -28,27 +28,27 @@ The project will be developed progressively, starting with a very small and focu
 A user should be able to:
 
 1. Sign in with Google.
-2. Create their LinkUp profile.
+2. Create their LinkMakeup profile.
 3. Choose a unique username.
 4. Get a public URL such as:
 
-   `https://username.linkup.ma`
+   `https://username.linkmakeup.com`
 
 5. Add, edit, delete, reorder, and enable/disable links.
-6. Share their LinkUp page with others.
+6. Share their LinkMakeup page with others.
 
 Example:
 
 ```text
 Google Login
      ↓
-Create LinkUp account
+Create LinkMakeup account
      ↓
 Choose username
      ↓
 mohammed
      ↓
-mohammed.linkup.ma
+mohammed.linkmakeup.com
      ↓
 Add links
      ↓
@@ -168,7 +168,7 @@ Authenticated session
 Main domain:
 
 ```text
-linkup.ma
+linkmakeup.com
 ```
 
 Cloudflare will manage:
@@ -182,19 +182,19 @@ Cloudflare will manage:
 Expected domains:
 
 ```text
-linkup.ma
-app.linkup.ma
-api.linkup.ma
-*.linkup.ma
+linkmakeup.com
+app.linkmakeup.com
+api.linkmakeup.com
+*.linkmakeup.com
 ```
 
 Example public profile:
 
 ```text
-mohammed.linkup.ma
+mohammed.linkmakeup.com
 ```
 
-The wildcard subdomain is an important part of the LinkUp architecture because every username can become a public profile.
+The wildcard subdomain is an important part of the LinkMakeup architecture because every username can become a public profile.
 
 ---
 
@@ -212,7 +212,7 @@ The wildcard subdomain is an important part of the LinkUp architecture because e
               ┌────────────┼────────────┐
               │            │            │
               ▼            ▼            ▼
-         linkup.ma    api.linkup.ma   *.linkup.ma
+       linkmakeup.com api.linkmakeup.com *.linkmakeup.com
               │            │            │
               ▼            ▼            ▼
            Vercel       Express       Vercel
@@ -301,7 +301,7 @@ Every user owns their own profile and links.
 Example:
 
 ```text
-mohammed.linkup.ma
+mohammed.linkmakeup.com
        │
        ▼
 Mohammed's Profile
@@ -314,7 +314,7 @@ Mohammed's Profile
 Another user:
 
 ```text
-ayoub.linkup.ma
+ayoub.linkmakeup.com
        │
        ▼
 Ayoub's Profile

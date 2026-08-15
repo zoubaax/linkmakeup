@@ -1,8 +1,8 @@
-# LinkUp — MVP Development Plan
+# LinkMakeup — MVP Development Plan
 
 ## MVP Goal
 
-Build the first usable version of LinkUp.
+Build the first usable version of LinkMakeup.
 
 A user must be able to:
 
@@ -17,7 +17,7 @@ Manage links
       ↓
 Publish profile
       ↓
-Share username.linkup.ma
+Share username.linkmakeup.com
 ```
 
 ---
@@ -345,7 +345,7 @@ Expected page:
 Support:
 
 ```text
-username.linkup.ma
+username.linkmakeup.com
 ```
 
 ### Cloudflare
@@ -362,7 +362,7 @@ username.linkup.ma
 The application must identify:
 
 ```text
-mohammed.linkup.ma
+mohammed.linkmakeup.com
 ```
 
 as:
@@ -557,7 +557,7 @@ These features will be evaluated after the MVP.
                ┌─────────────┼─────────────┐
                │             │             │
                ▼             ▼             ▼
-          linkup.ma    api.linkup.ma   *.linkup.ma
+        linkmakeup.com api.linkmakeup.com *.linkmakeup.com
                │             │             │
                ▼             ▼             ▼
              Vercel       Express       Vercel
