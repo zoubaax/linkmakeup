@@ -164,18 +164,18 @@ export default function AuthPage({ initialMode }) {
     <div className="min-h-screen bg-[var(--lm-app)] text-[var(--lm-fg)] font-sans flex transition-colors duration-300 selection:bg-emerald-600 selection:text-white">
       
       {/* ── Left: Product Showcase (desktop only) ── */}
-      <div className="w-[45%] shrink-0">
+      <div className="hidden lg:block w-[45%] shrink-0">
         <ShowcasePanel />
       </div>
 
       {/* ── Right: Auth Form ── */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen w-full">
 
         {/* Top bar */}
-        <header className="flex items-center justify-between px-6 sm:px-10 py-5 shrink-0">
+        <header className="flex items-center justify-between px-4 sm:px-10 py-4 sm:py-5 shrink-0">
           {/* Logo (mobile only — hidden on desktop since left panel has it) */}
           <Link to="/" className="lg:hidden">
-            <Logo className="h-9" />
+            <Logo className="h-8 sm:h-9" />
           </Link>
           <div className="hidden lg:block" />
 
@@ -208,8 +208,8 @@ export default function AuthPage({ initialMode }) {
         </header>
 
         {/* Auth form centered */}
-        <div className="flex-1 flex items-center justify-center px-6 sm:px-10 py-8">
-          <div className="w-full max-w-sm">
+        <div className="flex-1 flex items-center justify-center px-4 sm:px-10 py-6 sm:py-8">
+          <div className="w-full max-w-sm mx-auto">
 
             {/* Heading */}
             <div className="mb-8">
