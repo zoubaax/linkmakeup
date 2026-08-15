@@ -17,7 +17,7 @@ export class LinkService {
   }
 
   static async createLink(userId, linkData) {
-    const { title, url, icon, isActive = true } = linkData;
+    const { title, subtitle, url, icon, isActive = true } = linkData;
     
     try {
       // Calculate next position
@@ -29,6 +29,7 @@ export class LinkService {
         .values({
           userId,
           title,
+          subtitle: subtitle || null,
           url,
           icon: icon || null,
           position: nextPosition,

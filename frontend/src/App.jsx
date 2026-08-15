@@ -12,6 +12,8 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<AuthPage />} />
+        <Route path="/login" element={<AuthPage initialMode="signin" />} />
+        <Route path="/signup" element={<AuthPage initialMode="signup" />} />
         <Route path="/discussions" element={<DiscussionsPage />} />
         <Route
           path="/discussions/new"

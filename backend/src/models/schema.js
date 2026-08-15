@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, integer, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, boolean, integer, timestamp, jsonb } from 'drizzle-orm/pg-core';
 
 // 1. Users Entity
 export const users = pgTable('users', {
@@ -18,8 +18,18 @@ export const profiles = pgTable('profiles', {
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).unique().notNull(),
   username: varchar('username', { length: 50 }).unique().notNull(),
   displayName: varchar('display_name', { length: 100 }).notNull(),
+  role: varchar('role', { length: 150 }),
   bio: text('bio'),
   avatarUrl: text('avatar_url'),
+  statusBadge: varchar('status_badge', { length: 150 }),
+  showStatusBadge: boolean('show_status_badge').default(true).notNull(),
+  themeConfig: jsonb('theme_config').default({
+    preset: 'default',
+    backgroundColor: '#F7F3EE',
+    cardColor: '#FFFFFF',
+    accentColor: '#C4622A',
+    textColor: '#1C1814'
+  }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
@@ -29,6 +39,7 @@ export const links = pgTable('links', {
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   title: varchar('title', { length: 255 }).notNull(),
+  subtitle: varchar('subtitle', { length: 255 }),
   url: text('url').notNull(),
   icon: varchar('icon', { length: 100 }),
   position: integer('position').default(0).notNull(),

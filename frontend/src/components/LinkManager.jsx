@@ -11,9 +11,11 @@ export default function LinkManager({ links, onLinksUpdated }) {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [newTitle, setNewTitle] = useState('');
+  const [newSubtitle, setNewSubtitle] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [newIcon, setNewIcon] = useState('website');
   const [editTitle, setEditTitle] = useState('');
+  const [editSubtitle, setEditSubtitle] = useState('');
   const [editUrl, setEditUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -21,6 +23,7 @@ export default function LinkManager({ links, onLinksUpdated }) {
   const handleSelectPreset = (preset) => {
     setIsAdding(true);
     setNewTitle(preset.name);
+    setNewSubtitle('');
     setNewUrl(preset.baseUrl);
     setNewIcon(preset.id);
   };
@@ -31,10 +34,16 @@ export default function LinkManager({ links, onLinksUpdated }) {
     setLoading(true);
     setErrorMsg('');
     try {
-      const response = await ApiService.createLink({ title: newTitle.trim(), url: newUrl.trim(), icon: newIcon, isActive: true });
+      const response = await ApiService.createLink({
+        title: newTitle.trim(),
+        subtitle: newSubtitle.trim(),
+        url: newUrl.trim(),
+        icon: newIcon,
+        isActive: true,
+      });
       if (response.success && response.data) {
         onLinksUpdated([...links, response.data]);
-        setNewTitle(''); setNewUrl(''); setNewIcon('website'); setIsAdding(false);
+        setNewTitle(''); setNewSubtitle(''); setNewUrl(''); setNewIcon('website'); setIsAdding(false);
         toastSuccess('Link added');
       }
     } catch (err) {
@@ -52,13 +61,20 @@ export default function LinkManager({ links, onLinksUpdated }) {
     try { await ApiService.updateLink(link.id, { isActive: updated }); } catch (err) { console.error(err); }
   };
 
-  const startEdit = (link) => { setEditingId(link.id); setEditTitle(link.title); setEditUrl(link.url); };
+  const startEdit = (link) => {
+    setEditingId(link.id);
+    setEditTitle(link.title);
+    setEditSubtitle(link.subtitle || '');
+    setEditUrl(link.url);
+  };
 
   const handleSaveEdit = async (id) => {
     if (!editTitle.trim() || !editUrl.trim()) return;
-    onLinksUpdated(links.map((l) => l.id === id ? { ...l, title: editTitle.trim(), url: editUrl.trim() } : l));
+    onLinksUpdated(links.map((l) => l.id === id ? { ...l, title: editTitle.trim(), subtitle: editSubtitle.trim(), url: editUrl.trim() } : l));
     setEditingId(null);
-    try { await ApiService.updateLink(id, { title: editTitle.trim(), url: editUrl.trim() }); } catch (err) { console.error(err); }
+    try {
+      await ApiService.updateLink(id, { title: editTitle.trim(), subtitle: editSubtitle.trim(), url: editUrl.trim() });
+    } catch (err) { console.error(err); }
   };
 
   const handleDelete = async (id) => {
@@ -134,8 +150,9 @@ export default function LinkManager({ links, onLinksUpdated }) {
             <span className="text-accent">{getPlatformIcon(newIcon, 'w-4 h-4')}</span>
             <span className="font-bold text-sm text-fg">New Link</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input type="text" placeholder="Title" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required className={inputClass} />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input type="text" placeholder="Title (e.g. Portfolio)" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required className={inputClass} />
+            <input type="text" placeholder="Subtitle (e.g. View my work)" value={newSubtitle} onChange={(e) => setNewSubtitle(e.target.value)} className={inputClass} />
             <input type="url" placeholder="URL" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} required className={inputClass} />
           </div>
           <button type="submit" disabled={loading} className="self-start px-5 py-2 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-sm transition-colors">
@@ -173,8 +190,11 @@ export default function LinkManager({ links, onLinksUpdated }) {
 
               {editingId === link.id ? (
                 <div className="flex-1 flex flex-col gap-2">
-                  <input type="text" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className={`${inputClass} py-1.5`} />
-                  <input type="url" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} className={`${inputClass} py-1.5`} />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <input type="text" placeholder="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className={`${inputClass} py-1.5`} />
+                    <input type="text" placeholder="Subtitle" value={editSubtitle} onChange={(e) => setEditSubtitle(e.target.value)} className={`${inputClass} py-1.5`} />
+                  </div>
+                  <input type="url" placeholder="URL" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} className={`${inputClass} py-1.5`} />
                   <div className="flex gap-2">
                     <button type="button" onClick={() => handleSaveEdit(link.id)} className="px-3 py-1 bg-primary text-primary-fg rounded-lg text-xs font-bold">Save</button>
                     <button type="button" onClick={() => setEditingId(null)} className="px-3 py-1 bg-surface-muted text-fg-muted rounded-lg text-xs font-semibold">Cancel</button>
@@ -183,7 +203,10 @@ export default function LinkManager({ links, onLinksUpdated }) {
               ) : (
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm text-fg truncate">{link.title}</p>
-                  <a href={link.url} target="_blank" rel="noreferrer" className="text-xs text-fg-subtle hover:text-accent truncate block transition-colors">{link.url}</a>
+                  {link.subtitle && (
+                    <p className="text-xs text-fg-muted font-medium truncate">{link.subtitle}</p>
+                  )}
+                  <a href={link.url} target="_blank" rel="noreferrer" className="text-[11px] text-fg-subtle hover:text-accent truncate block transition-colors">{link.url}</a>
                 </div>
               )}
 

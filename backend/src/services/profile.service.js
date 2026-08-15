@@ -73,15 +73,19 @@ export class ProfileService {
   }
 
   static async updateProfile(userId, updateData) {
-    const { displayName, bio, avatarUrl } = updateData;
+    const { displayName, role, bio, avatarUrl, statusBadge, showStatusBadge, themeConfig } = updateData;
 
     try {
       const [updated] = await db
         .update(profiles)
         .set({
           ...(displayName && { displayName }),
+          ...(role !== undefined && { role }),
           ...(bio !== undefined && { bio }),
           ...(avatarUrl && { avatarUrl }),
+          ...(statusBadge !== undefined && { statusBadge }),
+          ...(showStatusBadge !== undefined && { showStatusBadge }),
+          ...(themeConfig && { themeConfig }),
           updatedAt: new Date(),
         })
         .where(eq(profiles.userId, userId))
@@ -121,12 +125,17 @@ export class ProfileService {
         profile: {
           username: userProfile.username,
           displayName: userProfile.displayName,
+          role: userProfile.role,
           bio: userProfile.bio,
           avatarUrl: userProfile.avatarUrl,
+          statusBadge: userProfile.statusBadge,
+          showStatusBadge: userProfile.showStatusBadge !== false,
+          themeConfig: userProfile.themeConfig || null,
         },
         links: activeLinks.map((link) => ({
           id: link.id,
           title: link.title,
+          subtitle: link.subtitle,
           url: link.url,
           icon: link.icon,
           position: link.position,

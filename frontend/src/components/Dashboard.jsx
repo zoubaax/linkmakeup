@@ -7,6 +7,7 @@ import AppLayout from './layout/AppLayout';
 import PageHeader from './ui/PageHeader';
 import { SkeletonCard } from './ui/Skeleton';
 import ProfileEditor from './ProfileEditor';
+import ThemeCustomizer from './ThemeCustomizer';
 import LinkManager from './LinkManager';
 import LiveMobilePreview from './LiveMobilePreview';
 
@@ -83,6 +84,7 @@ export default function Dashboard() {
             ) : (
               <>
                 <ProfileEditor profile={profile} onProfileUpdated={(updated) => setProfile({ ...profile, ...updated })} />
+                <ThemeCustomizer profile={profile} onThemeUpdated={(updatedTheme) => setProfile({ ...profile, themeConfig: updatedTheme })} />
                 <LinkManager links={links} onLinksUpdated={(updated) => setLinks(updated)} />
               </>
             )}

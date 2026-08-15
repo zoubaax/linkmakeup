@@ -9,6 +9,18 @@ export const PLATFORM_PRESETS = [
   { id: 'website', name: 'Website', baseUrl: 'https://', color: 'from-violet-600 to-fuchsia-600' },
 ];
 
+export function getPlatformContainerStyle(iconName) {
+  const name = (iconName || '').toLowerCase();
+  if (name.includes('linkedin')) return 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400';
+  if (name.includes('github')) return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200';
+  if (name.includes('instagram')) return 'bg-pink-50 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400';
+  if (name.includes('youtube')) return 'bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400';
+  if (name.includes('whatsapp')) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
+  if (name.includes('twitter') || name.includes('x')) return 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100';
+  if (name.includes('tiktok')) return 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400';
+  return 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400';
+}
+
 export function getPlatformIcon(iconName, className = "w-4 h-4") {
   const name = (iconName || '').toLowerCase();
 

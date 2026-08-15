@@ -1,21 +1,27 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ApiService from '../services/api';
 import { env } from '../config/env';
-import AppLayout from './layout/AppLayout';
 import {
   clearReturnTo,
   resolvePostLoginPath,
   saveReturnTo,
 } from '../utils/authRedirect';
 
-export default function AuthPage() {
+export default function AuthPage({ initialMode }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const { user, profile, loading, setUser, setProfile } = useAuth();
 
-  const [mode, setMode] = useState('signin');
+  const defaultMode = initialMode || (location.pathname === '/signup' ? 'signup' : 'signin');
+  const [mode, setMode] = useState(defaultMode);
+
+  useEffect(() => {
+    if (location.pathname === '/signup') setMode('signup');
+    else if (location.pathname === '/login') setMode('signin');
+  }, [location.pathname]);
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -85,21 +91,46 @@ export default function AuthPage() {
     'w-full px-3.5 py-2.5 bg-surface-alt border border-border rounded-xl text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-subtle transition-colors';
 
   return (
-    <AppLayout>
-      <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-        <div className="inline-block mb-8 px-4 py-1.5 rounded-full bg-surface border border-border text-fg-muted text-xs font-medium">
+    <div className="min-h-screen bg-app text-fg font-sans flex flex-col">
+      {/* Top Navbar */}
+      <header className="px-6 py-4 flex items-center justify-between border-b border-border bg-surface/80 backdrop-blur-md sticky top-0 z-30">
+        <span className="font-bold text-xl tracking-tight text-fg">
+          Link<span className="text-accent">Makeup</span>
+        </span>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => { setMode('signin'); setErrorMsg(''); navigate('/login'); }}
+            className={`text-sm font-medium transition-colors ${mode === 'signin' ? 'text-accent font-semibold' : 'text-fg-muted hover:text-fg'}`}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMode('signup'); setErrorMsg(''); navigate('/signup'); }}
+            className="px-4 py-2 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Get Started
+          </button>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <main className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center max-w-4xl mx-auto w-full">
+        <div className="inline-block mb-8 px-4 py-1.5 rounded-full bg-surface border border-border text-fg-muted text-xs font-medium shadow-xs">
           Your custom subdomain:{' '}
           <span className="text-accent font-semibold">username.{env.appDomain}</span>
         </div>
 
         <h1
-          className="font-bold text-fg leading-tight mb-6"
-          style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', maxWidth: '640px' }}
+          className="font-bold text-fg leading-tight mb-6 tracking-tight"
+          style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', maxWidth: '720px' }}
         >
           The link page that works <span className="text-accent">with you</span>
         </h1>
 
-        <p className="text-fg-muted text-base leading-relaxed mb-10 max-w-md">
+        <p className="text-fg-muted text-base sm:text-lg leading-relaxed mb-10 max-w-md">
           Build your personalized link page, claim your custom subdomain, and manage everything from one dashboard.
         </p>
 
@@ -113,7 +144,7 @@ export default function AuthPage() {
           type="button"
           onClick={handleGoogleAuth}
           disabled={googleLoading}
-          className="flex items-center gap-3 bg-inverted text-inverted-fg font-semibold text-base px-8 py-3.5 rounded-xl hover:opacity-90 transition-opacity shadow-lg mb-4 min-w-56 justify-center disabled:opacity-60"
+          className="flex items-center gap-3 bg-inverted text-inverted-fg font-semibold text-base px-8 py-3.5 rounded-xl hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg mb-4 min-w-64 justify-center disabled:opacity-60"
         >
           {googleLoading ? (
             <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
@@ -143,7 +174,11 @@ export default function AuthPage() {
               <button
                 key={m}
                 type="button"
-                onClick={() => { setMode(m); setErrorMsg(''); }}
+                onClick={() => {
+                  setMode(m);
+                  setErrorMsg('');
+                  navigate(m === 'signup' ? '/signup' : '/login');
+                }}
                 className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
                   mode === m ? 'bg-nav-active text-fg shadow-sm' : 'text-fg-subtle hover:text-fg-muted'
                 }`}
@@ -177,7 +212,7 @@ export default function AuthPage() {
             </button>
           </form>
         </div>
-      </div>
-    </AppLayout>
+      </main>
+    </div>
   );
 }

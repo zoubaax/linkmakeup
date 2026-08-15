@@ -45,7 +45,7 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse }) {
   const handleSignOut = async () => {
     onNavigate?.();
     await logout();
-    navigate('/', { replace: true });
+    window.location.href = '/';
   };
 
   const handleSignIn = () => {

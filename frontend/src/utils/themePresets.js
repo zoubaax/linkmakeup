@@ -1,0 +1,58 @@
+export const THEME_PRESETS = [
+  {
+    id: 'default',
+    name: 'Warm Terracotta',
+    badge: '🌾 Default',
+    backgroundColor: '#F7F3EE',
+    cardColor: '#FFFFFF',
+    accentColor: '#C4622A',
+    textColor: '#1C1814',
+  },
+  {
+    id: 'rose',
+    name: 'Rose Blush',
+    badge: '🌸 Blush',
+    backgroundColor: '#FFF5F7',
+    cardColor: '#FFFFFF',
+    accentColor: '#D53F8C',
+    textColor: '#2D3748',
+  },
+  {
+    id: 'noir',
+    name: 'Noir Glam',
+    badge: '🖤 Dark Glam',
+    backgroundColor: '#18181B',
+    cardColor: '#27272A',
+    accentColor: '#F59E0B',
+    textColor: '#FAFAFA',
+  },
+  {
+    id: 'sage',
+    name: 'Natural Glow',
+    badge: '🌿 Natural',
+    backgroundColor: '#F4F7F4',
+    cardColor: '#FFFFFF',
+    accentColor: '#2F855A',
+    textColor: '#1A202C',
+  },
+  {
+    id: 'zoubaa',
+    name: 'Zoubaa Clean',
+    badge: '💎 Cool Blue',
+    backgroundColor: '#EEF2FF',
+    cardColor: '#FFFFFF',
+    accentColor: '#4F46E5',
+    textColor: '#0F172A',
+  },
+  {
+    id: 'sunset',
+    name: 'Sunset Velvet',
+    badge: '🌅 Sunset',
+    backgroundColor: '#FAF5FF',
+    cardColor: '#FFFFFF',
+    accentColor: '#805AD5',
+    textColor: '#2D3748',
+  },
+];
+
+export const DEFAULT_THEME = THEME_PRESETS[0];

@@ -3,18 +3,30 @@ import ApiService from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import { compressImageFile, validateImageFile } from '../utils/imageUpload';
 
+import { StatusPill } from './StatusPill';
+
 const inputClass =
   'w-full px-3.5 py-2.5 bg-surface-alt border border-border rounded-xl text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-subtle transition-colors';
 
 export default function ProfileEditor({ profile, onProfileUpdated }) {
   const { success: toastSuccess, error: toastError } = useToast();
   const [displayName, setDisplayName] = useState(profile?.displayName || '');
+  const [role, setRole] = useState(profile?.role || '');
+  const [statusBadge, setStatusBadge] = useState(profile?.statusBadge || 'Available for opportunities');
+  const [showStatusBadge, setShowStatusBadge] = useState(profile?.showStatusBadge !== false);
   const [bio, setBio] = useState(profile?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl || '');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef(null);
+
+  const STATUS_PRESETS = [
+    'Available for opportunities',
+    'Open for beauty collabs',
+    'Available for freelance & work',
+    'Accepting new clients',
+  ];
 
   const processFile = async (file) => {
     const validationError = validateImageFile(file);
@@ -48,12 +60,23 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
     try {
       const response = await ApiService.updateProfile({
         displayName: displayName.trim(),
+        role: role.trim(),
+        statusBadge: statusBadge.trim(),
+        showStatusBadge,
         bio: bio.trim(),
         avatarUrl: avatarUrl.trim(),
       });
       if (response.success) {
         toastSuccess('Profile saved');
-        onProfileUpdated?.({ ...profile, displayName: displayName.trim(), bio: bio.trim(), avatarUrl: avatarUrl.trim() });
+        onProfileUpdated?.({
+          ...profile,
+          displayName: displayName.trim(),
+          role: role.trim(),
+          statusBadge: statusBadge.trim(),
+          showStatusBadge,
+          bio: bio.trim(),
+          avatarUrl: avatarUrl.trim(),
+        });
       }
     } catch (err) {
       const msg = err.message || 'Failed to update profile.';
@@ -114,9 +137,78 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-fg-muted uppercase tracking-wider mb-1.5">Display Name</label>
-          <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required className={inputClass} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-fg-muted uppercase tracking-wider mb-1.5">Display Name</label>
+            <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} required className={inputClass} placeholder="Mohammed Zoubaa" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-fg-muted uppercase tracking-wider mb-1.5">Role / Job Title</label>
+            <input type="text" value={role} onChange={(e) => setRole(e.target.value)} className={inputClass} placeholder="Full-Stack Developer & Software Engineer" />
+          </div>
+        </div>
+
+        {/* Status Badge Control */}
+        <div className="p-4 rounded-xl bg-surface-alt border border-border flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-xs font-bold text-fg uppercase tracking-wider block">Status Pill Badge</span>
+              <span className="text-[11px] text-fg-subtle">Show or hide an active status badge under your profile header</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowStatusBadge(!showStatusBadge)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                showStatusBadge ? 'bg-primary' : 'bg-surface-muted'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                  showStatusBadge ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          {showStatusBadge && (
+            <div className="pt-2 flex flex-col gap-3 border-t border-border/60">
+              <div>
+                <span className="text-xs font-semibold text-fg-muted block mb-1.5">Quick Status Presets</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {STATUS_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setStatusBadge(preset)}
+                      className={`p-1 rounded-xl transition-all ${
+                        statusBadge.replace(/^[🟢💄💼🌟✨⚡️\s]+/, '').trim() === preset
+                          ? 'ring-2 ring-accent/40 scale-[1.02]'
+                          : 'opacity-80 hover:opacity-100'
+                      }`}
+                    >
+                      <StatusPill statusBadge={preset} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-semibold text-fg-muted">Custom Status Text</span>
+                  <span className="text-xs text-fg-subtle flex items-center gap-1">
+                    Preview: <StatusPill statusBadge={statusBadge} />
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={statusBadge}
+                  onChange={(e) => setStatusBadge(e.target.value)}
+                  placeholder="Available for opportunities..."
+                  className={inputClass}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div>
