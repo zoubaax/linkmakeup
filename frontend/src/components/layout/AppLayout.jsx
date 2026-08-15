@@ -7,14 +7,12 @@ import { useCommandPaletteShortcut } from '../../hooks/useKeyboardShortcut';
 
 const PAGE_TITLES = {
   '/': 'Sign In',
-  '/discussions': 'Discussions',
   '/dashboard': 'Dashboard',
   '/onboarding': 'Setup',
 };
 
 function getPageTitle(pathname) {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
-  if (pathname.startsWith('/discussions/')) return 'Discussions';
   if (pathname !== '/' && !pathname.includes('/')) return 'Profile';
   return 'LinkMakeup';
 }

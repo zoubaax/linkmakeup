@@ -74,9 +74,24 @@ export default function AuthPage({ initialMode }) {
         ? await ApiService.signupWithEmail({ email, password, name })
         : await ApiService.loginWithEmail({ email, password });
       if (response.success && response.data) {
-        setUser(response.data.user);
-        setProfile(response.data.profile || null);
-        const destination = resolvePostLoginPath(returnTo, Boolean(response.data.profile));
+        const userObj = response.data.user;
+        let profileObj = response.data.profile || null;
+
+        // If profile wasn't attached, fetch /auth/me to get user profile
+        if (!profileObj && mode === 'signin') {
+          try {
+            const meRes = await ApiService.getCurrentUser();
+            if (meRes?.data?.profile) profileObj = meRes.data.profile;
+          } catch {
+            // fallback
+          }
+        }
+
+        setUser(userObj);
+        setProfile(profileObj);
+
+        const hasProfile = Boolean(profileObj);
+        const destination = resolvePostLoginPath(returnTo, hasProfile);
         clearReturnTo();
         navigate(destination, { replace: true });
       }

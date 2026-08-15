@@ -22,10 +22,9 @@ export default function CommandPalette({ open, onClose }) {
 
   const commands = useMemo(() => {
     const items = [
-      { id: 'discussions', label: 'Go to Discussions', hint: 'Community threads', action: () => navigate('/discussions') },
       user
         ? { id: 'dashboard', label: 'Go to Dashboard', hint: 'Manage your page', action: () => navigate('/dashboard') }
-        : { id: 'signin', label: 'Sign In', hint: 'Access your account', action: () => navigate('/') },
+        : { id: 'signin', label: 'Sign In', hint: 'Access your account', action: () => navigate('/login') },
       { id: 'theme', label: 'Toggle theme', hint: 'Light / dark mode', action: toggleTheme },
     ];
     if (!query.trim()) return items;
