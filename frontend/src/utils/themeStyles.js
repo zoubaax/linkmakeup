@@ -1,36 +1,11 @@
 import { isColorDark } from './themePresets';
 
 export const LAYOUT_STYLES = [
-  {
-    id: 'classic',
-    name: 'Classic',
-    description: 'Soft cards, balanced hierarchy',
-    tagline: 'Timeless link-in-bio',
-  },
-  {
-    id: 'minimal',
-    name: 'Minimalist',
-    description: 'Typography-led, open space',
-    tagline: 'Less chrome, more focus',
-  },
-  {
-    id: 'glass',
-    name: 'Glass',
-    description: 'Frosted layers over color',
-    tagline: 'Translucent & modern',
-  },
-  {
-    id: 'maximal',
-    name: 'Maximalist',
-    description: 'Bold frames, rich detail',
-    tagline: 'Expressive & loud',
-  },
-  {
-    id: 'neo',
-    name: 'Neo-Brutalist',
-    description: 'Hard edges, offset blocks',
-    tagline: 'Raw & graphic',
-  },
+  { id: 'classic',  name: 'Classic',       description: 'Soft cards, balanced hierarchy',   tagline: 'Timeless link-in-bio' },
+  { id: 'minimal',  name: 'Minimalist',    description: 'Typography-led, open space',        tagline: 'Less chrome, more focus' },
+  { id: 'glass',    name: 'Glass',         description: 'Frosted layers over color',          tagline: 'Translucent & modern' },
+  { id: 'maximal',  name: 'Maximalist',    description: 'Bold frames, rich detail',           tagline: 'Expressive & loud' },
+  { id: 'neo',      name: 'Neo-Brutalist', description: 'Hard edges, offset blocks',          tagline: 'Raw & graphic' },
 ];
 
 export function resolveLayoutStyle(layoutStyle) {
@@ -55,90 +30,109 @@ export function getThemeVisuals(theme, { compact = false } = {}) {
   const base = {
     layoutStyle,
     isDark,
-    page: {
-      style: { backgroundColor: theme.backgroundColor, color: text },
-      className: 'transition-colors duration-300',
-    },
-    text: { style: { color: text } },
-    accent: { style: { color: accent } },
+    page:     { style: { backgroundColor: theme.backgroundColor, color: text }, className: 'transition-colors duration-300' },
+    text:     { style: { color: text } },
+    accent:   { style: { color: accent } },
     accentBg: { style: { backgroundColor: accent } },
   };
 
+  /* ─────────────────────────────────────────
+     MINIMAL
+  ───────────────────────────────────────── */
   if (layoutStyle === 'minimal') {
     return {
       ...base,
       page: {
         style: base.page.style,
-        className: `${base.page.className} ${compact ? 'px-3 py-4' : 'px-4 py-12'}`,
+        className: `${base.page.className} ${compact ? 'px-3 py-4' : 'px-5 py-14'}`,
       },
-      shell: { className: compact ? 'gap-4' : 'gap-6' },
+      shell:      { className: compact ? 'gap-4' : 'gap-7' },
       hero: {
         className: 'w-full flex flex-col items-center text-center bg-transparent border-0 shadow-none pb-2',
         style: {},
       },
-      avatarWrap: { className: compact ? 'relative w-16 h-16 mb-2.5 p-0.5 rounded-full border border-slate-200/80 dark:border-white/10 shadow-2xs bg-white/80 dark:bg-zinc-800/80' : 'relative w-22 h-22 mb-3.5 p-1 rounded-full border border-slate-200/80 dark:border-white/10 shadow-xs bg-white/80 dark:bg-zinc-800/80' },
+      avatarWrap: {
+        className: compact
+          ? 'relative w-[62px] h-[62px] mb-2 overflow-hidden'
+          : 'relative w-[96px] h-[96px] mb-4 overflow-hidden',
+      },
       avatarRing: { className: 'hidden' },
-      avatar: { className: 'relative w-full h-full rounded-full object-cover shadow-2xs' },
-      name: { className: `${compact ? 'text-sm' : 'text-2xl'} font-bold tracking-tight text-slate-900 dark:text-white` },
-      role: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-medium mt-1 text-slate-500 dark:text-slate-400` },
-      bio: { className: `${compact ? 'text-[10px] mt-1' : 'text-sm mt-1.5'} leading-relaxed text-slate-600 dark:text-slate-300 max-w-xs font-normal` },
-      domainPill: {
-        className: 'hidden',
+      avatar: {
+        className: 'relative w-full h-full object-cover z-10',
         style: {},
       },
-      linksWrap: { className: `w-full flex flex-col ${compact ? 'gap-2' : 'gap-3'}` },
+      name: { className: `${compact ? 'text-sm' : 'text-[1.75rem]'} font-extrabold tracking-tight leading-tight` },
+      role: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-medium mt-1` },
+      bio:  { className: `${compact ? 'text-[10px] mt-1' : 'text-sm mt-2'} leading-relaxed max-w-xs opacity-75` },
+      domainPill: { className: 'hidden', style: {} },
+      linksWrap:  { className: `w-full flex flex-col ${compact ? 'gap-2' : 'gap-3'}` },
       link: {
-        className: `group flex items-center justify-between ${compact ? 'px-3 py-2.5 rounded-xl' : 'px-4 py-3.5 rounded-2xl'} border border-slate-200/70 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-900/90 shadow-2xs hover:border-slate-300 dark:hover:border-zinc-700 hover:shadow-xs transition-all duration-200`,
+        className: `group flex items-center ${compact ? 'px-3 py-2.5 rounded-full' : 'px-5 py-4 rounded-full'} border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md`,
+        style: {
+          backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)',
+          borderColor:      isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.09)',
+        },
+      },
+      linkIcon:     { className: `${compact ? 'w-7 h-7 rounded-xl' : 'w-9 h-9 rounded-2xl'} flex items-center justify-center shrink-0` },
+      linkTitle:    { className: `${compact ? 'text-[11px]' : 'text-sm'} font-bold` },
+      linkSubtitle: { className: `${compact ? 'text-[9px]' : 'text-xs'} opacity-55 mt-0.5` },
+      linkArrow: {
+        className: `${compact ? 'w-5 h-5' : 'w-7 h-7'} rounded-full flex items-center justify-center shrink-0 opacity-50`,
         style: {},
       },
-      linkIcon: { className: `${compact ? 'w-8 h-8 rounded-xl' : 'w-10 h-10 rounded-xl'} flex items-center justify-center shrink-0` },
-      linkTitle: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-bold text-slate-800 dark:text-slate-100` },
-      linkSubtitle: { className: `${compact ? 'text-[9px]' : 'text-xs'} text-slate-500 dark:text-slate-400 font-normal mt-0.5` },
-      linkArrow: { className: `${compact ? 'w-5 h-5' : 'w-7 h-7'} rounded-full bg-slate-100/80 dark:bg-zinc-800 text-slate-400 dark:text-slate-500 flex items-center justify-center group-hover:bg-slate-200/80 dark:group-hover:bg-zinc-700 transition-colors shrink-0` },
       showGlassOrbs: false,
+      heroDecor: false,
     };
   }
 
+  /* ─────────────────────────────────────────
+     GLASS
+  ───────────────────────────────────────── */
   if (layoutStyle === 'glass') {
-    const cardBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.42)';
-    const cardBorder = isDark ? 'rgba(255,255,255,0.16)' : 'rgba(255,255,255,0.65)';
+    const cardBg     = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.5)';
+    const cardBorder = isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.75)';
     return {
       ...base,
       page: {
         style: {
           ...base.page.style,
-          backgroundImage: `radial-gradient(circle at 15% 10%, ${hexToRgba(accent, 0.28)} 0%, transparent 42%), radial-gradient(circle at 85% 85%, ${hexToRgba(accent, 0.18)} 0%, transparent 38%)`,
+          backgroundImage: [
+            `radial-gradient(ellipse at 20% 0%,   ${hexToRgba(accent, 0.3)} 0%, transparent 50%)`,
+            `radial-gradient(ellipse at 80% 100%, ${hexToRgba(accent, 0.2)} 0%, transparent 45%)`,
+            `radial-gradient(ellipse at 50% 50%,  ${hexToRgba(accent, 0.08)} 0%, transparent 65%)`,
+          ].join(', '),
         },
-        className: `${base.page.className} relative overflow-hidden ${compact ? 'px-3 py-4' : 'px-4 py-12'}`,
+        className: `${base.page.className} relative overflow-hidden ${compact ? 'px-3 py-4' : 'px-5 py-14'}`,
       },
-      shell: { className: compact ? 'gap-3 relative z-10' : 'gap-4 relative z-10' },
+      shell:      { className: compact ? 'gap-3 relative z-10' : 'gap-5 relative z-10' },
       hero: {
-        className: `w-full ${compact ? 'rounded-2xl p-3' : 'rounded-3xl p-6'} border flex flex-col items-center text-center backdrop-blur-xl`,
-        style: { backgroundColor: cardBg, borderColor: cardBorder, boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.35)' : '0 8px 32px rgba(0,0,0,0.08)' },
+        className: `w-full ${compact ? 'rounded-2xl p-3' : 'rounded-3xl p-7'} border flex flex-col items-center text-center backdrop-blur-2xl`,
+        style: { backgroundColor: cardBg, borderColor: cardBorder, boxShadow: isDark ? '0 12px 40px rgba(0,0,0,0.45)' : '0 12px 40px rgba(0,0,0,0.06)' },
       },
-      avatarWrap: { className: compact ? 'relative w-14 h-14 mb-2' : 'relative w-24 h-24 mb-3' },
+      avatarWrap: { className: compact ? 'relative w-[60px] h-[60px] mb-2 overflow-hidden' : 'relative w-[100px] h-[100px] mb-4 overflow-hidden' },
       avatarRing: { className: 'absolute -inset-1 rounded-full opacity-30 blur-sm', style: { backgroundColor: accent } },
-      avatar: { className: 'relative w-full h-full rounded-full object-cover border-2 border-white/50 shadow-lg' },
-      name: { className: `${compact ? 'text-sm' : 'text-2xl'} font-bold tracking-tight` },
-      role: { className: `${compact ? 'text-[10px]' : 'text-sm'} font-semibold mt-0.5 opacity-85` },
-      bio: { className: `${compact ? 'text-[9px] mt-1' : 'text-sm mt-1.5'} leading-relaxed opacity-70 max-w-xs` },
-      domainPill: {
-        className: `mt-3 inline-block px-3 py-1 rounded-full border font-mono font-semibold ${compact ? 'text-[8px]' : 'text-xs'} backdrop-blur-md`,
-        style: { backgroundColor: hexToRgba(accent, 0.12), borderColor: hexToRgba(accent, 0.25), color: accent },
-      },
+      avatar: { className: 'relative w-full h-full object-cover z-10', style: { boxShadow: `0 0 0 2px ${hexToRgba(accent, 0.4)}` } },
+      name:     { className: `${compact ? 'text-sm' : 'text-[1.75rem]'} font-bold tracking-tight` },
+      role:     { className: `${compact ? 'text-[10px]' : 'text-sm'} font-semibold mt-1 opacity-80` },
+      bio:      { className: `${compact ? 'text-[9px] mt-1' : 'text-sm mt-2'} leading-relaxed opacity-65 max-w-xs` },
+      domainPill: { className: 'hidden', style: {} },
       linksWrap: { className: `w-full flex flex-col ${compact ? 'gap-2' : 'gap-3'}` },
       link: {
-        className: `group flex items-center justify-between ${compact ? 'px-3 py-2.5 rounded-xl' : 'px-4 py-3.5 rounded-2xl'} border backdrop-blur-xl hover:-translate-y-0.5 transition-all`,
+        className: `group flex items-center ${compact ? 'px-3 py-2.5 rounded-2xl' : 'px-4 py-4 rounded-2xl'} border backdrop-blur-2xl hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200`,
         style: { backgroundColor: cardBg, borderColor: cardBorder },
       },
-      linkIcon: { className: `${compact ? 'w-8 h-8 rounded-xl' : 'w-10 h-10 rounded-xl'} flex items-center justify-center shrink-0`, style: { backgroundColor: hexToRgba(accent, 0.15) } },
-      linkTitle: { className: `${compact ? 'text-[10px]' : 'text-sm'} font-bold` },
-      linkSubtitle: { className: `${compact ? 'text-[8px]' : 'text-xs'} opacity-60 mt-0.5` },
-      linkArrow: { className: `${compact ? 'w-5 h-5' : 'w-7 h-7'} rounded-full flex items-center justify-center`, style: { backgroundColor: hexToRgba(accent, 0.12), color: accent } },
+      linkIcon:     { className: `${compact ? 'w-8 h-8 rounded-xl' : 'w-10 h-10 rounded-xl'} flex items-center justify-center shrink-0`, style: { backgroundColor: hexToRgba(accent, 0.18) } },
+      linkTitle:    { className: `${compact ? 'text-[10px]' : 'text-sm'} font-bold` },
+      linkSubtitle: { className: `${compact ? 'text-[8px]' : 'text-xs'} opacity-55 mt-0.5` },
+      linkArrow:    { className: `${compact ? 'w-5 h-5' : 'w-7 h-7'} rounded-full flex items-center justify-center shrink-0`, style: { backgroundColor: hexToRgba(accent, 0.14), color: accent } },
       showGlassOrbs: true,
+      heroDecor: false,
     };
   }
 
+  /* ─────────────────────────────────────────
+     MAXIMAL
+  ───────────────────────────────────────── */
   if (layoutStyle === 'maximal') {
     return {
       ...base,
@@ -146,35 +140,44 @@ export function getThemeVisuals(theme, { compact = false } = {}) {
         style: base.page.style,
         className: `${base.page.className} ${compact ? 'px-2.5 py-4' : 'px-4 py-10'}`,
       },
-      shell: { className: compact ? 'gap-3' : 'gap-5' },
+      shell:     { className: compact ? 'gap-3' : 'gap-4' },
       hero: {
-        className: `w-full ${compact ? 'rounded-2xl p-3' : 'rounded-[2rem] p-7'} border-[3px] flex flex-col items-center text-center shadow-2xl relative overflow-hidden`,
-        style: { backgroundColor: theme.cardColor, borderColor: accent, boxShadow: `0 20px 50px ${hexToRgba(accent, 0.25)}` },
+        className: `w-full ${compact ? 'rounded-2xl p-3' : 'rounded-[2rem] p-7'} border-[3px] flex flex-col items-center text-center relative overflow-hidden`,
+        style: {
+          backgroundColor: theme.cardColor,
+          borderColor: accent,
+          boxShadow: `0 20px 60px ${hexToRgba(accent, 0.3)}, inset 0 0 80px ${hexToRgba(accent, 0.04)}`,
+          backgroundImage: `radial-gradient(ellipse at 50% 0%, ${hexToRgba(accent, 0.1)} 0%, transparent 60%)`,
+        },
       },
       heroDecor: true,
-      avatarWrap: { className: compact ? 'relative w-16 h-16 mb-2' : 'relative w-28 h-28 mb-4' },
+      avatarWrap: { className: compact ? 'relative w-[66px] h-[66px] mb-3 overflow-hidden' : 'relative w-[110px] h-[110px] mb-4 overflow-hidden' },
       avatarRing: { className: 'absolute -inset-2 rounded-full border-[3px] opacity-60', style: { borderColor: accent } },
-      avatar: { className: 'relative w-full h-full rounded-full object-cover border-[3px] border-white shadow-xl' },
-      name: { className: `${compact ? 'text-base' : 'text-3xl'} font-black tracking-tight uppercase` },
-      role: { className: `${compact ? 'text-[10px]' : 'text-base'} font-bold mt-1 opacity-90` },
-      bio: { className: `${compact ? 'text-[9px] mt-1.5' : 'text-sm mt-2'} leading-relaxed font-medium opacity-75 max-w-xs` },
-      domainPill: {
-        className: `mt-3 inline-block px-4 py-1.5 rounded-full border-2 font-mono font-black uppercase tracking-widest ${compact ? 'text-[7px]' : 'text-[10px]'}`,
-        style: { backgroundColor: hexToRgba(accent, 0.12), borderColor: accent, color: accent },
-      },
+      avatar:     { className: 'relative w-full h-full object-cover border-[3px] border-white z-10', style: { boxShadow: '0 8px 24px rgba(0,0,0,0.25)' } },
+      name:     { className: `${compact ? 'text-base' : 'text-[2rem]'} font-black tracking-tight uppercase` },
+      role:     { className: `${compact ? 'text-[10px]' : 'text-base'} font-bold mt-1 opacity-85` },
+      bio:      { className: `${compact ? 'text-[9px] mt-1.5' : 'text-sm mt-2'} leading-relaxed font-medium opacity-70 max-w-xs` },
+      domainPill: { className: 'hidden', style: {} },
       linksWrap: { className: `w-full flex flex-col ${compact ? 'gap-2' : 'gap-3'}` },
       link: {
-        className: `group flex items-center justify-between ${compact ? 'px-3 py-3 rounded-xl' : 'px-5 py-4 rounded-2xl'} border-[2.5px] shadow-lg hover:scale-[1.02] transition-transform`,
-        style: { backgroundColor: theme.cardColor, borderColor: hexToRgba(accent, 0.35) },
+        className: `group flex items-center ${compact ? 'px-3 py-3 rounded-2xl' : 'px-5 py-4 rounded-2xl'} border-[2.5px] hover:scale-[1.02] hover:shadow-2xl transition-all duration-200`,
+        style: {
+          backgroundColor: theme.cardColor,
+          borderColor: hexToRgba(accent, 0.45),
+          boxShadow: `0 4px 20px ${hexToRgba(accent, 0.12)}`,
+        },
       },
-      linkIcon: { className: `${compact ? 'w-9 h-9 rounded-xl' : 'w-11 h-11 rounded-2xl'} flex items-center justify-center shrink-0 border-2`, style: { backgroundColor: hexToRgba(accent, 0.1), borderColor: hexToRgba(accent, 0.25) } },
-      linkTitle: { className: `${compact ? 'text-[11px]' : 'text-base'} font-black` },
-      linkSubtitle: { className: `${compact ? 'text-[8px]' : 'text-xs'} font-semibold opacity-65 mt-0.5` },
-      linkArrow: { className: `${compact ? 'w-6 h-6' : 'w-8 h-8'} rounded-full border-2 flex items-center justify-center font-bold`, style: { borderColor: accent, color: accent } },
+      linkIcon:     { className: `${compact ? 'w-9 h-9 rounded-xl' : 'w-11 h-11 rounded-2xl'} flex items-center justify-center shrink-0 border-2`, style: { backgroundColor: hexToRgba(accent, 0.12), borderColor: hexToRgba(accent, 0.3) } },
+      linkTitle:    { className: `${compact ? 'text-[11px]' : 'text-base'} font-black` },
+      linkSubtitle: { className: `${compact ? 'text-[8px]' : 'text-xs'} font-semibold opacity-60 mt-0.5` },
+      linkArrow:    { className: `${compact ? 'w-6 h-6' : 'w-8 h-8'} rounded-full border-2 flex items-center justify-center font-bold shrink-0`, style: { borderColor: accent, color: accent } },
       showGlassOrbs: false,
     };
   }
 
+  /* ─────────────────────────────────────────
+     NEO-BRUTALIST
+  ───────────────────────────────────────── */
   if (layoutStyle === 'neo') {
     return {
       ...base,
@@ -182,78 +185,90 @@ export function getThemeVisuals(theme, { compact = false } = {}) {
         style: base.page.style,
         className: `${base.page.className} ${compact ? 'px-2.5 py-4' : 'px-4 py-10'}`,
       },
-      shell: { className: compact ? 'gap-3' : 'gap-4' },
+      shell:     { className: compact ? 'gap-3' : 'gap-4' },
       hero: {
-        className: `w-full ${compact ? 'p-3' : 'p-6'} border-2 flex flex-col items-center text-center rounded-none`,
-        style: { backgroundColor: theme.cardColor, borderColor: text, boxShadow: compact ? `3px 3px 0 0 ${accent}` : `6px 6px 0 0 ${accent}` },
+        className: `w-full ${compact ? 'p-3' : 'p-7'} border-[3px] flex flex-col items-center text-center rounded-none`,
+        style: { backgroundColor: theme.cardColor, borderColor: text, boxShadow: compact ? `4px 4px 0 0 ${accent}` : `8px 8px 0 0 ${accent}` },
       },
-      avatarWrap: { className: compact ? 'relative w-14 h-14 mb-2' : 'relative w-20 h-20 mb-3' },
+      heroDecor: false,
+      avatarWrap: { className: compact ? 'relative w-[60px] h-[60px] mb-2 overflow-hidden' : 'relative w-[90px] h-[90px] mb-3 overflow-hidden' },
       avatarRing: { className: 'hidden' },
-      avatar: { className: 'relative w-full h-full rounded-none object-cover border-2', style: { borderColor: text } },
-      name: { className: `${compact ? 'text-sm' : 'text-2xl'} font-black uppercase tracking-tight` },
-      role: { className: `${compact ? 'text-[9px]' : 'text-sm'} font-bold mt-1 uppercase tracking-wide opacity-80` },
-      bio: { className: `${compact ? 'text-[8px] mt-1' : 'text-sm mt-1.5'} leading-snug font-medium opacity-70 max-w-xs` },
-      domainPill: {
-        className: `mt-3 inline-block px-2.5 py-1 border-2 font-mono font-bold uppercase ${compact ? 'text-[7px]' : 'text-[10px]'}`,
-        style: { backgroundColor: accent, borderColor: text, color: isDark ? text : '#fff' },
-      },
+      avatar:     { className: 'relative w-full h-full object-cover border-[3px] z-10', style: { borderColor: text } },
+      name:     { className: `${compact ? 'text-sm' : 'text-[1.8rem]'} font-black uppercase tracking-tight` },
+      role:     { className: `${compact ? 'text-[9px]' : 'text-sm'} font-bold mt-1 uppercase tracking-widest opacity-75` },
+      bio:      { className: `${compact ? 'text-[8px] mt-1' : 'text-sm mt-2'} leading-snug font-medium opacity-65 max-w-xs` },
+      domainPill: { className: 'hidden', style: {} },
       linksWrap: { className: `w-full flex flex-col ${compact ? 'gap-2' : 'gap-3'}` },
       link: {
-        className: `group flex items-center justify-between ${compact ? 'px-3 py-2.5' : 'px-4 py-3.5'} border-2 rounded-none hover:translate-x-0.5 hover:-translate-y-0.5 transition-transform`,
-        style: { backgroundColor: theme.cardColor, borderColor: text, boxShadow: compact ? `2px 2px 0 0 ${accent}` : `4px 4px 0 0 ${accent}` },
+        className: `group flex items-center ${compact ? 'px-3 py-2.5' : 'px-4 py-4'} border-[3px] rounded-none hover:translate-x-0.5 hover:-translate-y-0.5 transition-transform duration-150`,
+        style: { backgroundColor: theme.cardColor, borderColor: text, boxShadow: compact ? `3px 3px 0 0 ${accent}` : `5px 5px 0 0 ${accent}` },
       },
-      linkIcon: { className: `${compact ? 'w-8 h-8' : 'w-10 h-10'} flex items-center justify-center shrink-0 border-2 rounded-none`, style: { backgroundColor: hexToRgba(accent, 0.15), borderColor: text } },
-      linkTitle: { className: `${compact ? 'text-[10px]' : 'text-sm'} font-black uppercase tracking-wide` },
-      linkSubtitle: { className: `${compact ? 'text-[8px]' : 'text-xs'} font-bold opacity-60 mt-0.5 uppercase` },
-      linkArrow: { className: 'font-black text-lg leading-none', style: { color: accent } },
+      linkIcon:     { className: `${compact ? 'w-8 h-8' : 'w-10 h-10'} flex items-center justify-center shrink-0 border-[2px] rounded-none`, style: { backgroundColor: hexToRgba(accent, 0.15), borderColor: text } },
+      linkTitle:    { className: `${compact ? 'text-[10px]' : 'text-sm'} font-black uppercase tracking-wide` },
+      linkSubtitle: { className: `${compact ? 'text-[8px]' : 'text-xs'} font-bold opacity-55 mt-0.5 uppercase` },
+      linkArrow:    { className: 'font-black text-lg leading-none shrink-0', style: { color: accent } },
       showGlassOrbs: false,
     };
   }
 
-  // classic (default - matching clean light-blue reference)
+  /* ─────────────────────────────────────────
+     CLASSIC (default)
+  ───────────────────────────────────────── */
   return {
     ...base,
     page: {
       style: {
         ...base.page.style,
         backgroundImage: isDark
-          ? `radial-gradient(ellipse at 50% 0%, ${hexToRgba(accent, 0.15)} 0%, transparent 60%)`
-          : `radial-gradient(circle at 50% 0%, rgba(219, 234, 254, 0.65) 0%, rgba(238, 242, 255, 0.35) 55%, transparent 100%)`,
+          ? `radial-gradient(ellipse at 50% 0%, ${hexToRgba(accent, 0.18)} 0%, transparent 60%)`
+          : `radial-gradient(ellipse at 50% -10%, ${hexToRgba(accent, 0.12)} 0%, rgba(238,242,255,0.5) 45%, transparent 70%)`,
       },
-      className: `${base.page.className} ${compact ? 'px-3 py-4' : 'px-4 py-12'}`,
+      className: `${base.page.className} ${compact ? 'px-3 py-4' : 'px-5 py-14'}`,
     },
-    shell: { className: compact ? 'gap-3' : 'gap-4' },
+    shell:     { className: compact ? 'gap-3' : 'gap-5' },
     hero: {
-      className: `w-full ${compact ? 'rounded-2xl p-4' : 'rounded-3xl p-6 sm:p-7'} border flex flex-col items-center text-center backdrop-blur-sm`,
+      className: `w-full ${compact ? 'rounded-2xl p-4' : 'rounded-3xl p-7'} border flex flex-col items-center text-center`,
       style: {
-        backgroundColor: isDark ? 'rgba(24,24,27,0.85)' : '#FFFFFF',
-        borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
-        boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.35)' : '0 10px 35px rgba(99,102,241,0.06)',
+        backgroundColor: isDark ? 'rgba(24,24,27,0.85)' : 'rgba(255,255,255,0.96)',
+        borderColor:      isDark ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.9)',
+        boxShadow:        isDark ? '0 12px 40px rgba(0,0,0,0.4)' : `0 12px 40px ${hexToRgba(accent, 0.07)}`,
+        backdropFilter:   'blur(12px)',
       },
     },
-    avatarWrap: { className: compact ? 'relative w-16 h-16 mb-2.5 p-0.5 rounded-full border border-indigo-100 dark:border-white/10 shadow-xs bg-white' : 'relative w-24 h-24 mb-3.5 p-1 rounded-full border border-indigo-100 dark:border-white/10 shadow-md shadow-indigo-500/10 bg-white' },
-    avatarRing: { className: 'absolute -inset-1 rounded-full opacity-25 blur-xs', style: { backgroundColor: accent } },
-    avatar: { className: 'relative w-full h-full rounded-full object-cover shadow-xs' },
-    name: { className: `${compact ? 'text-sm' : 'text-2xl'} font-bold tracking-tight text-slate-900 dark:text-white flex items-center justify-center gap-1.5` },
-    role: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-medium mt-1 text-slate-500 dark:text-slate-400` },
-    bio: { className: `${compact ? 'text-[10px] mt-1' : 'text-sm mt-1.5'} leading-relaxed opacity-75 max-w-xs` },
-    domainPill: {
-      className: `mt-3 inline-block px-3.5 py-1 rounded-full border border-indigo-100 dark:border-white/10 font-mono font-semibold ${compact ? 'text-[8px]' : 'text-xs'}`,
-      style: { backgroundColor: 'rgba(238,242,255,0.6)', color: accent },
+    heroDecor: false,
+    avatarWrap: {
+      className: compact
+        ? 'relative w-[66px] h-[66px] mb-3 overflow-hidden'
+        : 'relative w-[108px] h-[108px] mb-4 overflow-hidden',
     },
+    avatarRing: {
+      className: 'absolute -inset-1 rounded-full opacity-30 blur-sm',
+      style: { backgroundColor: accent },
+    },
+    avatar: {
+      className: 'relative w-full h-full object-cover z-10',
+      style: { boxShadow: `0 0 0 3px ${hexToRgba(accent, 0.25)}` },
+    },
+    name:     { className: `${compact ? 'text-sm' : 'text-[1.85rem]'} font-extrabold tracking-tight leading-tight` },
+    role:     { className: `${compact ? 'text-[11px]' : 'text-sm'} font-medium mt-1` },
+    bio:      { className: `${compact ? 'text-[10px] mt-1' : 'text-sm mt-2'} leading-relaxed opacity-70 max-w-xs` },
+    domainPill: { className: 'hidden', style: {} },
     linksWrap: { className: `w-full flex flex-col ${compact ? 'gap-2' : 'gap-3'}` },
     link: {
-      className: `group flex items-center justify-between ${compact ? 'px-3 py-2.5 rounded-xl' : 'px-4 py-3.5 rounded-2xl'} border shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`,
+      className: `group flex items-center ${compact ? 'px-3 py-2.5 rounded-full' : 'px-5 py-4 rounded-full'} border hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200`,
       style: {
-        backgroundColor: isDark ? 'rgba(24,24,27,0.85)' : '#FFFFFF',
-        borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.8)',
-        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 18px rgba(99,102,241,0.04)',
+        backgroundColor: isDark ? 'rgba(24,24,27,0.9)' : 'rgba(255,255,255,0.98)',
+        borderColor:      isDark ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.9)',
+        boxShadow:        isDark ? '0 2px 12px rgba(0,0,0,0.25)' : `0 2px 16px ${hexToRgba(accent, 0.06)}`,
       },
     },
-    linkIcon: { className: `${compact ? 'w-8 h-8 rounded-xl' : 'w-11 h-11 rounded-2xl'} flex items-center justify-center shrink-0` },
-    linkTitle: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-bold text-slate-800 dark:text-slate-100` },
-    linkSubtitle: { className: `${compact ? 'text-[9px]' : 'text-xs'} text-slate-500 dark:text-slate-400 font-normal mt-0.5` },
-    linkArrow: { className: `${compact ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-slate-500 flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-zinc-700 transition-colors shrink-0` },
+    linkIcon:     { className: `${compact ? 'w-8 h-8 rounded-xl' : 'w-10 h-10 rounded-2xl'} flex items-center justify-center shrink-0` },
+    linkTitle:    { className: `${compact ? 'text-[11px]' : 'text-[0.9rem]'} font-bold` },
+    linkSubtitle: { className: `${compact ? 'text-[9px]' : 'text-xs'} opacity-55 mt-0.5` },
+    linkArrow: {
+      className: `${compact ? 'w-5 h-5' : 'w-8 h-8'} rounded-full flex items-center justify-center shrink-0 transition-colors duration-200`,
+      style: { backgroundColor: hexToRgba(accent, 0.1), color: accent },
+    },
     showGlassOrbs: false,
   };
 }
