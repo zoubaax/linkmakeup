@@ -3,7 +3,20 @@ import { ApiResponse, ApiError } from '../utils/apiResponse.js';
 import { z } from 'zod';
 
 const usernameParamSchema = z.object({
-  username: z.string().min(3).max(50).regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain alphanumeric characters, underscores, and hyphens'),
+  username: z.string().min(3).max(50).regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores, and hyphens'),
+});
+
+const createProfileSchema = z.object({
+  username: z.string().min(3, 'Username must be at least 3 characters').max(50).regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores, and hyphens'),
+  displayName: z.string().min(1, 'Display Name is required').max(100),
+  bio: z.string().max(250).optional(),
+  avatarUrl: z.string().optional(),
+});
+
+const updateProfileSchema = z.object({
+  displayName: z.string().min(1).max(100).optional(),
+  bio: z.string().max(250).optional(),
+  avatarUrl: z.string().optional(),
 });
 
 export class ProfileController {
@@ -24,6 +37,38 @@ export class ProfileController {
 
       const result = await ProfileService.checkAvailability(username);
       return ApiResponse.success(res, 'Availability checked', result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async createProfile(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const validation = createProfileSchema.safeParse(req.body);
+
+      if (!validation.success) {
+        throw new ApiError('Validation error', 400, validation.error.flatten());
+      }
+
+      const profile = await ProfileService.createProfile(userId, validation.data);
+      return ApiResponse.success(res, 'Profile created successfully', profile, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async updateProfile(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const validation = updateProfileSchema.safeParse(req.body);
+
+      if (!validation.success) {
+        throw new ApiError('Validation error', 400, validation.error.flatten());
+      }
+
+      const updated = await ProfileService.updateProfile(userId, validation.data);
+      return ApiResponse.success(res, 'Profile updated successfully', updated);
     } catch (err) {
       next(err);
     }

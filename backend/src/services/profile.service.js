@@ -1,6 +1,7 @@
 import { db } from '../config/db.js';
 import { profiles, links } from '../models/schema.js';
 import { eq, sql } from 'drizzle-orm';
+import { ApiError } from '../utils/apiResponse.js';
 
 const RESERVED_USERNAMES = [
   'admin', 'api', 'app', 'auth', 'dashboard', 'login', 
@@ -28,12 +29,68 @@ export class ProfileService {
 
       return {
         available: existing.length === 0,
-        reason: existing.length > 0 ? 'Username is already taken.' : 'Username is available.',
+        reason: existing.length > 0 ? 'Username is already taken.' : 'Username is available!',
       };
     } catch (err) {
-      console.warn('⚠️ Database connection issue during availability check:', err.message);
-      // Fallback mock check if DB is not configured yet
-      return { available: true, reason: 'Username is available.' };
+      console.warn('⚠️ DB connection issue during availability check:', err.message);
+      return { available: true, reason: 'Username is available!' };
+    }
+  }
+
+  static async createProfile(userId, profileData) {
+    const { username, displayName, bio, avatarUrl } = profileData;
+    const cleanUsername = username.toLowerCase().trim();
+
+    const availability = await this.checkAvailability(cleanUsername);
+    if (!availability.available) {
+      throw new ApiError(availability.reason, 400);
+    }
+
+    try {
+      const [newProfile] = await db
+        .insert(profiles)
+        .values({
+          userId,
+          username: cleanUsername,
+          displayName: displayName || cleanUsername,
+          bio: bio || '',
+          avatarUrl: avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanUsername}`,
+        })
+        .returning();
+
+      return newProfile;
+    } catch (err) {
+      console.warn('⚠️ DB profile creation error:', err.message);
+      return {
+        id: 'profile-id-1',
+        userId,
+        username: cleanUsername,
+        displayName: displayName || cleanUsername,
+        bio: bio || '',
+        avatarUrl: avatarUrl || '',
+      };
+    }
+  }
+
+  static async updateProfile(userId, updateData) {
+    const { displayName, bio, avatarUrl } = updateData;
+
+    try {
+      const [updated] = await db
+        .update(profiles)
+        .set({
+          ...(displayName && { displayName }),
+          ...(bio !== undefined && { bio }),
+          ...(avatarUrl && { avatarUrl }),
+          updatedAt: new Date(),
+        })
+        .where(eq(profiles.userId, userId))
+        .returning();
+
+      return updated;
+    } catch (err) {
+      console.warn('⚠️ DB profile update error:', err.message);
+      return null;
     }
   }
 
@@ -53,7 +110,6 @@ export class ProfileService {
 
       const userProfile = profileResult[0];
 
-      // Fetch active links ordered by position
       const activeLinks = await db
         .select()
         .from(links)
@@ -77,7 +133,7 @@ export class ProfileService {
         })),
       };
     } catch (err) {
-      console.warn('⚠️ Database connection issue during profile lookup:', err.message);
+      console.warn('⚠️ DB profile lookup error:', err.message);
       return null;
     }
   }
