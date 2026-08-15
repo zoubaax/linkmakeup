@@ -1,20 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
+import {
+  HiQrCode,
+  HiPhoto,
+  HiCodeBracket,
+  HiSquare2Stack,
+  HiClipboardDocument,
+  HiArrowTopRightOnSquare,
+  HiArrowDownTray,
+  HiChevronDown,
+} from 'react-icons/hi2';
 import { useToast } from '../contexts/ToastContext';
 import { buildEmbedCode, exportPreviewNode } from '../utils/pageExport';
 import ExportPreviewCard from './ExportPreviewCard';
+import Logo from './ui/Logo';
 
 function ActionButton({ children, onClick, variant = 'secondary', className = '', disabled = false }) {
   const styles =
     variant === 'primary'
-      ? 'bg-primary text-primary-fg hover:bg-primary-hover'
-      : 'bg-surface border border-border-strong text-fg hover:bg-nav-hover';
+      ? 'bg-primary text-primary-fg hover:bg-primary-hover shadow-xs'
+      : 'bg-surface border border-border-strong text-fg hover:bg-nav-hover shadow-2xs';
 
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex w-full sm:w-auto items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 ${styles} ${className}`}
+      className={`inline-flex w-full sm:w-auto items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 ${styles} ${className}`}
     >
       {children}
     </button>
@@ -25,9 +37,11 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
   const { success: toastSuccess, error: toastError } = useToast();
   const [exportOpen, setExportOpen] = useState(false);
   const [embedOpen, setEmbedOpen] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const [exporting, setExporting] = useState('');
   const menuRef = useRef(null);
   const exportRef = useRef(null);
+  const qrSvgRef = useRef(null);
 
   const embedCode = buildEmbedCode({ profile, publicUrl });
 
@@ -58,8 +72,44 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
     }
   };
 
+  const downloadQrCode = () => {
+    try {
+      const svgElement = qrSvgRef.current?.querySelector('svg');
+      if (!svgElement) throw new Error('QR code not ready');
+
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+
+      canvas.width = 1024;
+      canvas.height = 1024;
+
+      img.onload = () => {
+        if (!ctx) return;
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, 1024, 1024);
+        ctx.drawImage(img, 64, 64, 896, 896);
+        const pngUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = `${profile?.username || 'linkmakeup'}-qr.png`;
+        link.href = pngUrl;
+        link.click();
+        toastSuccess('QR Code downloaded as PNG');
+      };
+
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    } catch (err) {
+      toastError(err.message || 'Failed to download QR code');
+    }
+  };
+
   const runExport = async (type) => {
     setExportOpen(false);
+    if (type === 'qr') {
+      setQrOpen(true);
+      return;
+    }
     if (type === 'embed') {
       setEmbedOpen(true);
       return;
@@ -129,44 +179,69 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
 
           {/* Right Action Buttons */}
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 shrink-0 w-full sm:w-auto">
+            {/* Quick QR Code Button */}
+            <ActionButton onClick={() => setQrOpen(true)}>
+              <HiQrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              QR Code
+            </ActionButton>
+
             <ActionButton onClick={handleCopyLink}>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
+              <HiClipboardDocument className="w-4 h-4 shrink-0 text-fg-muted" />
               Copy link
             </ActionButton>
 
             <ActionButton variant="primary" onClick={() => window.open(publicUrl, '_blank', 'noopener,noreferrer')}>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
+              <HiArrowTopRightOnSquare className="w-4 h-4 shrink-0" />
               Visit page
             </ActionButton>
 
             <div className="relative" ref={menuRef}>
               <ActionButton onClick={() => setExportOpen((open) => !open)} className="min-w-[7.5rem]" disabled={Boolean(exporting)}>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
+                <HiArrowDownTray className="w-4 h-4 shrink-0 text-fg-muted" />
                 {exporting ? 'Exporting…' : 'Export'}
-                <svg className={`w-3.5 h-3.5 transition-transform ${exportOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
+                <HiChevronDown className={`w-3.5 h-3.5 transition-transform shrink-0 ${exportOpen ? 'rotate-180' : ''}`} />
               </ActionButton>
 
               {exportOpen && (
-                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-56 rounded-2xl border border-border bg-surface shadow-xl p-1.5 animate-scale-in">
-                  <button type="button" onClick={() => runExport('png')} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-nav-hover transition-colors">
-                    <span className="block text-sm font-semibold text-fg">PNG image</span>
-                    <span className="block text-[11px] text-fg-subtle">Live preview capture</span>
+                <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-60 rounded-2xl border border-border bg-surface shadow-xl p-1.5 animate-scale-in">
+                  <button type="button" onClick={() => runExport('qr')} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-nav-hover transition-colors flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                      <HiQrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-fg">QR Code</span>
+                      <span className="block text-[10px] text-fg-subtle">Scan or download PNG</span>
+                    </div>
                   </button>
-                  <button type="button" onClick={() => runExport('svg')} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-nav-hover transition-colors">
-                    <span className="block text-sm font-semibold text-fg">SVG vector</span>
-                    <span className="block text-[11px] text-fg-subtle">Clickable links included</span>
+
+                  <button type="button" onClick={() => runExport('png')} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-nav-hover transition-colors flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
+                      <HiPhoto className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-fg">PNG image</span>
+                      <span className="block text-[10px] text-fg-subtle">Live preview capture</span>
+                    </div>
                   </button>
-                  <button type="button" onClick={() => runExport('embed')} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-nav-hover transition-colors">
-                    <span className="block text-sm font-semibold text-fg">Embed code</span>
-                    <span className="block text-[11px] text-fg-subtle">Iframe + copyright line</span>
+
+                  <button type="button" onClick={() => runExport('svg')} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-nav-hover transition-colors flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                      <HiSquare2Stack className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-fg">SVG vector</span>
+                      <span className="block text-[10px] text-fg-subtle">Clickable links included</span>
+                    </div>
+                  </button>
+
+                  <button type="button" onClick={() => runExport('embed')} className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-nav-hover transition-colors flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                      <HiCodeBracket className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-fg">Embed code</span>
+                      <span className="block text-[10px] text-fg-subtle">Iframe + copyright line</span>
+                    </div>
                   </button>
                 </div>
               )}
@@ -175,6 +250,79 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
         </div>
       </div>
 
+      {/* QR Code Modal Dialog */}
+      {qrOpen && (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-overlay"
+            aria-label="Close QR Code modal"
+            onClick={() => setQrOpen(false)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="QR Code"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
+          >
+            <div className="pointer-events-auto w-full max-w-sm rounded-3xl border border-border bg-surface shadow-2xl p-6 text-center animate-scale-in">
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <Logo height={22} />
+                <button type="button" onClick={() => setQrOpen(false)} className="p-1.5 rounded-full text-fg-muted hover:text-fg hover:bg-nav-hover">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* QR Code Card Frame */}
+              <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col items-center justify-center mb-5" ref={qrSvgRef}>
+                {profile?.avatarUrl && (
+                  <img
+                    src={profile.avatarUrl}
+                    alt="Avatar"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-xs mb-3"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                <QRCodeSVG
+                  value={publicUrl}
+                  size={200}
+                  level="H"
+                  marginSize={1}
+                  fgColor="#0F172A"
+                  bgColor="#FFFFFF"
+                />
+                <p className="mt-4 text-xs font-bold text-slate-900">{profile?.displayName || 'LinkMakeup'}</p>
+                <p className="text-[10px] font-mono text-slate-500 mt-0.5">{publicUrl}</p>
+              </div>
+
+              {/* QR Action Buttons */}
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={downloadQrCode}
+                  className="w-full py-2.5 px-4 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-xs shadow-xs transition-transform active:scale-[0.98] flex items-center justify-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download PNG QR Code
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="w-full py-2.5 px-4 rounded-xl border border-border bg-surface-alt hover:bg-nav-hover font-semibold text-xs text-fg transition-colors"
+                >
+                  Copy Page Link
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Embed Code Modal Dialog */}
       {embedOpen && (
         <>
           <button
