@@ -7,7 +7,7 @@ import { useCommandPaletteShortcut } from '../../hooks/useKeyboardShortcut';
 
 const PAGE_TITLES = {
   '/': 'Sign In',
-  '/dashboard': 'Dashboard',
+  '/dashboard': 'Studio',
   '/dashboard/profile': 'Profile Details',
   '/onboarding': 'Setup',
 };

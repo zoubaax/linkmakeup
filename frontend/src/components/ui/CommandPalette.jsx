@@ -24,7 +24,7 @@ export default function CommandPalette({ open, onClose }) {
   const commands = useMemo(() => {
     const items = [
       user
-        ? { id: 'dashboard', label: 'Go to Dashboard', hint: 'Manage your page', action: () => navigate('/dashboard') }
+        ? { id: 'dashboard', label: 'Go to Studio', hint: 'Manage design & links', action: () => navigate('/dashboard') }
         : { id: 'signin', label: 'Sign In', hint: 'Access your account', action: () => navigate('/login') },
       ...(user
         ? [{ id: 'profile', label: 'Profile Details', hint: 'Avatar, name & bio', action: () => navigate(PROFILE_DETAILS_PATH) }]

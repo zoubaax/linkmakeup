@@ -5,7 +5,7 @@ import ThemeToggle from '../ThemeToggle';
 const NAV_LINKS = [
   {
     to: '/dashboard',
-    label: 'Dashboard',
+    label: 'Studio',
     auth: true,
     end: true,
     icon: (

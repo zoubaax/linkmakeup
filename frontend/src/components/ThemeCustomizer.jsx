@@ -146,21 +146,6 @@ export default function ThemeCustomizer({ profile, onThemeUpdated }) {
         </span>
       </div>
 
-      <div className="mb-6">
-        <div className="flex items-center gap-3">
-          {profile?.avatarUrl && (
-            <img
-              src={profile.avatarUrl}
-              alt="Profile"
-              className="w-12 h-12 rounded-full object-cover border border-border"
-            />
-          )}
-          <span className="text-lg font-bold text-fg">
-            {profile?.displayName || 'Your Name'}
-          </span>
-        </div>
-      </div>
-
       <div className="rounded-2xl border border-border overflow-hidden mb-3">
         <button
           type="button"
