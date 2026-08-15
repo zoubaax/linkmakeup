@@ -12,6 +12,7 @@ export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   databaseUrl: process.env.DATABASE_URL || '',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
+  backendUrl: process.env.BACKEND_URL || 'http://localhost:5000',
   cookieDomain: process.env.COOKIE_DOMAIN || 'localhost',
   sessionSecret: process.env.SESSION_SECRET || 'linkmakeup_secret',
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',

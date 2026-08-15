@@ -77,7 +77,7 @@ export class AuthController {
   // 3. Initiate Google OAuth Redirect
   static async getGoogleAuthUrl(req, res, next) {
     try {
-      const redirectBackendUri = `http://localhost:5000/api/v1/auth/google/callback`;
+      const redirectBackendUri = `${env.backendUrl}/api/v1/auth/google/callback`;
 
       if (!env.googleClientId) {
         throw new ApiError('Google Client ID is not configured in backend environment.', 500);
@@ -107,7 +107,7 @@ export class AuthController {
         throw new ApiError('Authorization code missing from Google callback.', 400);
       }
 
-      const redirectBackendUri = `http://localhost:5000/api/v1/auth/google/callback`;
+      const redirectBackendUri = `${env.backendUrl}/api/v1/auth/google/callback`;
       const { tokens } = await googleClient.getToken({
         code,
         redirect_uri: redirectBackendUri,

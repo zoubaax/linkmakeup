@@ -16,6 +16,16 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cookieParser());
 
+// Root health check
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: '🚀 LinkMakeup API is running',
+    version: 'v1',
+    docs: '/api/v1/health',
+  });
+});
+
 // Mount API v1 router
 app.use('/api/v1', apiRouter);
 
