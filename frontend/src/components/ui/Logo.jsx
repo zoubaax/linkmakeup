@@ -1,10 +1,12 @@
 import logoSvg from '../../assets/logo.svg';
 
-export function Logo({ className = '', height = 48 }) {
+export function Logo({ className = '', height }) {
+  const style = height ? { height: `${height}px` } : undefined;
+
   return (
     <div
       className={`inline-flex items-center select-none ${className}`}
-      style={{ height: `${height}px` }}
+      style={style}
     >
       <img
         src={logoSvg}

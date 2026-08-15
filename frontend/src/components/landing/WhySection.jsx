@@ -58,8 +58,8 @@ const features = [
 function PreviewWidget({ type }) {
   if (type === 'action') {
     return (
-      <div className="w-full h-full rounded-2xl bg-emerald-50/60 p-4 flex flex-col justify-center items-center relative overflow-hidden">
-        <div className="w-full bg-white rounded-xl p-3.5 shadow-xs border border-emerald-100/60 space-y-2 text-left">
+      <div className="w-full h-full rounded-2xl bg-emerald-50/60 p-3 sm:p-4 flex flex-col justify-center items-center relative overflow-hidden">
+        <div className="w-full bg-white rounded-xl p-3 sm:p-3.5 shadow-xs border border-emerald-100/60 space-y-2 text-left">
           <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-600 uppercase tracking-wider">
             <span className="w-2 h-2 rounded-full bg-emerald-600" />
             <span>LINKMAKEUP ENGINE</span>
@@ -85,8 +85,8 @@ function PreviewWidget({ type }) {
 
   if (type === 'context') {
     return (
-      <div className="w-full h-full rounded-2xl bg-emerald-50/60 p-4 flex flex-col justify-center items-center relative overflow-hidden">
-        <div className="w-full bg-white rounded-xl p-3.5 shadow-xs border border-emerald-100/60 space-y-2 text-left">
+      <div className="w-full h-full rounded-2xl bg-emerald-50/60 p-3 sm:p-4 flex flex-col justify-center items-center relative overflow-hidden">
+        <div className="w-full bg-white rounded-xl p-3 sm:p-3.5 shadow-xs border border-emerald-100/60 space-y-2 text-left">
           <div className="flex items-center gap-2">
             <span className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">LM</span>
             <span className="text-[11px] font-semibold text-slate-800">john.linkmakeup.com</span>
@@ -101,8 +101,8 @@ function PreviewWidget({ type }) {
 
   if (type === 'connect') {
     return (
-      <div className="w-full h-full rounded-2xl bg-emerald-50/60 p-4 flex flex-col justify-center items-center relative overflow-hidden">
-        <div className="w-full bg-white rounded-xl p-3.5 shadow-xs border border-emerald-100/60 space-y-2 text-center">
+      <div className="w-full h-full rounded-2xl bg-emerald-50/60 p-3 sm:p-4 flex flex-col justify-center items-center relative overflow-hidden">
+        <div className="w-full bg-white rounded-xl p-3 sm:p-3.5 shadow-xs border border-emerald-100/60 space-y-2 text-center">
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">SYNCED CONNECTIONS</span>
           <div className="flex items-center justify-center gap-2.5 pt-1">
             
@@ -144,8 +144,8 @@ function PreviewWidget({ type }) {
   }
 
   return (
-    <div className="w-full h-full rounded-2xl bg-emerald-50/60 p-4 flex flex-col justify-center items-center relative overflow-hidden">
-      <div className="w-full bg-white rounded-xl p-3.5 shadow-xs border border-emerald-100/60 space-y-2 text-left">
+    <div className="w-full h-full rounded-2xl bg-emerald-50/60 p-3 sm:p-4 flex flex-col justify-center items-center relative overflow-hidden">
+      <div className="w-full bg-white rounded-xl p-3 sm:p-3.5 shadow-xs border border-emerald-100/60 space-y-2 text-left">
         <div className="flex items-center justify-between text-[10px] font-bold">
           <span className="text-slate-500">EDGE SPEED</span>
           <span className="text-emerald-600 font-mono">24ms</span>
@@ -161,7 +161,7 @@ function PreviewWidget({ type }) {
 export default function WhySection() {
   const sectionRef = useRef(null);
   const [visible, setVisible] = useState(false);
-  const [activeCard, setActiveCard] = useState(3); // Default to card 04 (index 3) matching user's preview
+  const [activeCard, setActiveCard] = useState(3); // Default to card 04 (index 3)
 
   useEffect(() => {
     const node = sectionRef.current;
@@ -177,34 +177,34 @@ export default function WhySection() {
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full max-w-7xl mx-auto py-16 px-4 sm:px-6">
+    <section ref={sectionRef} className="w-full max-w-7xl mx-auto py-12 sm:py-16 px-3 sm:px-6">
       
       {/* Intro Header Section */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-end mb-14">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-end mb-8 sm:mb-14">
         
         {/* Left Column: Eyebrow + Clean Sans-serif Heading */}
-        <div className="md:col-span-7 space-y-3">
+        <div className="md:col-span-7 space-y-2 sm:space-y-3">
           <span className="text-xs font-bold uppercase tracking-widest text-emerald-600">
             Why LinkMakeup
           </span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-slate-900 leading-[1.08]">
+          <h2 className="text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-slate-900 leading-[1.1] sm:leading-[1.08]">
             A real partner,&nbsp;
-            <br />
+            <br className="hidden sm:inline" />
             not a chatbot in disguise
           </h2>
         </div>
 
         {/* Right Column: Supporting Paragraph */}
         <div className="md:col-span-5 md:pb-1">
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-600 text-xs sm:text-base leading-relaxed">
             Most AI tools answer questions. LinkMakeup takes initiative — anticipating needs, executing tasks, and growing smarter with every interaction.
           </p>
         </div>
 
       </div>
 
-      {/* 4 Cards Grid Layout - Soft Hero Emerald Tint, No Hard Borders */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch">
+      {/* 4 Cards Grid Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
         {features.map((feature, index) => {
           const isActive = activeCard === index;
 
@@ -213,27 +213,27 @@ export default function WhySection() {
               key={feature.number}
               onMouseEnter={() => setActiveCard(index)}
               onClick={() => setActiveCard(index)}
-              className={`group cursor-pointer rounded-[28px] p-7 flex flex-col justify-between h-[440px] transition-all duration-300 ${
+              className={`group cursor-pointer rounded-[24px] sm:rounded-[28px] p-5 sm:p-7 flex flex-col justify-between min-h-[380px] sm:h-[440px] transition-all duration-300 ${
                 isActive
-                  ? 'bg-white shadow-xl shadow-emerald-950/5 border border-emerald-100/80 scale-[1.03] z-10'
+                  ? 'bg-white shadow-xl shadow-emerald-950/5 border border-emerald-100/80 scale-[1.02] sm:scale-[1.03] z-10'
                   : 'bg-emerald-50/50 hover:bg-emerald-50/90 border border-emerald-100/40 z-0'
               }`}
             >
               {/* Top Section */}
               {isActive ? (
                 /* Active Top Half: Soft Emerald UI Preview Illustration */
-                <div className="w-full h-44">
+                <div className="w-full h-36 sm:h-44">
                   <PreviewWidget type={feature.type} />
                 </div>
               ) : (
                 /* Inactive Top Half: Soft Watermark Number & Emerald Squares */
-                <div className="flex flex-col justify-between h-52 relative">
-                  <span className="text-5xl font-light text-emerald-900/20 font-serif select-none">
+                <div className="flex flex-col justify-between h-44 sm:h-52 relative">
+                  <span className="text-4xl sm:text-5xl font-light text-emerald-900/20 font-serif select-none">
                     {feature.number}
                   </span>
 
                   {/* Organic Abstract Emerald Squares */}
-                  <div className="relative w-full h-32">
+                  <div className="relative w-full h-28 sm:h-32">
                     {feature.blocks.map((b, i) => (
                       <div
                         key={i}
@@ -246,8 +246,8 @@ export default function WhySection() {
               )}
 
               {/* Bottom Section */}
-              <div className="space-y-2 pt-4">
-                <h3 className={`font-bold text-slate-900 tracking-tight ${isActive ? 'text-xl text-emerald-950' : 'text-lg'}`}>
+              <div className="space-y-1.5 sm:space-y-2 pt-3 sm:pt-4">
+                <h3 className={`font-bold text-slate-900 tracking-tight ${isActive ? 'text-lg sm:text-xl text-emerald-950' : 'text-base sm:text-lg'}`}>
                   {feature.title}
                 </h3>
                 {isActive && (

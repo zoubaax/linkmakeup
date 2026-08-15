@@ -35,30 +35,30 @@ export default function PresetsSection() {
   ];
 
   return (
-    <section id="presets" className="w-full max-w-7xl mx-auto py-12 px-4">
-      <div className="rounded-[36px] bg-slate-900 text-white p-8 sm:p-14 overflow-hidden relative shadow-2xl">
+    <section id="presets" className="w-full max-w-7xl mx-auto py-10 sm:py-12 px-3 sm:px-6">
+      <div className="rounded-[28px] sm:rounded-[36px] bg-slate-900 text-white p-6 sm:p-14 overflow-hidden relative shadow-2xl">
         
         {/* Section Header */}
-        <div className="text-center max-w-xl mx-auto mb-10 space-y-3">
+        <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10 space-y-2 sm:space-y-3">
           <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
             Interactive Presets
           </span>
-          <h2 className="font-serif text-3xl sm:text-4xl text-white">
+          <h2 className="font-serif text-2xl sm:text-4xl text-white">
             Curated Theme Studio
           </h2>
-          <p className="text-slate-400 text-sm">
+          <p className="text-slate-400 text-xs sm:text-sm">
             Click any theme below to preview how your profile will look in real-time.
           </p>
         </div>
 
         {/* Theme Selector Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-10">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-8 sm:mb-10">
           {presetThemes.map((preset, index) => (
             <button
               key={preset.id}
               type="button"
               onClick={() => setActivePresetIndex(index)}
-              className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-all ${
+              className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-semibold transition-all ${
                 activePresetIndex === index
                   ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/30 scale-105'
                   : 'bg-white/10 text-slate-300 hover:bg-white/20'
@@ -70,35 +70,35 @@ export default function PresetsSection() {
         </div>
 
         {/* Live Mobile Card Mockup */}
-        <div className="max-w-sm mx-auto">
-          <div className={`p-6 rounded-[32px] bg-gradient-to-b ${presetThemes[activePresetIndex].bg} border border-white/10 shadow-2xl transition-all duration-500 text-center space-y-5`}>
+        <div className="max-w-[290px] sm:max-w-sm mx-auto">
+          <div className={`p-5 sm:p-6 rounded-[28px] sm:rounded-[32px] bg-gradient-to-b ${presetThemes[activePresetIndex].bg} border border-white/10 shadow-2xl transition-all duration-500 text-center space-y-4 sm:space-y-5`}>
             
             {/* Profile Avatar */}
-            <div className="w-20 h-20 rounded-full mx-auto p-1 bg-white/20 shadow-md">
-              <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-xl font-bold text-white">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto p-1 bg-white/20 shadow-md">
+              <div className="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-lg sm:text-xl font-bold text-white">
                 ✨
               </div>
             </div>
 
             {/* Name & Bio */}
             <div>
-              <h4 className={`font-bold text-lg ${presetThemes[activePresetIndex].textColor}`}>
+              <h4 className={`font-bold text-base sm:text-lg ${presetThemes[activePresetIndex].textColor}`}>
                 Alex Rivers
               </h4>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1">
                 Creator & Full-Stack Developer
               </p>
             </div>
 
             {/* Sample Link Buttons */}
-            <div className="space-y-2.5 pt-2">
-              <div className={`p-3 rounded-2xl border text-xs font-semibold transition-all ${presetThemes[activePresetIndex].buttonStyle}`}>
+            <div className="space-y-2 sm:space-y-2.5 pt-1 sm:pt-2">
+              <div className={`p-2.5 sm:p-3 rounded-2xl border text-[11px] sm:text-xs font-semibold transition-all ${presetThemes[activePresetIndex].buttonStyle}`}>
                 🎵 Latest Single & Music Video
               </div>
-              <div className={`p-3 rounded-2xl border text-xs font-semibold transition-all ${presetThemes[activePresetIndex].buttonStyle}`}>
+              <div className={`p-2.5 sm:p-3 rounded-2xl border text-[11px] sm:text-xs font-semibold transition-all ${presetThemes[activePresetIndex].buttonStyle}`}>
                 💼 Portfolio & Case Studies
               </div>
-              <div className={`p-3 rounded-2xl border text-xs font-semibold transition-all ${presetThemes[activePresetIndex].buttonStyle}`}>
+              <div className={`p-2.5 sm:p-3 rounded-2xl border text-[11px] sm:text-xs font-semibold transition-all ${presetThemes[activePresetIndex].buttonStyle}`}>
                 📬 Subscribe to Newsletter
               </div>
             </div>
