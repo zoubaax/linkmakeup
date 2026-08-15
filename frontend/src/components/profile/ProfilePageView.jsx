@@ -65,7 +65,7 @@ export default function ProfilePageView({
               alt={profile?.displayName || 'Profile'}
               className={visuals.avatar.className}
               style={visuals.avatar.style}
-              crossOrigin="anonymous"
+              referrerPolicy="no-referrer"
             />
           </div>
 

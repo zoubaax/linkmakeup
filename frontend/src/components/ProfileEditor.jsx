@@ -159,7 +159,7 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
               onClick={() => fileInputRef.current?.click()}
               className="w-14 h-14 rounded-full overflow-hidden border-2 border-border-strong cursor-pointer shrink-0 group relative"
             >
-              <img src={avatarUrl || profile?.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              <img src={avatarUrl || profile?.avatarUrl} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               <div className="absolute inset-0 bg-overlay flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />

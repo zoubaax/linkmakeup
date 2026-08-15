@@ -41,6 +41,7 @@ function Avatar({ className, style, avatarUrl, alt = '' }) {
         alt={alt}
         className={`${className} object-cover`}
         style={style}
+        referrerPolicy="no-referrer"
       />
     );
   }

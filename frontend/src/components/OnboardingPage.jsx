@@ -139,6 +139,7 @@ export default function OnboardingPage() {
                 alt="Avatar preview"
                 onError={handleAvatarError}
                 className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
               />
               <div className="absolute inset-0 bg-overlay flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

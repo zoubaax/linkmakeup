@@ -105,9 +105,12 @@ export class AuthService {
     if (existingUser.length > 0) {
       const user = existingUser[0];
       
-      // Update Google ID or avatar if missing
-      if (!user.googleId) {
-        await db.update(users).set({ googleId }).where(eq(users.id, user.id));
+      const updateData = {};
+      if (!user.googleId) updateData.googleId = googleId;
+      if (avatarUrl && (!user.avatarUrl || user.avatarUrl.includes('dicebear'))) updateData.avatarUrl = avatarUrl;
+
+      if (Object.keys(updateData).length > 0) {
+        await db.update(users).set(updateData).where(eq(users.id, user.id));
       }
 
       const userProfile = await db
@@ -116,10 +119,16 @@ export class AuthService {
         .where(eq(profiles.userId, user.id))
         .limit(1);
 
+      const profileData = userProfile[0] || null;
+      if (profileData && avatarUrl && (!profileData.avatarUrl || profileData.avatarUrl.includes('dicebear'))) {
+        await db.update(profiles).set({ avatarUrl }).where(eq(profiles.id, profileData.id));
+        profileData.avatarUrl = avatarUrl;
+      }
+
       return {
-        user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatarUrl },
-        profile: userProfile[0] || null,
-        isNewUser: !userProfile[0],
+        user: { id: user.id, email: user.email, name: user.name, avatarUrl: updateData.avatarUrl || user.avatarUrl || avatarUrl },
+        profile: profileData,
+        isNewUser: !profileData,
       };
     }
 
