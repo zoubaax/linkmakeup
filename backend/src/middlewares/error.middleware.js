@@ -12,6 +12,10 @@ export const errorHandler = (err, req, res, _next) => {
     return ApiResponse.error(res, 'Malformed JSON payload', null, 400);
   }
 
+  if (err.type === 'entity.too.large') {
+    return ApiResponse.error(res, 'Request payload too large. Try a smaller image.', null, 413);
+  }
+
   const statusCode = err.statusCode || err.status || 500;
   const message = process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message;
 

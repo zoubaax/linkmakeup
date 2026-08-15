@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthPage from './components/AuthPage';
 import Dashboard from './components/Dashboard';
+import DiscussionsPage from './components/DiscussionsPage';
+import NewDiscussionPage, { ReplyDiscussionPage } from './components/DiscussionActions';
 import OnboardingPage from './components/OnboardingPage';
 import PublicProfile from './components/PublicProfile';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -9,11 +11,25 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<AuthPage />} />
-        <Route path="/:username" element={<PublicProfile />} />
+        <Route path="/discussions" element={<DiscussionsPage />} />
+        <Route
+          path="/discussions/new"
+          element={
+            <ProtectedRoute>
+              <NewDiscussionPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/discussions/:id/reply"
+          element={
+            <ProtectedRoute>
+              <ReplyDiscussionPage />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* Protected: Only when authenticated but no profile yet */}
         <Route
           path="/onboarding"
           element={
@@ -23,7 +39,6 @@ export default function App() {
           }
         />
 
-        {/* Protected: Only when authenticated + has profile */}
         <Route
           path="/dashboard"
           element={
@@ -33,7 +48,8 @@ export default function App() {
           }
         />
 
-        {/* Catch-all */}
+        <Route path="/:username" element={<PublicProfile />} />
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

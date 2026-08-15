@@ -10,13 +10,13 @@ const createProfileSchema = z.object({
   username: z.string().min(3, 'Username must be at least 3 characters').max(50).regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores, and hyphens'),
   displayName: z.string().min(1, 'Display Name is required').max(100),
   bio: z.string().max(250).optional(),
-  avatarUrl: z.string().optional(),
+  avatarUrl: z.string().max(500_000, 'Avatar image is too large').optional(),
 });
 
 const updateProfileSchema = z.object({
   displayName: z.string().min(1).max(100).optional(),
   bio: z.string().max(250).optional(),
-  avatarUrl: z.string().optional(),
+  avatarUrl: z.string().max(500_000, 'Avatar image is too large').optional(),
 });
 
 export class ProfileController {

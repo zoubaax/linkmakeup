@@ -17,10 +17,13 @@ class ApiService {
         credentials: 'include',
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(data.message || `API Request failed with status ${response.status}`);
+        const message = data.message
+          || (response.status === 413 ? 'Image is too large. Try a smaller photo.' : null)
+          || `API Request failed with status ${response.status}`;
+        throw new Error(message);
       }
 
       return data;
