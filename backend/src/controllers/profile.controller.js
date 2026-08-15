@@ -12,8 +12,17 @@ const createProfileSchema = z.object({
   role: z.string().max(150).optional(),
   bio: z.string().max(250).optional(),
   avatarUrl: z.string().max(500_000, 'Avatar image is too large').optional(),
+  avatarShape: z.enum(['circle', 'rounded', 'square']).optional(),
   statusBadge: z.string().max(150).optional(),
   showStatusBadge: z.boolean().optional(),
+  themeConfig: z.object({
+    preset: z.string().optional(),
+    layoutStyle: z.string().optional(),
+    backgroundColor: z.string().optional(),
+    cardColor: z.string().optional(),
+    accentColor: z.string().optional(),
+    textColor: z.string().optional(),
+  }).optional(),
 });
 
 const updateProfileSchema = z.object({

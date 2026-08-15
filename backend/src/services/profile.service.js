@@ -38,7 +38,7 @@ export class ProfileService {
   }
 
   static async createProfile(userId, profileData) {
-    const { username, displayName, bio, avatarUrl } = profileData;
+    const { username, displayName, role, bio, avatarUrl, avatarShape, statusBadge, showStatusBadge, themeConfig } = profileData;
     const cleanUsername = username.toLowerCase().trim();
 
     const availability = await this.checkAvailability(cleanUsername);
@@ -53,8 +53,13 @@ export class ProfileService {
           userId,
           username: cleanUsername,
           displayName: displayName || cleanUsername,
+          role: role || null,
           bio: bio || '',
           avatarUrl: avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanUsername}`,
+          avatarShape: avatarShape || 'circle',
+          statusBadge: statusBadge || null,
+          showStatusBadge: showStatusBadge ?? false,
+          themeConfig: themeConfig ? JSON.stringify(themeConfig) : null,
         })
         .returning();
 
@@ -66,8 +71,10 @@ export class ProfileService {
         userId,
         username: cleanUsername,
         displayName: displayName || cleanUsername,
+        role: role || null,
         bio: bio || '',
         avatarUrl: avatarUrl || '',
+        avatarShape: avatarShape || 'circle',
       };
     }
   }
