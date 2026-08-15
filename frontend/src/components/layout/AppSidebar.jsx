@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
 import ThemeToggle from '../ThemeToggle';
-
 const NAV_LINKS = [
   {
     to: '/dashboard',
@@ -61,7 +61,7 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse }) {
         )}
       </NavLink>
 
-      <nav className={`flex-1 py-2 flex flex-col gap-1 ${collapsed ? 'px-2' : 'px-3'}`}>
+      <nav className={`flex-1 py-2 flex flex-col gap-1 overflow-y-auto ${collapsed ? 'px-2' : 'px-3'}`}>
         {visibleLinks.map((link) => (
           <NavLink
             key={link.to}
@@ -75,6 +75,27 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse }) {
             {!collapsed && link.label}
           </NavLink>
         ))}
+
+        {user && (
+          <div className={collapsed ? 'mt-3 pt-3 border-t border-border space-y-1' : 'mt-4 pt-4 border-t border-border space-y-1'}>
+            {!collapsed && (
+              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">
+                Profile
+              </p>
+            )}
+            <NavLink
+              to={PROFILE_DETAILS_PATH}
+              title={collapsed ? 'Profile Details' : undefined}
+              className={(state) => navLinkClassName(state, collapsed)}
+              onClick={onNavigate}
+            >
+              <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              {!collapsed && 'Profile Details'}
+            </NavLink>
+          </div>
+        )}
       </nav>
 
       <div className={`border-t border-border space-y-3 ${collapsed ? 'px-2 py-3' : 'px-3 py-4'}`}>

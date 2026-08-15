@@ -1,6 +1,6 @@
 import { db } from '../config/db.js';
 import { profiles, links } from '../models/schema.js';
-import { eq, sql } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { ApiError } from '../utils/apiResponse.js';
 
 const RESERVED_USERNAMES = [
@@ -79,22 +79,27 @@ export class ProfileService {
       const [updated] = await db
         .update(profiles)
         .set({
-          ...(displayName && { displayName }),
+          ...(displayName !== undefined && { displayName }),
           ...(role !== undefined && { role }),
           ...(bio !== undefined && { bio }),
-          ...(avatarUrl && { avatarUrl }),
+          ...(avatarUrl !== undefined && { avatarUrl }),
           ...(statusBadge !== undefined && { statusBadge }),
           ...(showStatusBadge !== undefined && { showStatusBadge }),
-          ...(themeConfig && { themeConfig }),
+          ...(themeConfig !== undefined && { themeConfig }),
           updatedAt: new Date(),
         })
         .where(eq(profiles.userId, userId))
         .returning();
 
+      if (!updated) {
+        throw new ApiError('Profile not found.', 404);
+      }
+
       return updated;
     } catch (err) {
-      console.warn('⚠️ DB profile update error:', err.message);
-      return null;
+      if (err instanceof ApiError) throw err;
+      console.error('DB profile update error:', err.message);
+      throw new ApiError('Failed to update profile.', 500);
     }
   }
 
@@ -117,8 +122,7 @@ export class ProfileService {
       const activeLinks = await db
         .select()
         .from(links)
-        .where(eq(links.userId, userProfile.userId))
-        .where(eq(links.isActive, true))
+        .where(and(eq(links.userId, userProfile.userId), eq(links.isActive, true)))
         .orderBy(links.position);
 
       return {

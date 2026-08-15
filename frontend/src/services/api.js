@@ -9,12 +9,14 @@ class ApiService {
       'Content-Type': 'application/json',
       ...options.headers,
     };
+    const { cache, ...fetchOptions } = options;
 
     try {
       const response = await fetch(url, {
-        ...options,
+        ...fetchOptions,
         headers,
         credentials: 'include',
+        cache: cache ?? 'default',
       });
 
       const data = await response.json().catch(() => ({}));
@@ -64,7 +66,7 @@ class ApiService {
   }
 
   static async getCurrentUser() {
-    return this.request('/auth/me');
+    return this.request('/auth/me', { cache: 'no-store' });
   }
 
   static async logout() {
@@ -89,6 +91,7 @@ class ApiService {
     return this.request('/profiles/me', {
       method: 'PATCH',
       body: JSON.stringify(profileData),
+      cache: 'no-store',
     });
   }
 

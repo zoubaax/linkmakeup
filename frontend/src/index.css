@@ -148,6 +148,7 @@ button, a, input, textarea {
   transition-timing-function: ease-out;
 }
 
+<<<<<<< Updated upstream
 /* Landing: Why section */
 .why-section {
   overflow: hidden;
@@ -224,3 +225,27 @@ button, a, input, textarea {
   animation-play-state: paused;
 }
 
+=======
+.image-cropper {
+  --rc-border-color: rgb(52 211 153 / 0.95);
+  --rc-focus-color: #10b981;
+  --rc-drag-handle-bg-colour: rgb(16 185 129 / 0.45);
+  --rc-drag-handle-size: 14px;
+  --rc-drag-handle-mobile-size: 28px;
+}
+
+.image-cropper .ReactCrop__crop-selection:not(.ReactCrop--no-animate .ReactCrop__crop-selection) {
+  animation: none;
+  outline: 2px solid var(--rc-border-color);
+  outline-offset: -1px;
+}
+
+.image-cropper .ReactCrop__drag-handle {
+  border-color: var(--rc-border-color);
+  background-color: rgb(255 255 255 / 0.92);
+}
+
+.image-cropper .ReactCrop__drag-handle:focus {
+  background-color: var(--rc-focus-color);
+}
+>>>>>>> Stashed changes

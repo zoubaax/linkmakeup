@@ -2,6 +2,8 @@ import { useState } from 'react';
 import ApiService from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import { PLATFORM_PRESETS, getPlatformIcon } from './SocialIcons';
+import { LinkIcon } from './LinkIcon';
+import { getFaviconIconValue, iconForLinkUrl, isPlatformIcon } from '../utils/linkIcon';
 
 const inputClass =
   'px-3.5 py-2.5 bg-surface-alt border border-border rounded-xl text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-subtle transition-colors';
@@ -28,17 +30,25 @@ export default function LinkManager({ links, onLinksUpdated }) {
     setNewIcon(preset.id);
   };
 
+  const handleNewUrlChange = (value) => {
+    setNewUrl(value);
+    if (!isPlatformIcon(newIcon)) {
+      setNewIcon(getFaviconIconValue(value));
+    }
+  };
+
   const handleAddLink = async (e) => {
     e.preventDefault();
     if (!newTitle.trim() || !newUrl.trim()) return;
     setLoading(true);
     setErrorMsg('');
+    const icon = iconForLinkUrl(newUrl.trim(), newIcon);
     try {
       const response = await ApiService.createLink({
         title: newTitle.trim(),
         subtitle: newSubtitle.trim(),
         url: newUrl.trim(),
-        icon: newIcon,
+        icon,
         isActive: true,
       });
       if (response.success && response.data) {
@@ -70,10 +80,23 @@ export default function LinkManager({ links, onLinksUpdated }) {
 
   const handleSaveEdit = async (id) => {
     if (!editTitle.trim() || !editUrl.trim()) return;
-    onLinksUpdated(links.map((l) => l.id === id ? { ...l, title: editTitle.trim(), subtitle: editSubtitle.trim(), url: editUrl.trim() } : l));
+    const link = links.find((l) => l.id === id);
+    const icon = iconForLinkUrl(editUrl.trim(), link?.icon);
+    onLinksUpdated(links.map((l) => l.id === id ? {
+      ...l,
+      title: editTitle.trim(),
+      subtitle: editSubtitle.trim(),
+      url: editUrl.trim(),
+      icon,
+    } : l));
     setEditingId(null);
     try {
-      await ApiService.updateLink(id, { title: editTitle.trim(), subtitle: editSubtitle.trim(), url: editUrl.trim() });
+      await ApiService.updateLink(id, {
+        title: editTitle.trim(),
+        subtitle: editSubtitle.trim(),
+        url: editUrl.trim(),
+        icon,
+      });
     } catch (err) { console.error(err); }
   };
 
@@ -105,16 +128,16 @@ export default function LinkManager({ links, onLinksUpdated }) {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between pb-4 mb-5 border-b border-border">
-        <div>
-          <h3 className="text-xl font-bold text-fg">Links</h3>
-          <p className="text-fg-subtle text-xs mt-0.5">Add, edit, reorder, or hide links</p>
+    <section id="links" aria-labelledby="links-heading" className="scroll-mt-24 bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between gap-3 pb-4 mb-5 border-b border-border">
+        <div className="min-w-0">
+          <h3 id="links-heading" className="text-lg sm:text-xl font-bold text-fg">Links</h3>
+          <p className="text-fg-subtle text-xs mt-0.5 truncate">Add, edit, reorder, or hide links</p>
         </div>
         <button
           type="button"
           onClick={() => setIsAdding(!isAdding)}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="shrink-0 flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-semibold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <span className="text-lg leading-none">+</span>
           {isAdding ? 'Cancel' : 'Add Link'}
@@ -145,17 +168,17 @@ export default function LinkManager({ links, onLinksUpdated }) {
       )}
 
       {isAdding && (
-        <form onSubmit={handleAddLink} className="mb-5 p-4 rounded-xl bg-surface-alt border border-border flex flex-col gap-3">
+        <form onSubmit={handleAddLink} className="mb-5 p-3.5 sm:p-4 rounded-xl bg-surface-alt border border-border flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-accent">{getPlatformIcon(newIcon, 'w-4 h-4')}</span>
+            <LinkIcon icon={newIcon} title={newTitle} url={newUrl} className="w-4 h-4" />
             <span className="font-bold text-sm text-fg">New Link</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <input type="text" placeholder="Title (e.g. Portfolio)" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} required className={inputClass} />
             <input type="text" placeholder="Subtitle (e.g. View my work)" value={newSubtitle} onChange={(e) => setNewSubtitle(e.target.value)} className={inputClass} />
-            <input type="url" placeholder="URL" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} required className={inputClass} />
+            <input type="url" placeholder="URL" value={newUrl} onChange={(e) => handleNewUrlChange(e.target.value)} required className={inputClass} />
           </div>
-          <button type="submit" disabled={loading} className="self-start px-5 py-2 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-sm transition-colors">
+          <button type="submit" disabled={loading} className="self-start w-full sm:w-auto px-5 py-2 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-sm transition-colors">
             {loading ? 'Saving...' : 'Save Link'}
           </button>
         </form>
@@ -171,46 +194,48 @@ export default function LinkManager({ links, onLinksUpdated }) {
           links.map((link, idx) => (
             <div
               key={link.id}
-              className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${
+              className={`flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl border transition-all ${
                 link.isActive ? 'bg-surface-alt border-border' : 'bg-surface-alt/50 border-border/60 opacity-60'
               }`}
             >
-              <div className="flex flex-col gap-0.5 shrink-0">
-                <button type="button" onClick={() => moveUp(idx)} disabled={idx === 0} className="p-1 rounded text-fg-subtle hover:text-fg disabled:opacity-20 transition-colors">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
-                </button>
-                <button type="button" onClick={() => moveDown(idx)} disabled={idx === links.length - 1} className="p-1 rounded text-fg-subtle hover:text-fg disabled:opacity-20 transition-colors">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-                </button>
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+                <div className="flex flex-col gap-0.5 shrink-0">
+                  <button type="button" onClick={() => moveUp(idx)} disabled={idx === 0} className="p-1 rounded text-fg-subtle hover:text-fg disabled:opacity-20 transition-colors">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
+                  </button>
+                  <button type="button" onClick={() => moveDown(idx)} disabled={idx === links.length - 1} className="p-1 rounded text-fg-subtle hover:text-fg disabled:opacity-20 transition-colors">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
+                  </button>
+                </div>
+
+                <div className="w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center text-accent shrink-0 overflow-hidden p-1.5">
+                  <LinkIcon icon={link.icon} title={link.title} url={link.url} className="w-4 h-4" imgClassName="w-full h-full object-contain" />
+                </div>
+
+                {editingId === link.id ? (
+                  <div className="flex-1 flex flex-col gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input type="text" placeholder="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className={`${inputClass} py-1.5`} />
+                      <input type="text" placeholder="Subtitle" value={editSubtitle} onChange={(e) => setEditSubtitle(e.target.value)} className={`${inputClass} py-1.5`} />
+                    </div>
+                    <input type="url" placeholder="URL" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} className={`${inputClass} py-1.5`} />
+                    <div className="flex gap-2">
+                      <button type="button" onClick={() => handleSaveEdit(link.id)} className="px-3 py-1 bg-primary text-primary-fg rounded-lg text-xs font-bold">Save</button>
+                      <button type="button" onClick={() => setEditingId(null)} className="px-3 py-1 bg-surface-muted text-fg-muted rounded-lg text-xs font-semibold">Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-fg truncate">{link.title}</p>
+                    {link.subtitle && (
+                      <p className="text-xs text-fg-muted font-medium truncate">{link.subtitle}</p>
+                    )}
+                    <a href={link.url} target="_blank" rel="noreferrer" className="text-[11px] text-fg-subtle hover:text-accent truncate block transition-colors">{link.url}</a>
+                  </div>
+                )}
               </div>
 
-              <div className="w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center text-accent shrink-0">
-                {getPlatformIcon(link.icon || link.title, 'w-4 h-4')}
-              </div>
-
-              {editingId === link.id ? (
-                <div className="flex-1 flex flex-col gap-2">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <input type="text" placeholder="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className={`${inputClass} py-1.5`} />
-                    <input type="text" placeholder="Subtitle" value={editSubtitle} onChange={(e) => setEditSubtitle(e.target.value)} className={`${inputClass} py-1.5`} />
-                  </div>
-                  <input type="url" placeholder="URL" value={editUrl} onChange={(e) => setEditUrl(e.target.value)} className={`${inputClass} py-1.5`} />
-                  <div className="flex gap-2">
-                    <button type="button" onClick={() => handleSaveEdit(link.id)} className="px-3 py-1 bg-primary text-primary-fg rounded-lg text-xs font-bold">Save</button>
-                    <button type="button" onClick={() => setEditingId(null)} className="px-3 py-1 bg-surface-muted text-fg-muted rounded-lg text-xs font-semibold">Cancel</button>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-fg truncate">{link.title}</p>
-                  {link.subtitle && (
-                    <p className="text-xs text-fg-muted font-medium truncate">{link.subtitle}</p>
-                  )}
-                  <a href={link.url} target="_blank" rel="noreferrer" className="text-[11px] text-fg-subtle hover:text-accent truncate block transition-colors">{link.url}</a>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center justify-end sm:justify-end gap-1.5 sm:gap-2 shrink-0 self-end sm:self-auto w-full sm:w-auto">
                 {editingId !== link.id && (
                   <button type="button" onClick={() => startEdit(link)} className="p-1.5 text-fg-subtle hover:text-fg transition-colors" title="Edit">
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -238,6 +263,6 @@ export default function LinkManager({ links, onLinksUpdated }) {
           ))
         )}
       </div>
-    </div>
+    </section>
   );
 }

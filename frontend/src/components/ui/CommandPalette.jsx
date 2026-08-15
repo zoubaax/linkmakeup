@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
+import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
 
 export default function CommandPalette({ open, onClose }) {
   const [query, setQuery] = useState('');
@@ -25,6 +26,9 @@ export default function CommandPalette({ open, onClose }) {
       user
         ? { id: 'dashboard', label: 'Go to Dashboard', hint: 'Manage your page', action: () => navigate('/dashboard') }
         : { id: 'signin', label: 'Sign In', hint: 'Access your account', action: () => navigate('/login') },
+      ...(user
+        ? [{ id: 'profile', label: 'Profile Details', hint: 'Avatar, name & bio', action: () => navigate(PROFILE_DETAILS_PATH) }]
+        : []),
       { id: 'theme', label: 'Toggle theme', hint: 'Light / dark mode', action: toggleTheme },
     ];
     if (!query.trim()) return items;

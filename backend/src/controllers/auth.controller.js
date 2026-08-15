@@ -147,6 +147,8 @@ export class AuthController {
     try {
       const user = req.user;
 
+      res.set('Cache-Control', 'no-store');
+
       // Also fetch the user's profile to determine if onboarding is complete
       const profileResult = await db
         .select()

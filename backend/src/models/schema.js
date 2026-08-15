@@ -25,10 +25,11 @@ export const profiles = pgTable('profiles', {
   showStatusBadge: boolean('show_status_badge').default(true).notNull(),
   themeConfig: jsonb('theme_config').default({
     preset: 'default',
+    layoutStyle: 'classic',
     backgroundColor: '#F7F3EE',
     cardColor: '#FFFFFF',
     accentColor: '#C4622A',
-    textColor: '#1C1814'
+    textColor: '#1C1814',
   }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

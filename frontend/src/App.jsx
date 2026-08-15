@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import Dashboard from './components/Dashboard';
+import ProfileDetailsPage from './components/ProfileDetailsPage';
 import OnboardingPage from './components/OnboardingPage';
 import PublicProfile from './components/PublicProfile';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -59,6 +60,15 @@ export default function App() {
             element={
               <ProtectedRoute requiresProfile>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/profile"
+            element={
+              <ProtectedRoute requiresProfile>
+                <ProfileDetailsPage />
               </ProtectedRoute>
             }
           />

@@ -25,6 +25,7 @@ const updateProfileSchema = z.object({
   showStatusBadge: z.boolean().optional(),
   themeConfig: z.object({
     preset: z.string().optional(),
+    layoutStyle: z.enum(['classic', 'minimal', 'glass', 'maximal', 'neo']).optional(),
     backgroundColor: z.string().optional(),
     cardColor: z.string().optional(),
     accentColor: z.string().optional(),
@@ -81,6 +82,9 @@ export class ProfileController {
       }
 
       const updated = await ProfileService.updateProfile(userId, validation.data);
+      if (!updated) {
+        throw new ApiError('Profile not found.', 404);
+      }
       return ApiResponse.success(res, 'Profile updated successfully', updated);
     } catch (err) {
       next(err);

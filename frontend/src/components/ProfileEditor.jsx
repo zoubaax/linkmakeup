@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ApiService from '../services/api';
 import { useToast } from '../contexts/ToastContext';
-import { compressImageFile, validateImageFile } from '../utils/imageUpload';
+import { validateImageFile } from '../utils/imageUpload';
+import ImageCropper from './ui/ImageCropper';
 
 import { StatusPill } from './StatusPill';
 
@@ -17,9 +18,80 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
   const [bio, setBio] = useState(profile?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl || '');
   const [loading, setLoading] = useState(false);
+  const [savingAvatar, setSavingAvatar] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [dragOver, setDragOver] = useState(false);
+  const [cropSrc, setCropSrc] = useState(null);
   const fileInputRef = useRef(null);
+  const cropUrlRef = useRef(null);
+
+  useEffect(() => () => {
+    if (cropUrlRef.current) URL.revokeObjectURL(cropUrlRef.current);
+  }, []);
+
+  useEffect(() => {
+    setAvatarUrl(profile?.avatarUrl || '');
+  }, [profile?.avatarUrl]);
+
+  const openCropper = (url) => {
+    if (cropUrlRef.current) URL.revokeObjectURL(cropUrlRef.current);
+    cropUrlRef.current = url;
+    setCropSrc(url);
+  };
+
+  const closeCropper = () => {
+    if (cropUrlRef.current) {
+      URL.revokeObjectURL(cropUrlRef.current);
+      cropUrlRef.current = null;
+    }
+    setCropSrc(null);
+  };
+
+  const queueImageForCrop = (file) => {
+    const validationError = validateImageFile(file);
+    if (validationError) {
+      setErrorMsg(validationError);
+      return;
+    }
+    setErrorMsg('');
+    openCropper(URL.createObjectURL(file));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    queueImageForCrop(file);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) queueImageForCrop(file);
+  };
+
+  const handleCropConfirm = async (croppedUrl) => {
+    closeCropper();
+    setAvatarUrl(croppedUrl);
+    setSavingAvatar(true);
+    setErrorMsg('');
+
+    try {
+      const response = await ApiService.updateProfile({ avatarUrl: croppedUrl });
+      if (!response.success || !response.data) {
+        throw new Error('Failed to save profile photo.');
+      }
+      onProfileUpdated?.({ ...profile, ...response.data });
+      toastSuccess('Profile photo saved');
+    } catch (err) {
+      const msg = err.message || 'Failed to save profile photo.';
+      setErrorMsg(msg);
+      toastError(msg);
+    } finally {
+      setSavingAvatar(false);
+    }
+  };
 
   const STATUS_PRESETS = [
     'Available for opportunities',
@@ -27,31 +99,6 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
     'Available for freelance & work',
     'Accepting new clients',
   ];
-
-  const processFile = async (file) => {
-    const validationError = validateImageFile(file);
-    if (validationError) { setErrorMsg(validationError); return; }
-    try {
-      const compressed = await compressImageFile(file);
-      setAvatarUrl(compressed);
-      setErrorMsg('');
-      toastSuccess('Photo ready — save to apply');
-    } catch (err) {
-      setErrorMsg(err.message || 'Failed to process image.');
-    }
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (file) await processFile(file);
-  };
-
-  const handleDrop = async (e) => {
-    e.preventDefault();
-    setDragOver(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) await processFile(file);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -66,18 +113,11 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
         bio: bio.trim(),
         avatarUrl: avatarUrl.trim(),
       });
-      if (response.success) {
-        toastSuccess('Profile saved');
-        onProfileUpdated?.({
-          ...profile,
-          displayName: displayName.trim(),
-          role: role.trim(),
-          statusBadge: statusBadge.trim(),
-          showStatusBadge,
-          bio: bio.trim(),
-          avatarUrl: avatarUrl.trim(),
-        });
+      if (!response.success || !response.data) {
+        throw new Error('Failed to update profile.');
       }
+      toastSuccess('Profile saved');
+      onProfileUpdated?.({ ...profile, ...response.data });
     } catch (err) {
       const msg = err.message || 'Failed to update profile.';
       setErrorMsg(msg);
@@ -88,13 +128,16 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
   };
 
   return (
-    <div className="bg-surface border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between pb-4 mb-5 border-b border-border">
-        <div>
-          <h3 className="text-xl font-bold text-fg">Profile Details</h3>
-          <p className="text-fg-subtle text-xs mt-0.5">Update your avatar, display name & bio</p>
-        </div>
-        <img src={avatarUrl || profile?.avatarUrl} alt={displayName} className="w-11 h-11 rounded-full object-cover border-2 border-border-strong" />
+    <section
+      id="profile-details"
+      aria-labelledby="profile-details-heading"
+      className="scroll-mt-24 bg-surface border border-border rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow"
+    >
+      <div className="pb-4 mb-5 border-b border-border">
+        <h3 id="profile-details-heading" className="text-xl font-bold text-fg">
+          Profile Details
+        </h3>
+        <p className="text-fg-subtle text-xs mt-0.5">Update your avatar, display name & bio</p>
       </div>
 
       {errorMsg && (
@@ -128,11 +171,12 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-surface-alt text-fg-muted text-xs font-semibold hover:bg-nav-hover transition-colors"
+                disabled={savingAvatar}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-surface-alt text-fg-muted text-xs font-semibold hover:bg-nav-hover transition-colors disabled:opacity-40"
               >
-                Upload or drop image
+                {savingAvatar ? 'Saving photo…' : 'Upload photo'}
               </button>
-              <p className="text-fg-subtle text-xs mt-1">JPG, PNG, WebP · max 5MB</p>
+              <p className="text-fg-subtle text-xs mt-1">JPG, PNG, WebP · max 5MB · saved after you crop</p>
             </div>
           </div>
         </div>
@@ -224,6 +268,10 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
           {loading ? 'Saving...' : 'Save Changes'}
         </button>
       </form>
-    </div>
+
+      {cropSrc && (
+        <ImageCropper src={cropSrc} onCancel={closeCropper} onCrop={handleCropConfirm} />
+      )}
+    </section>
   );
 }
