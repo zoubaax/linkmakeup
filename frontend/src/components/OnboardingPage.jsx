@@ -9,12 +9,11 @@ import { generateAvatarDataUrl, DUMMY_NAMES } from '../utils/avatar';
 import ImageCropper from './ui/ImageCropper';
 import Stepper, { Step } from './ui/Stepper';
 import LiveMobilePreview from './LiveMobilePreview';
-import ProfilePageView from './profile/ProfilePageView';
 import Logo from './ui/Logo';
 import { THEME_PRESETS } from '../utils/themePresets';
 import { LAYOUT_STYLES } from '../utils/themeStyles';
 import { PLATFORM_PRESETS, getPlatformPreset, getPlatformIcon } from './SocialIcons';
-import { HiPlus, HiTrash, HiOutlineSparkles, HiXMark, HiEye } from 'react-icons/hi2';
+import { HiPlus, HiTrash, HiOutlineSparkles, HiXMark, HiEye, HiChevronDown, HiChevronUp, HiSwatch } from 'react-icons/hi2';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -33,6 +32,15 @@ export default function OnboardingPage() {
   const [avatarShape, setAvatarShape] = useState('circle');
   const [layoutStyle, setLayoutStyle] = useState('minimal');
   const [presetTheme, setPresetTheme] = useState('minimal-mono');
+
+  // Custom Colors State
+  const [customColors, setCustomColors] = useState({
+    backgroundColor: '#0b0f19',
+    cardColor: '#161e2e',
+    textColor: '#f8fafc',
+    accentColor: '#10b981',
+  });
+  const [showCustomColors, setShowCustomColors] = useState(false);
 
   // Links State (Default: LinkedIn & GitHub)
   const [initialLinks, setInitialLinks] = useState([
@@ -129,6 +137,16 @@ export default function OnboardingPage() {
     });
   };
 
+  const handleSelectPresetTheme = (preset) => {
+    setPresetTheme(preset.id);
+    setCustomColors({
+      backgroundColor: preset.backgroundColor,
+      cardColor: preset.cardColor,
+      textColor: preset.textColor,
+      accentColor: preset.accentColor,
+    });
+  };
+
   const handleSelectPlatform = (platformObj) => {
     if (editingIndex !== null) {
       // Change icon of existing link
@@ -170,14 +188,13 @@ export default function OnboardingPage() {
     setErrorMsg('');
 
     try {
-      const selectedPresetObj = THEME_PRESETS.find((p) => p.id === presetTheme) || THEME_PRESETS[0];
       const themeConfig = {
-        preset: selectedPresetObj.id,
+        preset: presetTheme,
         layoutStyle,
-        cardColor: selectedPresetObj.cardColor,
-        textColor: selectedPresetObj.textColor,
-        accentColor: selectedPresetObj.accentColor,
-        backgroundColor: selectedPresetObj.backgroundColor,
+        cardColor: customColors.cardColor,
+        textColor: customColors.textColor,
+        accentColor: customColors.accentColor,
+        backgroundColor: customColors.backgroundColor,
       };
 
       // 1. Create User Profile
@@ -218,7 +235,6 @@ export default function OnboardingPage() {
     }
   };
 
-  const selectedPresetObj = THEME_PRESETS.find((p) => p.id === presetTheme) || THEME_PRESETS[0];
   const previewProfileObj = {
     displayName: displayName || 'Your Name',
     username: username || 'yourname',
@@ -226,12 +242,12 @@ export default function OnboardingPage() {
     avatarUrl,
     avatarShape,
     themeConfig: {
-      preset: selectedPresetObj.id,
+      preset: presetTheme,
       layoutStyle,
-      cardColor: selectedPresetObj.cardColor,
-      textColor: selectedPresetObj.textColor,
-      accentColor: selectedPresetObj.accentColor,
-      backgroundColor: selectedPresetObj.backgroundColor,
+      cardColor: customColors.cardColor,
+      textColor: customColors.textColor,
+      accentColor: customColors.accentColor,
+      backgroundColor: customColors.backgroundColor,
     },
   };
 
@@ -300,7 +316,7 @@ export default function OnboardingPage() {
                 <div className="flex flex-col gap-4 py-1">
                   <div className="text-left">
                     <h2 className="text-base font-bold text-fg">Step 1: Your Profile Identity</h2>
-                    <p className="text-xs text-fg-subtle mt-0.5">Upload your avatar photo and enter your name.</p>
+                    <p className="text-xs text-fg-subtle mt-0.5">Upload your avatar photo, enter your name, and role headline.</p>
                   </div>
 
                   <div className="flex flex-col items-center justify-center py-2 gap-3 bg-surface-alt/50 border border-border/70 rounded-2xl p-4">
@@ -507,8 +523,8 @@ export default function OnboardingPage() {
               <Step>
                 <div className="flex flex-col gap-4 py-1 text-left">
                   <div>
-                    <h2 className="text-base font-bold text-fg">Step 4: Choose Design & Photo Shape</h2>
-                    <p className="text-xs text-fg-subtle mt-0.5">Select your page layout style, palette, and photo shape.</p>
+                    <h2 className="text-base font-bold text-fg">Step 4: Choose Design & Colors</h2>
+                    <p className="text-xs text-fg-subtle mt-0.5">Select layout style, color palette, or customize your colors.</p>
                   </div>
 
                   {/* Photo Shape Selection */}
@@ -566,12 +582,12 @@ export default function OnboardingPage() {
                     <label className="block text-xs font-bold text-fg-muted uppercase tracking-wider mb-1.5">
                       Color Palette
                     </label>
-                    <div className="grid grid-cols-2 gap-2 max-h-44 overflow-y-auto pr-1">
+                    <div className="grid grid-cols-2 gap-2 max-h-36 overflow-y-auto pr-1">
                       {THEME_PRESETS.slice(0, 6).map((preset) => (
                         <button
                           key={preset.id}
                           type="button"
-                          onClick={() => setPresetTheme(preset.id)}
+                          onClick={() => handleSelectPresetTheme(preset)}
                           className={`flex items-center gap-2.5 p-2.5 rounded-xl border text-xs font-bold text-left transition-all ${
                             presetTheme === preset.id
                               ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-2 ring-emerald-500/20'
@@ -586,6 +602,65 @@ export default function OnboardingPage() {
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Expandable Custom Colors Picker Accordion */}
+                  <div className="border border-border/80 rounded-2xl bg-surface-alt/40 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomColors(!showCustomColors)}
+                      className="w-full px-3.5 py-2.5 flex items-center justify-between text-xs font-bold text-fg hover:bg-surface-alt transition-colors"
+                    >
+                      <span className="flex items-center gap-2">
+                        <HiSwatch className="w-4 h-4 text-violet-500" />
+                        <span>Custom Color Pickers</span>
+                      </span>
+                      {showCustomColors ? <HiChevronUp className="w-4 h-4" /> : <HiChevronDown className="w-4 h-4" />}
+                    </button>
+
+                    {showCustomColors && (
+                      <div className="p-3.5 border-t border-border/60 grid grid-cols-2 gap-3 animate-fade-in">
+                        {[
+                          { key: 'backgroundColor', label: 'Background' },
+                          { key: 'cardColor', label: 'Card / Buttons' },
+                          { key: 'textColor', label: 'Text Color' },
+                          { key: 'accentColor', label: 'Accent Color' },
+                        ].map(({ key, label }) => (
+                          <div key={key}>
+                            <label className="block text-[10px] font-bold text-fg-muted uppercase mb-1">
+                              {label}
+                            </label>
+                            <div className="flex items-center gap-2 bg-surface p-1.5 rounded-xl border border-border focus-within:border-emerald-500 transition-colors">
+                              {/* Native colour swatch — click to open OS picker */}
+                              <input
+                                type="color"
+                                value={customColors[key]}
+                                onChange={(e) => setCustomColors((p) => ({ ...p, [key]: e.target.value }))}
+                                className="w-6 h-6 rounded-md cursor-pointer border-0 bg-transparent shrink-0"
+                              />
+                              {/* Editable hex text field */}
+                              <input
+                                type="text"
+                                value={customColors[key]}
+                                maxLength={7}
+                                spellCheck={false}
+                                placeholder="#000000"
+                                onChange={(e) => {
+                                  const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                                  setCustomColors((p) => ({ ...p, [key]: val }));
+                                }}
+                                onBlur={(e) => {
+                                  // Validate hex on blur; reset to current if invalid
+                                  const valid = /^#[0-9A-Fa-f]{6}$/.test(e.target.value);
+                                  if (!valid) setCustomColors((p) => ({ ...p, [key]: p[key] }));
+                                }}
+                                className="flex-1 min-w-0 bg-transparent text-[11px] font-mono font-semibold text-fg uppercase focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </Step>
