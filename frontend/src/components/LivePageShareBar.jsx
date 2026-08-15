@@ -88,21 +88,46 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
         <ExportPreviewCard ref={exportRef} profile={profile} links={links} />
       </div>
 
-      <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-surface border border-border shadow-sm">
+      <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-surface border border-border/80 shadow-2xs">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-accent uppercase tracking-widest mb-1">Your live page</p>
-            <a
-              href={publicUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="font-mono text-sm sm:text-lg font-bold text-fg underline underline-offset-2 decoration-border-strong hover:decoration-accent transition-all break-all"
-            >
-              {publicUrl}
-            </a>
-            <p className="text-[11px] text-fg-subtle mt-1.5">Share your page or export a preview with a copyright line.</p>
+          
+          {/* Left: Live Page Info & Sleek URL Pill */}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              {/* Pulsing Live Badge */}
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                Live Bio Page
+              </span>
+            </div>
+
+            {/* Sleek URL Pill */}
+            <div className="inline-flex items-center gap-2 max-w-full p-1.5 pl-3.5 pr-2 rounded-xl bg-surface-alt border border-border/80 shadow-2xs group hover:border-accent/40 transition-colors">
+              <a
+                href={publicUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="font-mono text-xs sm:text-sm font-bold text-fg hover:text-accent transition-colors truncate"
+              >
+                {publicUrl}
+              </a>
+              <button
+                type="button"
+                onClick={handleCopyLink}
+                title="Copy URL"
+                className="p-1.5 rounded-lg text-fg-muted hover:text-fg hover:bg-surface transition-colors shrink-0"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+            </div>
           </div>
 
+          {/* Right Action Buttons */}
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 shrink-0 w-full sm:w-auto">
             <ActionButton onClick={handleCopyLink}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -115,7 +140,7 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
-              Visit
+              Visit page
             </ActionButton>
 
             <div className="relative" ref={menuRef}>
