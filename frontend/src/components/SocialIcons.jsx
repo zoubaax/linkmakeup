@@ -1,14 +1,19 @@
 export const PLATFORM_PRESETS = [
-  { id: 'instagram', name: 'Instagram', baseUrl: 'https://instagram.com/', color: 'from-pink-500 to-purple-600' },
-  { id: 'linkedin', name: 'LinkedIn', baseUrl: 'https://linkedin.com/in/', color: 'from-blue-600 to-cyan-600' },
-  { id: 'github', name: 'GitHub', baseUrl: 'https://github.com/', color: 'from-slate-700 to-slate-900' },
-  { id: 'twitter', name: 'X (Twitter)', baseUrl: 'https://x.com/', color: 'from-slate-800 to-slate-950' },
-  { id: 'youtube', name: 'YouTube', baseUrl: 'https://youtube.com/@', color: 'from-red-600 to-rose-700' },
-  { id: 'tiktok', name: 'TikTok', baseUrl: 'https://tiktok.com/@', color: 'from-cyan-500 to-pink-500' },
-  { id: 'whatsapp', name: 'WhatsApp', baseUrl: 'https://wa.me/', color: 'from-emerald-500 to-teal-600' },
-  { id: 'pinterest', name: 'Pinterest', baseUrl: 'https://pinterest.com/', color: 'from-red-600 to-red-700' },
-  { id: 'website', name: 'Website', baseUrl: 'https://', color: 'from-violet-600 to-fuchsia-600' },
+  { id: 'instagram', name: 'Instagram', baseUrl: 'https://instagram.com/', color: 'from-pink-500 to-purple-600', icon: 'instagram' },
+  { id: 'linkedin', name: 'LinkedIn', baseUrl: 'https://linkedin.com/in/', color: 'from-blue-600 to-cyan-600', icon: 'linkedin' },
+  { id: 'github', name: 'GitHub', baseUrl: 'https://github.com/', color: 'from-slate-700 to-slate-900', icon: 'github' },
+  { id: 'twitter', name: 'X (Twitter)', baseUrl: 'https://x.com/', color: 'from-slate-800 to-slate-950', icon: 'twitter' },
+  { id: 'youtube', name: 'YouTube', baseUrl: 'https://youtube.com/@', color: 'from-red-600 to-rose-700', icon: 'youtube' },
+  { id: 'tiktok', name: 'TikTok', baseUrl: 'https://tiktok.com/@', color: 'from-cyan-500 to-pink-500', icon: 'tiktok' },
+  { id: 'whatsapp', name: 'WhatsApp', baseUrl: 'https://wa.me/', color: 'from-emerald-500 to-teal-600', icon: 'whatsapp' },
+  { id: 'pinterest', name: 'Pinterest', baseUrl: 'https://pinterest.com/', color: 'from-red-600 to-red-700', icon: 'pinterest' },
+  { id: 'spotify', name: 'Spotify', baseUrl: 'https://open.spotify.com/', color: 'from-emerald-500 to-emerald-700', icon: 'spotify' },
+  { id: 'website', name: 'Website', baseUrl: 'https://', color: 'from-violet-600 to-fuchsia-600', icon: 'globe' },
 ];
+
+export function getPlatformPreset(id) {
+  return PLATFORM_PRESETS.find((p) => p.id === id) || { id, name: id, baseUrl: 'https://', icon: id };
+}
 
 export const DEFAULT_SUBTITLES = {
   instagram: 'Follow me on Instagram',
@@ -50,11 +55,20 @@ export function getPlatformContainerStyle(iconName) {
   if (name.includes('twitter') || name.includes('x')) return 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100';
   if (name.includes('tiktok')) return 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400';
   if (name.includes('pinterest')) return 'bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400';
+  if (name.includes('spotify')) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
   return 'bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400';
 }
 
 export function getPlatformIcon(iconName, className = "w-4 h-4") {
   const name = (iconName || '').toLowerCase();
+
+  if (name.includes('spotify')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.72 1.62.54.3.72.96.42 1.5-.3.54-.96.72-1.5.42z"/>
+      </svg>
+    );
+  }
 
   if (name.includes('instagram')) {
     return (

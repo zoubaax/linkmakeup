@@ -10,6 +10,7 @@ const app = express();
 
 // Security and utility middlewares
 app.use(helmet({
+  contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 app.use(morgan('dev'));

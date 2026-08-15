@@ -138,7 +138,9 @@ export class AuthController {
       // Redirect back to frontend
       return res.redirect(`${env.clientUrl}?authenticated=true`);
     } catch (err) {
-      next(err);
+      console.error('❌ Google OAuth Callback Error:', err.message || err);
+      // Redirect to frontend login page gracefully instead of showing raw 400 crash page
+      return res.redirect(`${env.clientUrl}/login?error=google_auth_failed`);
     }
   }
 
