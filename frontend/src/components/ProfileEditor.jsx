@@ -18,6 +18,7 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
   const [bio, setBio] = useState(profile?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl || '');
   const [avatarShape, setAvatarShape] = useState(profile?.avatarShape || 'circle');
+  const [avatarSize, setAvatarSize] = useState(profile?.avatarSize || 'medium');
   const [loading, setLoading] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -31,8 +32,17 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
   }, []);
 
   useEffect(() => {
-    setAvatarUrl(profile?.avatarUrl || '');
-  }, [profile?.avatarUrl]);
+    if (profile) {
+      setDisplayName(profile.displayName || '');
+      setRole(profile.role || '');
+      setStatusBadge(profile.statusBadge || '');
+      setShowStatusBadge(profile.showStatusBadge !== false);
+      setBio(profile.bio || '');
+      setAvatarUrl(profile.avatarUrl || '');
+      setAvatarShape(profile.avatarShape || 'circle');
+      setAvatarSize(profile.avatarSize || 'medium');
+    }
+  }, [profile]);
 
   const openCropper = (url) => {
     if (cropUrlRef.current) URL.revokeObjectURL(cropUrlRef.current);
@@ -110,6 +120,22 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
       setAvatarShape(profile?.avatarShape || 'circle');
       onProfileUpdated?.({ ...profile, avatarShape: profile?.avatarShape || 'circle' });
       toastError('Failed to save avatar shape.');
+    }
+  };
+
+  const handleAvatarSizeChange = async (size) => {
+    setAvatarSize(size);
+    onProfileUpdated?.({ ...profile, avatarSize: size });
+    try {
+      const response = await ApiService.updateProfile({ avatarSize: size });
+      if (response.success && response.data) {
+        onProfileUpdated?.({ ...profile, ...response.data, avatarSize: size });
+        toastSuccess('Photo size updated');
+      }
+    } catch {
+      setAvatarSize(profile?.avatarSize || 'medium');
+      onProfileUpdated?.({ ...profile, avatarSize: profile?.avatarSize || 'medium' });
+      toastError('Failed to save photo size.');
     }
   };
 
@@ -207,29 +233,55 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
           </div>
         </div>
 
-        {/* Avatar Shape Picker */}
-        <div>
-          <label className="block text-xs font-semibold text-fg-muted uppercase tracking-wider mb-2">Photo Shape</label>
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { id: 'circle', label: 'Circle', preview: 'rounded-full' },
-              { id: 'rounded', label: 'Rounded', preview: 'rounded-lg' },
-              { id: 'square', label: 'Square', preview: 'rounded-none' },
-            ].map(({ id, label, preview }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => handleAvatarShapeChange(id)}
-                className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
-                  avatarShape === id
-                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20'
-                    : 'border-border bg-surface-alt text-fg-muted hover:text-fg hover:border-border-strong'
-                }`}
-              >
-                <span className={`w-3.5 h-3.5 border-2 border-current ${preview}`} />
-                <span>{label}</span>
-              </button>
-            ))}
+        {/* Avatar Shape & Size Picker */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-fg-muted uppercase tracking-wider mb-2">Photo Shape</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'circle', label: 'Circle', preview: 'rounded-full' },
+                { id: 'rounded', label: 'Rounded', preview: 'rounded-lg' },
+                { id: 'square', label: 'Square', preview: 'rounded-none' },
+              ].map(({ id, label, preview }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => handleAvatarShapeChange(id)}
+                  className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                    avatarShape === id
+                      ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20'
+                      : 'border-border bg-surface-alt text-fg-muted hover:text-fg hover:border-border-strong'
+                  }`}
+                >
+                  <span className={`w-3.5 h-3.5 border-2 border-current ${preview}`} />
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-fg-muted uppercase tracking-wider mb-2">Photo Size</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { id: 'small', label: 'Small' },
+                { id: 'medium', label: 'Medium' },
+                { id: 'large', label: 'Large' },
+              ].map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => handleAvatarSizeChange(id)}
+                  className={`flex items-center justify-center py-2.5 px-2 rounded-xl border text-xs font-semibold transition-all ${
+                    avatarSize === id
+                      ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20'
+                      : 'border-border bg-surface-alt text-fg-muted hover:text-fg hover:border-border-strong'
+                  }`}
+                >
+                  <span>{label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 

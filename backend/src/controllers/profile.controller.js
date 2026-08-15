@@ -13,6 +13,7 @@ const createProfileSchema = z.object({
   bio: z.string().max(250).optional(),
   avatarUrl: z.string().max(500_000, 'Avatar image is too large').optional(),
   avatarShape: z.enum(['circle', 'rounded', 'square']).optional(),
+  avatarSize: z.enum(['small', 'medium', 'large']).optional(),
   statusBadge: z.string().max(150).optional(),
   showStatusBadge: z.boolean().optional(),
   themeConfig: z.object({
@@ -31,6 +32,7 @@ const updateProfileSchema = z.object({
   bio: z.string().max(250).optional(),
   avatarUrl: z.string().max(500_000, 'Avatar image is too large').optional(),
   avatarShape: z.enum(['circle', 'rounded', 'square']).optional(),
+  avatarSize: z.enum(['small', 'medium', 'large']).optional(),
   statusBadge: z.string().max(150).optional(),
   showStatusBadge: z.boolean().optional(),
   themeConfig: z.object({

@@ -30,6 +30,7 @@ export default function OnboardingPage() {
   const [role, setRole] = useState('');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || defaultAvatarUrl);
   const [avatarShape, setAvatarShape] = useState('circle');
+  const [avatarSize, setAvatarSize] = useState('medium');
   const [layoutStyle, setLayoutStyle] = useState('minimal');
   const [presetTheme, setPresetTheme] = useState('minimal-mono');
 
@@ -204,6 +205,7 @@ export default function OnboardingPage() {
         role: role.trim(),
         avatarUrl,
         avatarShape,
+        avatarSize,
         themeConfig,
       });
 
@@ -241,6 +243,7 @@ export default function OnboardingPage() {
     role: role || 'Digital Creator',
     avatarUrl,
     avatarShape,
+    avatarSize,
     themeConfig: {
       preset: presetTheme,
       layoutStyle,
@@ -356,6 +359,61 @@ export default function OnboardingPage() {
                           Remove
                         </button>
                       )}
+                    </div>
+
+                    {/* Quick Photo Shape & Size Controls */}
+                    <div className="w-full pt-2 border-t border-border/60 grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-bold text-fg-muted uppercase tracking-wider mb-1">
+                          Shape
+                        </label>
+                        <div className="grid grid-cols-3 gap-1">
+                          {[
+                            { id: 'circle', label: 'Circle' },
+                            { id: 'rounded', label: 'Round' },
+                            { id: 'square', label: 'Square' },
+                          ].map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => setAvatarShape(item.id)}
+                              className={`py-1 px-1 rounded-lg border text-[10px] font-bold transition-all ${
+                                avatarShape === item.id
+                                  ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                  : 'border-border bg-surface text-fg-muted hover:text-fg'
+                              }`}
+                            >
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-fg-muted uppercase tracking-wider mb-1">
+                          Size
+                        </label>
+                        <div className="grid grid-cols-3 gap-1">
+                          {[
+                            { id: 'small', label: 'S' },
+                            { id: 'medium', label: 'M' },
+                            { id: 'large', label: 'L' },
+                          ].map((item) => (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => setAvatarSize(item.id)}
+                              className={`py-1 px-1 rounded-lg border text-[10px] font-bold transition-all ${
+                                avatarSize === item.id
+                                  ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                  : 'border-border bg-surface text-fg-muted hover:text-fg'
+                              }`}
+                            >
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -527,30 +585,58 @@ export default function OnboardingPage() {
                     <p className="text-xs text-fg-subtle mt-0.5">Select layout style, color palette, or customize your colors.</p>
                   </div>
 
-                  {/* Photo Shape Selection */}
-                  <div>
-                    <label className="block text-xs font-bold text-fg-muted uppercase tracking-wider mb-1.5">
-                      Photo Shape
-                    </label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'circle', label: 'Circle' },
-                        { id: 'rounded', label: 'Rounded' },
-                        { id: 'square', label: 'Square' },
-                      ].map((item) => (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setAvatarShape(item.id)}
-                          className={`py-2.5 px-3 rounded-xl border text-xs font-bold transition-all ${
-                            avatarShape === item.id
-                              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-2 ring-emerald-500/20'
-                              : 'border-border bg-surface-alt text-fg-muted hover:text-fg'
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
+                  {/* Photo Shape & Size Selection */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-fg-muted uppercase tracking-wider mb-1.5">
+                        Photo Shape
+                      </label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          { id: 'circle', label: 'Circle' },
+                          { id: 'rounded', label: 'Rounded' },
+                          { id: 'square', label: 'Square' },
+                        ].map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setAvatarShape(item.id)}
+                            className={`py-2 px-2 rounded-xl border text-xs font-bold transition-all ${
+                              avatarShape === item.id
+                                ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-2 ring-emerald-500/20'
+                                : 'border-border bg-surface-alt text-fg-muted hover:text-fg'
+                            }`}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-fg-muted uppercase tracking-wider mb-1.5">
+                        Photo Size
+                      </label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {[
+                          { id: 'small', label: 'Small' },
+                          { id: 'medium', label: 'Medium' },
+                          { id: 'large', label: 'Large' },
+                        ].map((item) => (
+                          <button
+                            key={item.id}
+                            type="button"
+                            onClick={() => setAvatarSize(item.id)}
+                            className={`py-2 px-2 rounded-xl border text-xs font-bold transition-all ${
+                              avatarSize === item.id
+                                ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-2 ring-emerald-500/20'
+                                : 'border-border bg-surface-alt text-fg-muted hover:text-fg'
+                            }`}
+                          >
+                            {item.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 

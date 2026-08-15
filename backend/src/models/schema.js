@@ -22,6 +22,7 @@ export const profiles = pgTable('profiles', {
   bio: text('bio'),
   avatarUrl: text('avatar_url'),
   avatarShape: varchar('avatar_shape', { length: 20 }).default('circle').notNull(),
+  avatarSize: varchar('avatar_size', { length: 20 }).default('medium').notNull(),
   statusBadge: varchar('status_badge', { length: 150 }),
   showStatusBadge: boolean('show_status_badge').default(true).notNull(),
   themeConfig: jsonb('theme_config').default({

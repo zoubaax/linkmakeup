@@ -301,22 +301,45 @@ export default function ThemeCustomizer({ profile, onThemeUpdated }) {
           <div className="p-4 border-t border-border bg-surface">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {COLOR_FIELDS.map(({ key, label, hint }) => (
-                <label
+                <div
                   key={key}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface-alt hover:border-accent/40 transition-colors cursor-pointer"
+                  className="flex items-center gap-3 p-3 rounded-xl border border-border bg-surface-alt hover:border-accent/40 focus-within:border-accent transition-colors"
                 >
                   <input
                     type="color"
                     value={theme[key]}
                     onChange={(e) => handleColorChange(key, e.target.value)}
                     className="w-10 h-10 rounded-xl border border-border cursor-pointer bg-transparent overflow-hidden shrink-0"
+                    title={`Pick ${label} color`}
                   />
-                  <span className="min-w-0">
-                    <span className="text-sm font-semibold text-fg block">{label}</span>
-                    <span className="text-[11px] text-fg-subtle block">{hint}</span>
-                    <span className="font-mono text-[10px] text-fg-muted mt-1 block">{theme[key].toUpperCase()}</span>
-                  </span>
-                </label>
+                  <div className="min-w-0 flex-1">
+                    <span className="text-sm font-bold text-fg block">{label}</span>
+                    <span className="text-[11px] text-fg-subtle block mb-1">{hint}</span>
+                    
+                    {/* Editable Hex Code Input */}
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="text"
+                        value={theme[key]}
+                        maxLength={7}
+                        spellCheck={false}
+                        placeholder="#000000"
+                        onChange={(e) => {
+                          const val = e.target.value.startsWith('#') ? e.target.value : `#${e.target.value}`;
+                          handleColorChange(key, val);
+                        }}
+                        onBlur={(e) => {
+                          const valid = /^#[0-9A-Fa-f]{6}$/.test(e.target.value);
+                          if (!valid) {
+                            // Reset back to current valid theme color if invalid hex
+                            handleColorChange(key, theme[key]);
+                          }
+                        }}
+                        className="w-full px-2 py-1 rounded-lg bg-surface border border-border text-xs font-mono font-bold text-fg uppercase focus:outline-none focus:border-accent"
+                      />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
 

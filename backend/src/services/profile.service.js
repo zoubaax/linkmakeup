@@ -38,7 +38,7 @@ export class ProfileService {
   }
 
   static async createProfile(userId, profileData) {
-    const { username, displayName, role, bio, avatarUrl, avatarShape, statusBadge, showStatusBadge, themeConfig } = profileData;
+    const { username, displayName, role, bio, avatarUrl, avatarShape, avatarSize, statusBadge, showStatusBadge, themeConfig } = profileData;
     const cleanUsername = username.toLowerCase().trim();
 
     const availability = await this.checkAvailability(cleanUsername);
@@ -57,6 +57,7 @@ export class ProfileService {
           bio: bio || '',
           avatarUrl: avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanUsername}`,
           avatarShape: avatarShape || 'circle',
+          avatarSize: avatarSize || 'medium',
           statusBadge: statusBadge || null,
           showStatusBadge: showStatusBadge ?? false,
           themeConfig: themeConfig ? JSON.stringify(themeConfig) : null,
@@ -75,12 +76,13 @@ export class ProfileService {
         bio: bio || '',
         avatarUrl: avatarUrl || '',
         avatarShape: avatarShape || 'circle',
+        avatarSize: avatarSize || 'medium',
       };
     }
   }
 
   static async updateProfile(userId, updateData) {
-    const { displayName, role, bio, avatarUrl, avatarShape, statusBadge, showStatusBadge, themeConfig } = updateData;
+    const { displayName, role, bio, avatarUrl, avatarShape, avatarSize, statusBadge, showStatusBadge, themeConfig } = updateData;
 
     try {
       const [updated] = await db
@@ -91,6 +93,7 @@ export class ProfileService {
           ...(bio !== undefined && { bio }),
           ...(avatarUrl !== undefined && { avatarUrl }),
           ...(avatarShape !== undefined && { avatarShape }),
+          ...(avatarSize !== undefined && { avatarSize }),
           ...(statusBadge !== undefined && { statusBadge }),
           ...(showStatusBadge !== undefined && { showStatusBadge }),
           ...(themeConfig !== undefined && { themeConfig }),

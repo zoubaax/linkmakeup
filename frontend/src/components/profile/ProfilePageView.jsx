@@ -21,6 +21,15 @@ function LinkArrow({ visuals, compact, accent }) {
   if (visuals.layoutStyle === 'neo') {
     return <span style={visuals.linkArrow.style} className={visuals.linkArrow.className}>→</span>;
   }
+  if (visuals.layoutStyle === 'minimal') {
+    return (
+      <div className={visuals.linkArrow.className} style={visuals.linkArrow.style}>
+        <svg className={compact ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7V17" />
+        </svg>
+      </div>
+    );
+  }
   return (
     <div className={visuals.linkArrow.className} style={visuals.linkArrow.style}>
       <svg className={compact ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -63,7 +72,19 @@ export default function ProfilePageView({
     return { borderRadius: '9999px' };
   };
 
+  const getAvatarDimensionStyle = (sizeKey, isCompact) => {
+    if (sizeKey === 'small') {
+      return { width: isCompact ? '48px' : '76px', height: isCompact ? '48px' : '76px' };
+    }
+    if (sizeKey === 'large') {
+      return { width: isCompact ? '76px' : '124px', height: isCompact ? '76px' : '124px' };
+    }
+    // medium (default)
+    return { width: isCompact ? '60px' : '96px', height: isCompact ? '60px' : '96px' };
+  };
+
   const avatarRadiusStyle = getAvatarRadiusStyle(profile?.avatarShape, compact);
+  const avatarDimensionStyle = getAvatarDimensionStyle(profile?.avatarSize, compact);
   const accent = theme.accentColor;
 
   return (
@@ -107,7 +128,10 @@ export default function ProfilePageView({
 
             {/* Avatar */}
             <div style={{ ...scaleIn(80) }} className="relative flex items-center justify-center">
-              <div className={`${cleanClassName(visuals.avatarWrap.className)} overflow-hidden relative`} style={avatarRadiusStyle}>
+              <div
+                className={`${cleanClassName(visuals.avatarWrap.className)} overflow-hidden relative`}
+                style={{ ...avatarRadiusStyle, ...avatarDimensionStyle }}
+              >
                 {/* Glow pulse ring */}
                 <AvatarGlowRing accent={accent} shape={profile?.avatarShape} compact={compact} />
 
