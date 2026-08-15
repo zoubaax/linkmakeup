@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ApiService from '../services/api';
 import { env } from '../config/env';
+import Iridescence from './ui/Iridescence';
 import {
   clearReturnTo,
   resolvePostLoginPath,
@@ -22,6 +23,7 @@ export default function AuthPage({ initialMode }) {
     if (location.pathname === '/signup') setMode('signup');
     else if (location.pathname === '/login') setMode('signin');
   }, [location.pathname]);
+
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -88,88 +90,49 @@ export default function AuthPage({ initialMode }) {
   if (loading) return null;
 
   const inputClass =
-    'w-full px-3.5 py-2.5 bg-surface-alt border border-border rounded-xl text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-subtle transition-colors';
+    'w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-colors';
 
   return (
-    <div className="min-h-screen bg-app text-fg font-sans flex flex-col">
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 sm:p-8 flex flex-col items-center justify-between selection:bg-emerald-600 selection:text-white">
+      
       {/* Top Navbar */}
-      <header className="px-6 py-4 flex items-center justify-between border-b border-border bg-surface/80 backdrop-blur-md sticky top-0 z-30">
-        <span className="font-bold text-xl tracking-tight text-fg">
-          Link<span className="text-accent">Makeup</span>
-        </span>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => { setMode('signin'); setErrorMsg(''); navigate('/login'); }}
-            className={`text-sm font-medium transition-colors ${mode === 'signin' ? 'text-accent font-semibold' : 'text-fg-muted hover:text-fg'}`}
-          >
-            Sign In
-          </button>
-          <button
-            type="button"
-            onClick={() => { setMode('signup'); setErrorMsg(''); navigate('/signup'); }}
-            className="px-4 py-2 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover text-sm font-semibold transition-all hover:scale-[1.02] active:scale-[0.98]"
-          >
-            Get Started
-          </button>
-        </div>
+      <header className="w-full max-w-7xl mx-auto py-4 px-2 flex items-center justify-between">
+        <Link to="/" className="font-serif font-bold text-2xl tracking-tight text-slate-900">
+          Link<span className="text-emerald-600">Makeup</span>
+        </Link>
+        <Link to="/" className="text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors">
+          ← Back to Home
+        </Link>
       </header>
 
-      {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center max-w-4xl mx-auto w-full">
-        <div className="inline-block mb-8 px-4 py-1.5 rounded-full bg-surface border border-border text-fg-muted text-xs font-medium shadow-xs">
-          Your custom subdomain:{' '}
-          <span className="text-accent font-semibold">username.{env.appDomain}</span>
+      {/* Main Centered Auth Container */}
+      <div className="relative w-full max-w-md mx-auto my-auto py-8">
+        
+        {/* Background WebGL Iridescence Canvas */}
+        <div className="absolute inset-0 z-0 opacity-30 rounded-3xl overflow-hidden">
+          <Iridescence
+            color={[0.02, 0.58, 0.40]}
+            mouseReact={true}
+            amplitude={0.15}
+            speed={0.8}
+          />
         </div>
 
-        <h1
-          className="font-bold text-fg leading-tight mb-6 tracking-tight"
-          style={{ fontSize: 'clamp(2.4rem, 5vw, 4rem)', maxWidth: '720px' }}
-        >
-          The link page that works <span className="text-accent">with you</span>
-        </h1>
+        {/* Auth Card */}
+        <div className="relative z-10 bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 shadow-2xl text-left animate-page-in">
+          
+          <div className="text-center mb-6">
+            <h1 className="font-serif text-2xl font-bold text-slate-900">
+              {mode === 'signup' ? 'Create your account' : 'Welcome back'}
+            </h1>
+            <p className="text-slate-500 text-xs mt-1">
+              {mode === 'signup'
+                ? 'Claim your custom subdomain and build your profile'
+                : 'Sign in to manage your LinkMakeup dashboard'}
+            </p>
+          </div>
 
-        <p className="text-fg-muted text-base sm:text-lg leading-relaxed mb-10 max-w-md">
-          Build your personalized link page, claim your custom subdomain, and manage everything from one dashboard.
-        </p>
-
-        {returnTo && (
-          <p className="mb-4 text-sm text-fg-muted bg-accent-subtle border border-accent-border px-4 py-2 rounded-lg">
-            Sign in to continue where you left off.
-          </p>
-        )}
-
-        <button
-          type="button"
-          onClick={handleGoogleAuth}
-          disabled={googleLoading}
-          className="flex items-center gap-3 bg-inverted text-inverted-fg font-semibold text-base px-8 py-3.5 rounded-xl hover:opacity-90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg mb-4 min-w-64 justify-center disabled:opacity-60"
-        >
-          {googleLoading ? (
-            <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
-              <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />
-              <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
-              <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12.5s.7 2.8 1.9 5.2l3.7-2.9z" />
-              <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z" />
-            </svg>
-          )}
-          Continue with Google
-        </button>
-
-        <div className="flex items-center gap-4 text-fg-subtle text-xs mb-4">
-          <div className="h-px w-20 bg-border" />
-          or with email
-          <div className="h-px w-20 bg-border" />
-        </div>
-
-        <div className="w-full max-w-sm bg-surface border border-border rounded-2xl p-7 shadow-sm text-left">
-          <div className="flex p-1 bg-surface-alt rounded-xl mb-5">
+          <div className="flex p-1 bg-slate-100 rounded-xl mb-6 border border-slate-200">
             {['signin', 'signup'].map((m) => (
               <button
                 key={m}
@@ -179,17 +142,47 @@ export default function AuthPage({ initialMode }) {
                   setErrorMsg('');
                   navigate(m === 'signup' ? '/signup' : '/login');
                 }}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
-                  mode === m ? 'bg-nav-active text-fg shadow-sm' : 'text-fg-subtle hover:text-fg-muted'
+                className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
+                  mode === m
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                {m === 'signin' ? 'Sign In' : 'Sign Up'}
+                {m === 'signin' ? 'Sign In' : 'Create Account'}
               </button>
             ))}
           </div>
 
+          <button
+            type="button"
+            onClick={handleGoogleAuth}
+            disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-800 font-semibold text-sm py-3 rounded-xl hover:bg-slate-50 transition-all shadow-xs mb-4 disabled:opacity-60"
+          >
+            {googleLoading ? (
+              <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.3 9 5 12 5z" />
+                <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z" />
+                <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12.5s.7 2.8 1.9 5.2l3.7-2.9z" />
+                <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.3-6.4-5.2L1.9 16C3.7 19.7 7.5 23 12 23z" />
+              </svg>
+            )}
+            Continue with Google
+          </button>
+
+          <div className="flex items-center gap-4 text-slate-400 text-xs mb-4">
+            <div className="h-px w-full bg-slate-200" />
+            <span>or</span>
+            <div className="h-px w-full bg-slate-200" />
+          </div>
+
           {errorMsg && (
-            <div className="mb-4 px-3 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-medium">
+            <div className="mb-4 px-3.5 py-2.5 rounded-xl bg-red-500/10 border border-red-400/30 text-red-600 text-xs font-medium">
               {errorMsg}
             </div>
           )}
@@ -206,13 +199,17 @@ export default function AuthPage({ initialMode }) {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full py-3 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-sm mt-1 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm mt-1 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 shadow-md"
             >
-              {submitting ? 'Processing...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+              {submitting ? 'Processing...' : mode === 'signin' ? 'Sign In to Dashboard' : 'Claim Your Subdomain'}
             </button>
           </form>
         </div>
-      </main>
+      </div>
+
+      <footer className="w-full max-w-7xl mx-auto py-4 text-center text-xs text-slate-400">
+        © LinkMakeup — All rights reserved.
+      </footer>
     </div>
   );
 }

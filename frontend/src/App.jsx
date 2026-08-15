@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import Dashboard from './components/Dashboard';
 import DiscussionsPage from './components/DiscussionsPage';
@@ -11,7 +12,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<AuthPage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<AuthPage initialMode="signin" />} />
         <Route path="/signup" element={<AuthPage initialMode="signup" />} />
         <Route path="/discussions" element={<DiscussionsPage />} />
