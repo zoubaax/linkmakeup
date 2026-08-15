@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import ApiService from '../services/api';
 import { getPlatformIcon, getPlatformContainerStyle } from './SocialIcons';
 import { env } from '../config/env';
-import AppLayout from './layout/AppLayout';
 import { SkeletonProfile } from './ui/Skeleton';
 import { DEFAULT_THEME } from '../utils/themePresets';
 import { StatusPill } from './StatusPill';
