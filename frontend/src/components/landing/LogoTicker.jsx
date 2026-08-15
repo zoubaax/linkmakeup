@@ -53,11 +53,11 @@ export default function LogoTicker() {
       </div>
 
       {/* Infinite Logo Marquee Container */}
-      <div className="relative overflow-hidden w-full py-4 border-y border-slate-200/60 bg-slate-50/40 rounded-2xl">
+      <div className="relative overflow-hidden w-full py-4 border-y border-slate-200/60 dark:border-zinc-700/40 bg-slate-50/40 dark:bg-zinc-800/30 rounded-2xl">
         
         {/* Left & Right Blur Fade Gradients */}
-        <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-r from-[var(--lm-app)] via-[var(--lm-app)]/80 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-l from-[var(--lm-app)] via-[var(--lm-app)]/80 to-transparent z-10 pointer-events-none" />
 
         {/* Marquee Track */}
         <div className="flex items-center gap-10 sm:gap-14 w-max animate-marquee">
@@ -65,7 +65,7 @@ export default function LogoTicker() {
           {[...logos, ...logos, ...logos].map((logo, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-2 text-slate-500 hover:text-emerald-600 transition-colors cursor-pointer group shrink-0"
+              className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors cursor-pointer group shrink-0"
             >
               <div className="group-hover:scale-110 transition-transform">
                 {logo.svg}

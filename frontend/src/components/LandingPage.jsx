@@ -6,8 +6,6 @@ import HeroSection from './landing/HeroSection';
 import LogoTicker from './landing/LogoTicker';
 import QuoteSection from './landing/QuoteSection';
 import WhySection from './landing/WhySection';
-import FeaturesSection from './landing/FeaturesSection';
-import PresetsSection from './landing/PresetsSection';
 import Footer from './landing/Footer';
 
 export default function LandingPage() {
@@ -21,7 +19,7 @@ export default function LandingPage() {
   }, [loading, user, profile, navigate]);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 font-sans p-4 sm:p-8 flex flex-col justify-between selection:bg-emerald-600 selection:text-white">
+    <div className="min-h-screen bg-[var(--lm-app)] text-[var(--lm-fg)] font-sans p-4 sm:p-8 flex flex-col justify-between selection:bg-emerald-600 selection:text-white transition-colors duration-300">
       {/* 1. Navbar Header */}
       <Header user={user} profile={profile} />
 
@@ -37,13 +35,7 @@ export default function LandingPage() {
       {/* 5. Why LinkMakeup Section (Glassy Stacking Cards) */}
       <WhySection />
 
-      {/* 6. High Performance Server & Architecture Section */}
-      <FeaturesSection />
-
-      {/* 7. Interactive Theme Studio Section */}
-      <PresetsSection />
-
-      {/* 8. Trust Bar & Footer */}
+      {/* 6. Trust Bar & Footer */}
       <Footer />
     </div>
   );

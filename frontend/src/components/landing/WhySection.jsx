@@ -34,19 +34,19 @@ const features = [
 function FeaturePreview({ type }) {
   if (type === 'context') {
     return (
-      <div className="w-full p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-emerald-100/60 shadow-xs space-y-3">
+      <div className="w-full p-4 rounded-2xl bg-white/80 dark:bg-zinc-800/80 backdrop-blur-md border border-emerald-100/60 dark:border-zinc-700/50 shadow-xs space-y-3">
         <div className="flex items-center gap-2.5">
           <span className="w-8 h-8 rounded-full bg-emerald-600/90 text-white flex items-center justify-center text-xs font-semibold shadow-xs">
             LM
           </span>
           <div>
-            <div className="text-xs font-semibold text-slate-800">john.linkmakeup.com</div>
+            <div className="text-xs font-semibold text-slate-800 dark:text-white">john.linkmakeup.com</div>
             <div className="text-[10px] text-emerald-600 font-medium">Subdomain Active • SSL Ready</div>
           </div>
         </div>
-        <div className="p-2.5 rounded-xl bg-emerald-50/50 border border-emerald-100/40 text-[11px] text-slate-600 flex items-center justify-between">
-          <span className="text-slate-500">Active Theme:</span>
-          <span className="font-medium text-emerald-700">Emerald Luxe</span>
+        <div className="p-2.5 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/30 border border-emerald-100/40 dark:border-emerald-800/30 text-[11px] text-slate-600 flex items-center justify-between">
+          <span className="text-slate-500 dark:text-slate-400">Active Theme:</span>
+          <span className="font-medium text-emerald-700 dark:text-emerald-400">Emerald Luxe</span>
         </div>
       </div>
     );
@@ -54,7 +54,7 @@ function FeaturePreview({ type }) {
 
   if (type === 'action') {
     return (
-      <div className="w-full p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-emerald-100/60 shadow-xs space-y-2.5 text-left">
+      <div className="w-full p-4 rounded-2xl bg-white/80 dark:bg-zinc-800/80 backdrop-blur-md border border-emerald-100/60 dark:border-zinc-700/50 shadow-xs space-y-2.5 text-left">
         <div className="flex items-center justify-between text-[10px] font-semibold text-emerald-600 uppercase tracking-wider">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -82,8 +82,8 @@ function FeaturePreview({ type }) {
 
   if (type === 'connect') {
     return (
-      <div className="w-full p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-emerald-100/60 shadow-xs space-y-3 text-center">
-        <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">
+      <div className="w-full p-4 rounded-2xl bg-white/80 dark:bg-zinc-800/80 backdrop-blur-md border border-emerald-100/60 dark:border-zinc-700/50 shadow-xs space-y-3 text-center">
+        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
           OFFICIAL INTEGRATIONS
         </span>
         <div className="flex items-center justify-center gap-3">
@@ -123,12 +123,12 @@ function FeaturePreview({ type }) {
   }
 
   return (
-    <div className="w-full p-4 rounded-2xl bg-white/80 backdrop-blur-md border border-emerald-100/60 shadow-xs space-y-2 text-left">
+    <div className="w-full p-4 rounded-2xl bg-white/80 dark:bg-zinc-800/80 backdrop-blur-md border border-emerald-100/60 dark:border-zinc-700/50 shadow-xs space-y-2 text-left">
       <div className="flex items-center justify-between text-xs font-semibold">
-        <span className="text-slate-400 uppercase tracking-wider text-[10px]">EDGE LATENCY</span>
-        <span className="text-emerald-600 font-mono">24ms (99.99%)</span>
+        <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[10px]">EDGE LATENCY</span>
+        <span className="text-emerald-600 dark:text-emerald-400 font-mono">24ms (99.99%)</span>
       </div>
-      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+      <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-700 rounded-full overflow-hidden">
         <div className="h-full w-11/12 bg-emerald-600/90 rounded-full" />
       </div>
     </div>
@@ -145,11 +145,11 @@ export default function WhySection() {
           <span className="text-xs font-bold uppercase tracking-widest text-emerald-600">
             Why LinkMakeup
           </span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-slate-900 leading-[1.08]">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-slate-900 dark:text-white leading-[1.08]">
             A real partner,<br />not a chatbot in disguise
           </h2>
         </div>
-        <p className="md:col-span-5 text-slate-600 text-sm sm:text-base leading-relaxed md:pb-1">
+        <p className="md:col-span-5 text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed md:pb-1">
           Most AI tools answer questions. LinkMakeup takes initiative — anticipating needs, executing tasks, and growing smarter with every interaction.
         </p>
       </div>
@@ -167,7 +167,7 @@ export default function WhySection() {
         {features.map((feature) => (
           <ScrollStackItem
             key={feature.number}
-            itemClassName="bg-gradient-to-b from-white/95 via-emerald-50/30 to-white/90 border-white/90 shadow-xl shadow-emerald-950/3 hover:border-emerald-200/80 transition-all duration-300"
+            itemClassName="bg-gradient-to-b from-white/95 via-emerald-50/30 to-white/90 dark:from-zinc-800/95 dark:via-emerald-950/20 dark:to-zinc-800/90 border-white/90 dark:border-zinc-700/60 shadow-xl shadow-emerald-950/3 hover:border-emerald-200/80 dark:hover:border-emerald-700/50 transition-all duration-300"
           >
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center h-full">
               
@@ -182,11 +182,11 @@ export default function WhySection() {
                   </span>
                 </div>
 
-                <h3 className="text-2xl sm:text-3xl font-semibold text-slate-800 tracking-tight">
+                <h3 className="text-2xl sm:text-3xl font-semibold text-slate-800 dark:text-white tracking-tight">
                   {feature.title}
                 </h3>
 
-                <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-xl font-normal">
+                <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl font-normal">
                   {feature.detail}
                 </p>
               </div>
