@@ -11,15 +11,15 @@ export const MOOD_FILTERS = [
 export const THEME_PRESETS = [
   {
     id: 'default',
-    name: 'Warm Linen',
+    name: 'Soft Periwinkle',
     layoutStyle: 'classic',
     mood: 'soft',
-    description: 'Cream canvas, terracotta accents',
+    description: 'Light blue canvas, clean white cards',
     isDark: false,
-    backgroundColor: '#F7F3EE',
+    backgroundColor: '#EEF2FF',
     cardColor: '#FFFFFF',
-    accentColor: '#C4622A',
-    textColor: '#1C1814',
+    accentColor: '#059669',
+    textColor: '#1E1B4B',
   },
   {
     id: 'noir',

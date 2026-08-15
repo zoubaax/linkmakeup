@@ -73,7 +73,7 @@ export class ProfileService {
   }
 
   static async updateProfile(userId, updateData) {
-    const { displayName, role, bio, avatarUrl, statusBadge, showStatusBadge, themeConfig } = updateData;
+    const { displayName, role, bio, avatarUrl, avatarShape, statusBadge, showStatusBadge, themeConfig } = updateData;
 
     try {
       const [updated] = await db
@@ -83,6 +83,7 @@ export class ProfileService {
           ...(role !== undefined && { role }),
           ...(bio !== undefined && { bio }),
           ...(avatarUrl !== undefined && { avatarUrl }),
+          ...(avatarShape !== undefined && { avatarShape }),
           ...(statusBadge !== undefined && { statusBadge }),
           ...(showStatusBadge !== undefined && { showStatusBadge }),
           ...(themeConfig !== undefined && { themeConfig }),

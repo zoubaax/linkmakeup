@@ -32,6 +32,20 @@ export default function ProfilePageView({
   const activeLinks = links.filter((link) => link.isActive !== false);
   const avatarSrc = profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile?.username || 'user')}`;
 
+  const cleanClassName = (className = '') => className.replace(/rounded-(full|none|2xl|xl|lg|md|sm)/g, '');
+
+  const getAvatarRadiusStyle = (shape, isCompact) => {
+    if (shape === 'square') {
+      return { borderRadius: isCompact ? '6px' : '10px' };
+    }
+    if (shape === 'rounded') {
+      return { borderRadius: isCompact ? '14px' : '22px' };
+    }
+    return { borderRadius: '9999px' };
+  };
+
+  const avatarRadiusStyle = getAvatarRadiusStyle(profile?.avatarShape, compact);
+
   return (
     <div style={visuals.page.style} className={`relative min-h-full ${visuals.page.className} ${className}`}>
       {visuals.showGlassOrbs && (
@@ -56,15 +70,15 @@ export default function ProfilePageView({
             />
           )}
 
-          <div className={visuals.avatarWrap.className}>
+          <div className={`${cleanClassName(visuals.avatarWrap.className)} overflow-hidden`} style={avatarRadiusStyle}>
             {visuals.avatarRing.className !== 'hidden' && (
-              <div style={visuals.avatarRing.style} className={visuals.avatarRing.className} />
+              <div style={{ ...visuals.avatarRing.style, ...avatarRadiusStyle }} className={cleanClassName(visuals.avatarRing.className)} />
             )}
             <img
               src={avatarSrc}
               alt={profile?.displayName || 'Profile'}
-              className={visuals.avatar.className}
-              style={visuals.avatar.style}
+              className={`${cleanClassName(visuals.avatar.className)} overflow-hidden`}
+              style={{ ...visuals.avatar.style, ...avatarRadiusStyle }}
               referrerPolicy="no-referrer"
             />
           </div>
@@ -81,9 +95,6 @@ export default function ProfilePageView({
           {profile?.showStatusBadge !== false && profile?.statusBadge && (
             <StatusPill statusBadge={profile.statusBadge} className={compact ? 'mt-2' : 'mt-3'} />
           )}
-          <div style={visuals.domainPill.style} className={visuals.domainPill.className}>
-            {profile?.username || 'username'}.{env.appDomain}
-          </div>
         </div>
 
         <div className={visuals.linksWrap.className} style={visuals.linksWrap.style}>

@@ -73,31 +73,28 @@ export function getThemeVisuals(theme, { compact = false } = {}) {
       },
       shell: { className: compact ? 'gap-4' : 'gap-6' },
       hero: {
-        className: 'w-full flex flex-col items-center text-center bg-transparent border-0 shadow-none',
+        className: 'w-full flex flex-col items-center text-center bg-transparent border-0 shadow-none pb-2',
         style: {},
       },
-      avatarWrap: { className: compact ? 'relative w-14 h-14 mb-2' : 'relative w-20 h-20 mb-3' },
+      avatarWrap: { className: compact ? 'relative w-16 h-16 mb-2.5 p-0.5 rounded-full border border-slate-200/80 dark:border-white/10 shadow-2xs bg-white/80 dark:bg-zinc-800/80' : 'relative w-22 h-22 mb-3.5 p-1 rounded-full border border-slate-200/80 dark:border-white/10 shadow-xs bg-white/80 dark:bg-zinc-800/80' },
       avatarRing: { className: 'hidden' },
-      avatar: {
-        className: `relative w-full h-full rounded-full object-cover border ${compact ? 'border' : 'border-2'}`,
-        style: { borderColor: hexToRgba(text, 0.15) },
-      },
-      name: { className: `${compact ? 'text-sm' : 'text-2xl'} font-semibold tracking-tight` },
-      role: { className: `${compact ? 'text-[10px]' : 'text-sm'} font-medium mt-0.5 opacity-70` },
-      bio: { className: `${compact ? 'text-[9px] mt-1' : 'text-sm mt-1.5'} leading-relaxed opacity-60 max-w-xs` },
+      avatar: { className: 'relative w-full h-full rounded-full object-cover shadow-2xs' },
+      name: { className: `${compact ? 'text-sm' : 'text-2xl'} font-bold tracking-tight text-slate-900 dark:text-white` },
+      role: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-medium mt-1 text-slate-500 dark:text-slate-400` },
+      bio: { className: `${compact ? 'text-[10px] mt-1' : 'text-sm mt-1.5'} leading-relaxed text-slate-600 dark:text-slate-300 max-w-xs font-normal` },
       domainPill: {
-        className: `mt-3 inline-block font-mono ${compact ? 'text-[8px]' : 'text-xs'} opacity-50`,
-        style: { color: accent },
-      },
-      linksWrap: { className: 'w-full flex flex-col divide-y', style: { borderColor: hexToRgba(text, 0.12) } },
-      link: {
-        className: `group flex items-center justify-between ${compact ? 'py-2' : 'py-3.5'} transition-opacity hover:opacity-80 bg-transparent border-0 shadow-none rounded-none`,
+        className: 'hidden',
         style: {},
       },
-      linkIcon: { className: `${compact ? 'w-7 h-7 rounded-md' : 'w-9 h-9 rounded-lg'} flex items-center justify-center shrink-0`, style: { backgroundColor: hexToRgba(accent, 0.1) } },
-      linkTitle: { className: `${compact ? 'text-[10px]' : 'text-sm'} font-medium` },
-      linkSubtitle: { className: `${compact ? 'text-[8px]' : 'text-xs'} opacity-50 mt-0.5` },
-      linkArrow: { className: 'opacity-40', style: { color: text } },
+      linksWrap: { className: `w-full flex flex-col ${compact ? 'gap-2' : 'gap-3'}` },
+      link: {
+        className: `group flex items-center justify-between ${compact ? 'px-3 py-2.5 rounded-xl' : 'px-4 py-3.5 rounded-2xl'} border border-slate-200/70 dark:border-zinc-800/80 bg-white/90 dark:bg-zinc-900/90 shadow-2xs hover:border-slate-300 dark:hover:border-zinc-700 hover:shadow-xs transition-all duration-200`,
+        style: {},
+      },
+      linkIcon: { className: `${compact ? 'w-8 h-8 rounded-xl' : 'w-10 h-10 rounded-xl'} flex items-center justify-center shrink-0` },
+      linkTitle: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-bold text-slate-800 dark:text-slate-100` },
+      linkSubtitle: { className: `${compact ? 'text-[9px]' : 'text-xs'} text-slate-500 dark:text-slate-400 font-normal mt-0.5` },
+      linkArrow: { className: `${compact ? 'w-5 h-5' : 'w-7 h-7'} rounded-full bg-slate-100/80 dark:bg-zinc-800 text-slate-400 dark:text-slate-500 flex items-center justify-center group-hover:bg-slate-200/80 dark:group-hover:bg-zinc-700 transition-colors shrink-0` },
       showGlassOrbs: false,
     };
   }
@@ -213,37 +210,50 @@ export function getThemeVisuals(theme, { compact = false } = {}) {
     };
   }
 
-  // classic (default)
+  // classic (default - matching clean light-blue reference)
   return {
     ...base,
     page: {
-      style: base.page.style,
+      style: {
+        ...base.page.style,
+        backgroundImage: isDark
+          ? `radial-gradient(ellipse at 50% 0%, ${hexToRgba(accent, 0.15)} 0%, transparent 60%)`
+          : `radial-gradient(circle at 50% 0%, rgba(219, 234, 254, 0.65) 0%, rgba(238, 242, 255, 0.35) 55%, transparent 100%)`,
+      },
       className: `${base.page.className} ${compact ? 'px-3 py-4' : 'px-4 py-12'}`,
     },
     shell: { className: compact ? 'gap-3' : 'gap-4' },
     hero: {
-      className: `w-full ${compact ? 'rounded-2xl p-4' : 'rounded-3xl p-6'} border shadow-md flex flex-col items-center text-center`,
-      style: { backgroundColor: theme.cardColor, borderColor: 'rgba(0,0,0,0.06)' },
+      className: `w-full ${compact ? 'rounded-2xl p-4' : 'rounded-3xl p-6 sm:p-7'} border flex flex-col items-center text-center backdrop-blur-sm`,
+      style: {
+        backgroundColor: isDark ? 'rgba(24,24,27,0.85)' : '#FFFFFF',
+        borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(226,232,240,0.8)',
+        boxShadow: isDark ? '0 10px 30px rgba(0,0,0,0.35)' : '0 10px 35px rgba(99,102,241,0.06)',
+      },
     },
-    avatarWrap: { className: compact ? 'relative w-16 h-16 mb-2' : 'relative w-24 h-24 mb-3' },
-    avatarRing: { className: 'absolute -inset-1 rounded-full opacity-20', style: { backgroundColor: accent } },
-    avatar: { className: 'relative w-full h-full rounded-full object-cover border-2 border-white bg-slate-100 shadow-md' },
-    name: { className: `${compact ? 'text-sm' : 'text-2xl'} font-bold tracking-tight` },
-    role: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-semibold mt-0.5 opacity-85` },
-    bio: { className: `${compact ? 'text-[10px] mt-1' : 'text-sm mt-1.5'} leading-relaxed opacity-70 max-w-xs` },
+    avatarWrap: { className: compact ? 'relative w-16 h-16 mb-2.5 p-0.5 rounded-full border border-indigo-100 dark:border-white/10 shadow-xs bg-white' : 'relative w-24 h-24 mb-3.5 p-1 rounded-full border border-indigo-100 dark:border-white/10 shadow-md shadow-indigo-500/10 bg-white' },
+    avatarRing: { className: 'absolute -inset-1 rounded-full opacity-25 blur-xs', style: { backgroundColor: accent } },
+    avatar: { className: 'relative w-full h-full rounded-full object-cover shadow-xs' },
+    name: { className: `${compact ? 'text-sm' : 'text-2xl'} font-bold tracking-tight text-slate-900 dark:text-white flex items-center justify-center gap-1.5` },
+    role: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-medium mt-1 text-slate-500 dark:text-slate-400` },
+    bio: { className: `${compact ? 'text-[10px] mt-1' : 'text-sm mt-1.5'} leading-relaxed opacity-75 max-w-xs` },
     domainPill: {
-      className: `mt-3.5 inline-block px-3.5 py-1 rounded-full border border-black/10 font-mono font-semibold ${compact ? 'text-[8px]' : 'text-xs'}`,
-      style: { backgroundColor: 'rgba(0,0,0,0.03)', color: accent },
+      className: `mt-3 inline-block px-3.5 py-1 rounded-full border border-indigo-100 dark:border-white/10 font-mono font-semibold ${compact ? 'text-[8px]' : 'text-xs'}`,
+      style: { backgroundColor: 'rgba(238,242,255,0.6)', color: accent },
     },
     linksWrap: { className: `w-full flex flex-col ${compact ? 'gap-2' : 'gap-3'}` },
     link: {
-      className: `group flex items-center justify-between ${compact ? 'px-3 py-2.5 rounded-2xl' : 'px-4 py-3.5 rounded-2xl'} border shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all`,
-      style: { backgroundColor: theme.cardColor, borderColor: 'rgba(0,0,0,0.06)' },
+      className: `group flex items-center justify-between ${compact ? 'px-3 py-2.5 rounded-xl' : 'px-4 py-3.5 rounded-2xl'} border shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`,
+      style: {
+        backgroundColor: isDark ? 'rgba(24,24,27,0.85)' : '#FFFFFF',
+        borderColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(226,232,240,0.8)',
+        boxShadow: isDark ? '0 4px 12px rgba(0,0,0,0.2)' : '0 4px 18px rgba(99,102,241,0.04)',
+      },
     },
-    linkIcon: { className: `${compact ? 'w-8 h-8 rounded-xl' : 'w-10 h-10 rounded-xl'} flex items-center justify-center shrink-0` },
-    linkTitle: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-bold` },
-    linkSubtitle: { className: `${compact ? 'text-[9px]' : 'text-xs'} opacity-60 mt-0.5` },
-    linkArrow: { className: `${compact ? 'w-5 h-5' : 'w-7 h-7'} rounded-full bg-black/5 flex items-center justify-center group-hover:bg-black/10 transition-colors`, style: { color: accent } },
+    linkIcon: { className: `${compact ? 'w-8 h-8 rounded-xl' : 'w-11 h-11 rounded-2xl'} flex items-center justify-center shrink-0` },
+    linkTitle: { className: `${compact ? 'text-[11px]' : 'text-sm'} font-bold text-slate-800 dark:text-slate-100` },
+    linkSubtitle: { className: `${compact ? 'text-[9px]' : 'text-xs'} text-slate-500 dark:text-slate-400 font-normal mt-0.5` },
+    linkArrow: { className: `${compact ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-slate-500 flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-zinc-700 transition-colors shrink-0` },
     showGlassOrbs: false,
   };
 }

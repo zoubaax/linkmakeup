@@ -17,6 +17,7 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
   const [showStatusBadge, setShowStatusBadge] = useState(profile?.showStatusBadge !== false);
   const [bio, setBio] = useState(profile?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatarUrl || '');
+  const [avatarShape, setAvatarShape] = useState(profile?.avatarShape || 'circle');
   const [loading, setLoading] = useState(false);
   const [savingAvatar, setSavingAvatar] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -93,6 +94,31 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
     }
   };
 
+  const handleAvatarShapeChange = async (shape) => {
+    setAvatarShape(shape);
+    // Optimistic update — update Live Preview immediately, don't wait for API
+    onProfileUpdated?.({ ...profile, avatarShape: shape });
+    try {
+      const response = await ApiService.updateProfile({ avatarShape: shape });
+      if (response.success && response.data) {
+        // Force the shape we sent — API may return stale value
+        onProfileUpdated?.({ ...profile, ...response.data, avatarShape: shape });
+        toastSuccess('Avatar shape updated');
+      }
+    } catch {
+      // Revert optimistic update on error
+      setAvatarShape(profile?.avatarShape || 'circle');
+      onProfileUpdated?.({ ...profile, avatarShape: profile?.avatarShape || 'circle' });
+      toastError('Failed to save avatar shape.');
+    }
+  };
+
+  const getShapeClass = (shape) => {
+    if (shape === 'square') return 'rounded-lg';
+    if (shape === 'rounded') return 'rounded-2xl';
+    return 'rounded-full';
+  };
+
   const STATUS_PRESETS = [
     'Available for opportunities',
     'Open for beauty collabs',
@@ -157,7 +183,7 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
           >
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="w-14 h-14 rounded-full overflow-hidden border-2 border-border-strong cursor-pointer shrink-0 group relative"
+              className={`w-14 h-14 ${getShapeClass(avatarShape)} overflow-hidden border-2 border-border-strong cursor-pointer shrink-0 group relative transition-all duration-200`}
             >
               <img src={avatarUrl || profile?.avatarUrl} alt="Avatar" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               <div className="absolute inset-0 bg-overlay flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -178,6 +204,32 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
               </button>
               <p className="text-fg-subtle text-xs mt-1">JPG, PNG, WebP · max 5MB · saved after you crop</p>
             </div>
+          </div>
+        </div>
+
+        {/* Avatar Shape Picker */}
+        <div>
+          <label className="block text-xs font-semibold text-fg-muted uppercase tracking-wider mb-2">Photo Shape</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { id: 'circle', label: 'Circle', preview: 'rounded-full' },
+              { id: 'rounded', label: 'Rounded', preview: 'rounded-lg' },
+              { id: 'square', label: 'Square', preview: 'rounded-none' },
+            ].map(({ id, label, preview }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => handleAvatarShapeChange(id)}
+                className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-semibold transition-all ${
+                  avatarShape === id
+                    ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold ring-2 ring-emerald-500/20'
+                    : 'border-border bg-surface-alt text-fg-muted hover:text-fg hover:border-border-strong'
+                }`}
+              >
+                <span className={`w-3.5 h-3.5 border-2 border-current ${preview}`} />
+                <span>{label}</span>
+              </button>
+            ))}
           </div>
         </div>
 

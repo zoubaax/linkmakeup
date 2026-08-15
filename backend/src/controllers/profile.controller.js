@@ -21,6 +21,7 @@ const updateProfileSchema = z.object({
   role: z.string().max(150).optional(),
   bio: z.string().max(250).optional(),
   avatarUrl: z.string().max(500_000, 'Avatar image is too large').optional(),
+  avatarShape: z.enum(['circle', 'rounded', 'square']).optional(),
   statusBadge: z.string().max(150).optional(),
   showStatusBadge: z.boolean().optional(),
   themeConfig: z.object({
