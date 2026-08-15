@@ -26,6 +26,8 @@ export default function ThemeCustomizer({ profile, onThemeUpdated }) {
   const [theme, setTheme] = useState(initialTheme);
   const [moodFilter, setMoodFilter] = useState('all');
   const [advancedOpen, setAdvancedOpen] = useState(initialTheme.preset === 'custom');
+  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [palettesOpen, setPalettesOpen] = useState(false);
   const [saveState, setSaveState] = useState('idle');
   const saveTimerRef = useRef(null);
 
@@ -159,98 +161,134 @@ export default function ThemeCustomizer({ profile, onThemeUpdated }) {
         </div>
       </div>
 
-      <div className="mb-6">
-        <span className="block text-xs font-semibold text-fg-muted uppercase tracking-wider mb-2.5">
-          UI type
-        </span>
-        <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {LAYOUT_STYLES.map((layout) => {
-            const isSelected = theme.layoutStyle === layout.id;
-            const sample = getPresetsForLayout(layout.id)[0];
-            return (
-              <button
-                key={layout.id}
-                type="button"
-                onClick={() => handleSelectLayout(layout.id)}
-                className={`flex items-center gap-3 md:flex-col md:items-stretch text-left rounded-2xl border p-2.5 transition-all ${
-                  isSelected
-                    ? 'border-accent bg-accent-subtle/40 ring-2 ring-accent/25'
-                    : 'border-border bg-surface-alt hover:border-accent/40'
-                }`}
-              >
-                <div className="shrink-0 md:w-full">
-                  <ThemeMiniPreview
-                    theme={{ ...sample, layoutStyle: layout.id }}
-                    size="sm"
-                    className="md:mb-2 border border-black/5"
-                  />
-                </div>
-                <span className="min-w-0">
-                  <span className="block text-xs font-bold text-fg">{layout.name}</span>
-                  <span className="hidden md:block text-[10px] text-fg-subtle leading-snug mt-0.5">{layout.tagline}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="rounded-2xl border border-border overflow-hidden mb-3">
+        <button
+          type="button"
+          onClick={() => setLayoutOpen((o) => !o)}
+          className="w-full flex items-center justify-between gap-3 px-4 py-3.5 bg-surface-alt hover:bg-nav-hover transition-colors text-left"
+        >
+          <div>
+            <span className="text-sm font-bold text-fg block">UI Type</span>
+            <span className="text-[11px] text-fg-subtle">
+              {activeLayout.name} — {activeLayout.tagline}
+            </span>
+          </div>
+          <svg
+            className={`w-4 h-4 text-fg-muted transition-transform shrink-0 ${layoutOpen ? 'rotate-180' : ''}`}
+            fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {layoutOpen && (
+          <div className="p-4 border-t border-border bg-surface">
+            <div className="grid grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              {LAYOUT_STYLES.map((layout) => {
+                const isSelected = theme.layoutStyle === layout.id;
+                const sample = getPresetsForLayout(layout.id)[0];
+                return (
+                  <button
+                    key={layout.id}
+                    type="button"
+                    onClick={() => handleSelectLayout(layout.id)}
+                    className={`flex items-center gap-3 md:flex-col md:items-stretch text-left rounded-2xl border p-2.5 transition-all ${
+                      isSelected
+                        ? 'border-accent bg-accent-subtle/40 ring-2 ring-accent/25'
+                        : 'border-border bg-surface-alt hover:border-accent/40'
+                    }`}
+                  >
+                    <div className="shrink-0 md:w-full">
+                      <ThemeMiniPreview
+                        theme={{ ...sample, layoutStyle: layout.id }}
+                        size="sm"
+                        className="md:mb-2 border border-black/5"
+                      />
+                    </div>
+                    <span className="min-w-0">
+                      <span className="block text-xs font-bold text-fg">{layout.name}</span>
+                      <span className="hidden md:block text-[10px] text-fg-subtle leading-snug mt-0.5">{layout.tagline}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mb-4">
-        <div className="flex items-center justify-between gap-3 mb-2.5">
-          <span className="text-xs font-semibold text-fg-muted uppercase tracking-wider">
-            Palettes for {activeLayout.name}
-          </span>
-          <span className="text-[10px] text-fg-subtle">{filteredPresets.length} options</span>
-        </div>
-        <div className="flex flex-wrap gap-2 mb-3">
-          {MOOD_FILTERS.map((filter) => (
-            <button
-              key={filter.id}
-              type="button"
-              onClick={() => setMoodFilter(filter.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                moodFilter === filter.id
-                  ? 'bg-primary text-primary-fg'
-                  : 'bg-surface-alt border border-border text-fg-muted hover:text-fg hover:bg-nav-hover'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <div className="rounded-2xl border border-border overflow-hidden mb-3">
+        <button
+          type="button"
+          onClick={() => setPalettesOpen((o) => !o)}
+          className="w-full flex items-center justify-between gap-3 px-4 py-3.5 bg-surface-alt hover:bg-nav-hover transition-colors text-left"
+        >
+          <div>
+            <span className="text-sm font-bold text-fg block">Palette</span>
+            <span className="text-[11px] text-fg-subtle">
+              {activePreset ? activePreset.name : 'Custom'} — {filteredPresets.length} options for {activeLayout.name}
+            </span>
+          </div>
+          <svg
+            className={`w-4 h-4 text-fg-muted transition-transform shrink-0 ${palettesOpen ? 'rotate-180' : ''}`}
+            fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-6">
-        {filteredPresets.map((preset) => {
-          const isSelected = theme.preset === preset.id;
-          return (
-            <button
-              key={preset.id}
-              type="button"
-              onClick={() => handleSelectPreset(preset)}
-              className={`group text-left rounded-2xl border p-3 transition-all ${
-                isSelected
-                  ? 'border-accent bg-accent-subtle/40 ring-2 ring-accent/25 shadow-sm'
-                  : 'border-border bg-surface-alt hover:border-accent/40 hover:shadow-sm'
-              }`}
-            >
-              <ThemeMiniPreview theme={preset} size="sm" className="mb-3 border border-black/5" />
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-fg truncate">{preset.name}</p>
-                  <p className="text-[11px] text-fg-subtle mt-0.5 leading-snug">{preset.description}</p>
-                </div>
-                {isSelected && (
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center">
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                  </span>
-                )}
-              </div>
-            </button>
-          );
-        })}
+        {palettesOpen && (
+          <div className="p-4 border-t border-border bg-surface">
+            <div className="flex flex-wrap gap-2 mb-3">
+              {MOOD_FILTERS.map((filter) => (
+                <button
+                  key={filter.id}
+                  type="button"
+                  onClick={() => setMoodFilter(filter.id)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    moodFilter === filter.id
+                      ? 'bg-primary text-primary-fg'
+                      : 'bg-surface-alt border border-border text-fg-muted hover:text-fg hover:bg-nav-hover'
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+              {filteredPresets.map((preset) => {
+                const isSelected = theme.preset === preset.id;
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => handleSelectPreset(preset)}
+                    className={`group text-left rounded-2xl border p-3 transition-all ${
+                      isSelected
+                        ? 'border-accent bg-accent-subtle/40 ring-2 ring-accent/25 shadow-sm'
+                        : 'border-border bg-surface-alt hover:border-accent/40 hover:shadow-sm'
+                    }`}
+                  >
+                    <ThemeMiniPreview theme={preset} size="sm" className="mb-3 border border-black/5" />
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-fg truncate">{preset.name}</p>
+                        <p className="text-[11px] text-fg-subtle mt-0.5 leading-snug">{preset.description}</p>
+                      </div>
+                      {isSelected && (
+                        <span className="shrink-0 w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl border border-border overflow-hidden">

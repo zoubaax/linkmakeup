@@ -4,6 +4,7 @@ import { normalizeThemeConfig } from '../../utils/themePresets';
 import { getThemeVisuals } from '../../utils/themeStyles';
 import { getCopyrightLine } from '../../utils/pageExport';
 import { StatusPill } from '../StatusPill';
+import { getDefaultSubtitle } from '../SocialIcons';
 
 function LinkArrow({ visuals, compact }) {
   if (visuals.layoutStyle === 'neo') {
@@ -129,11 +130,14 @@ export default function ProfilePageView({
                     <span style={visuals.text.style} className={`${visuals.linkTitle.className} block truncate`}>
                       {link.title}
                     </span>
-                    {link.subtitle && (
-                      <span style={visuals.text.style} className={`${visuals.linkSubtitle.className} block truncate`}>
-                        {link.subtitle}
-                      </span>
-                    )}
+                    {(() => {
+                      const sub = link.subtitle || getDefaultSubtitle(link.icon, link.title);
+                      return sub ? (
+                        <span style={{ ...visuals.text.style, opacity: 0.55 }} className={`${visuals.linkSubtitle.className} block truncate`}>
+                          {sub}
+                        </span>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
                 <LinkArrow visuals={visuals} compact={compact} />
