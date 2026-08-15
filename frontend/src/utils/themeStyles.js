@@ -1,8 +1,8 @@
 import { isColorDark } from './themePresets';
 
 export const LAYOUT_STYLES = [
-  { id: 'classic',  name: 'Classic',       description: 'Soft cards, balanced hierarchy',   tagline: 'Timeless link-in-bio' },
   { id: 'minimal',  name: 'Minimalist',    description: 'Typography-led, open space',        tagline: 'Less chrome, more focus' },
+  { id: 'classic',  name: 'Classic',       description: 'Soft cards, balanced hierarchy',   tagline: 'Timeless link-in-bio' },
   { id: 'glass',    name: 'Glass',         description: 'Frosted layers over color',          tagline: 'Translucent & modern' },
   { id: 'maximal',  name: 'Maximalist',    description: 'Bold frames, rich detail',           tagline: 'Expressive & loud' },
   { id: 'neo',      name: 'Neo-Brutalist', description: 'Hard edges, offset blocks',          tagline: 'Raw & graphic' },
@@ -22,7 +22,7 @@ function hexToRgba(hex, alpha) {
 }
 
 export function getThemeVisuals(theme, { compact = false } = {}) {
-  const layoutStyle = theme.layoutStyle || 'classic';
+  const layoutStyle = theme.layoutStyle || 'minimal';
   const isDark = theme.isDark ?? isColorDark(theme.backgroundColor);
   const accent = theme.accentColor;
   const text = theme.textColor;

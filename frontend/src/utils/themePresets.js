@@ -200,7 +200,7 @@ const LEGACY_PRESET_IDS = {
   espresso: 'maximal-neon',
 };
 
-export const DEFAULT_THEME = THEME_PRESETS[0];
+export const DEFAULT_THEME = THEME_PRESETS.find((preset) => preset.id === 'minimal-mono') || THEME_PRESETS[0];
 
 export function resolvePreset(presetId) {
   const normalizedId = LEGACY_PRESET_IDS[presetId] || presetId;
