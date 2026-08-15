@@ -1,4 +1,5 @@
 import { getPlatformIcon } from './SocialIcons';
+import { env } from '../config/env';
 
 export default function LiveMobilePreview({ profile, links = [] }) {
   const activeLinks = links.filter((l) => l.isActive);
@@ -15,7 +16,7 @@ export default function LiveMobilePreview({ profile, links = [] }) {
         
         {/* Username badge */}
         <div className="mb-3 px-2.5 py-0.5 rounded-full bg-cream-dark border border-warm-border text-terra font-mono text-[10px] font-semibold">
-          {profile?.username || 'username'}.linkmakeup.com
+          {profile?.username || 'username'}.{env.appDomain}
         </div>
 
         {/* Avatar */}

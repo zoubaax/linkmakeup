@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ApiService from '../services/api';
+import { env } from '../config/env';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ export default function AuthPage() {
         {/* Badge */}
         <div className="inline-block mb-8 px-4 py-1.5 rounded-full bg-cream-dark border border-warm-border text-charcoal-soft text-xs font-medium">
           ✦ Your custom subdomain:{' '}
-          <span className="text-terra font-semibold">username.linkmakeup.com</span>
+          <span className="text-terra font-semibold">username.{env.appDomain}</span>
         </div>
 
         <h1 className="font-serif font-bold text-charcoal leading-tight mb-6"
@@ -187,7 +188,7 @@ export default function AuthPage() {
 
         <p className="text-stone text-xs mt-6">
           Join creators on{' '}
-          <span className="text-terra font-semibold">username.linkmakeup.com</span>
+          <span className="text-terra font-semibold">username.{env.appDomain}</span>
         </p>
       </main>
     </div>

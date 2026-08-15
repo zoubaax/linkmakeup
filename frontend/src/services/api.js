@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+import { env } from '../config/env';
+
+const API_BASE_URL = env.apiUrl;
 
 class ApiService {
   static async request(endpoint, options = {}) {

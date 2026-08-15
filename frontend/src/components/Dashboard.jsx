@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { env, getPublicUserUrl } from '../config/env';
 import ApiService from '../services/api';
 import ProfileEditor from './ProfileEditor';
 import LinkManager from './LinkManager';
@@ -13,7 +14,7 @@ export default function Dashboard() {
   const [links, setLinks] = useState([]);
   const [copied, setCopied] = useState(false);
 
-  const publicUrl = `https://${profile?.username}.linkmakeup.com`;
+  const publicUrl = getPublicUserUrl(profile?.username);
 
   useEffect(() => {
     ApiService.getUserLinks()

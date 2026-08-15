@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ApiService from '../services/api';
 import { getPlatformIcon } from './SocialIcons';
+import { env } from '../config/env';
 
 export default function PublicProfile() {
   const { username } = useParams();
@@ -60,7 +61,7 @@ export default function PublicProfile() {
             <p className="text-charcoal-soft text-sm leading-relaxed mt-2 max-w-xs">{profile.bio}</p>
           )}
           <div className="mt-3 inline-block px-3 py-0.5 rounded-full bg-cream-dark border border-warm-border text-terra text-xs font-mono font-semibold">
-            {profile.username}.linkmakeup.com
+            {profile.username}.{env.appDomain}
           </div>
         </div>
 

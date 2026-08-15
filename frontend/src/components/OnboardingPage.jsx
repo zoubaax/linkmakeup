@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ApiService from '../services/api';
+import { env } from '../config/env';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -126,7 +127,7 @@ export default function OnboardingPage() {
                 required
                 className="flex-1 py-2.5 bg-transparent text-charcoal font-bold text-sm focus:outline-none placeholder:text-stone-light"
               />
-              <span className="px-3 text-terra font-bold text-sm select-none shrink-0">.linkmakeup.com</span>
+              <span className="px-3 text-terra font-bold text-sm select-none shrink-0">.{env.appDomain}</span>
             </div>
 
             {username && (
