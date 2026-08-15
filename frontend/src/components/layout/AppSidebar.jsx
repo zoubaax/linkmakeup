@@ -2,6 +2,8 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
 import ThemeToggle from '../ThemeToggle';
+import Logo from '../ui/Logo';
+
 const NAV_LINKS = [
   {
     to: '/dashboard',
@@ -18,19 +20,17 @@ const NAV_LINKS = [
 
 function navLinkClassName({ isActive }, collapsed) {
   return [
-    'flex items-center rounded-lg text-sm font-medium transition-all duration-200',
-    collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5',
+    'flex items-center justify-between rounded-lg text-xs font-semibold transition-all duration-150',
+    collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5',
     isActive
-      ? 'bg-nav-active text-fg ring-1 ring-inset ring-accent-border shadow-sm'
-      : 'text-fg-muted hover:text-fg hover:bg-nav-hover',
+      ? 'bg-surface-alt text-fg font-bold shadow-2xs border border-border/70'
+      : 'text-fg-muted hover:text-fg hover:bg-surface-alt/60',
   ].join(' ');
 }
 
-function SidebarContent({ onNavigate, collapsed, onToggleCollapse }) {
-  const { user, logout } = useAuth();
+function SidebarContent({ onNavigate, collapsed, onToggleCollapse, openPalette }) {
+  const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
-
-  const visibleLinks = NAV_LINKS.filter((link) => !link.auth || user);
 
   const handleSignOut = async () => {
     onNavigate?.();
@@ -45,56 +45,71 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse }) {
 
   return (
     <>
-      <NavLink
-        to="/dashboard"
-        onClick={onNavigate}
-        title={collapsed ? 'LinkMakeup' : undefined}
-        className={`flex items-center border-b border-border mb-2 transition-all ${collapsed ? 'justify-center px-2 py-4' : 'gap-3 px-3 py-4'}`}
-      >
-        <div className="w-9 h-9 rounded-lg bg-surface-muted border border-border-strong flex items-center justify-center shrink-0">
-          <span className="text-sm font-bold text-accent">L</span>
-        </div>
-        {!collapsed && (
-          <span className="font-semibold text-fg tracking-tight">
-            Link<span className="text-accent">Makeup</span>
-          </span>
-        )}
-      </NavLink>
+      {/* Sidebar Top Brand Header */}
+      <div className="p-4 border-b border-border/80 flex flex-col gap-3">
+        <NavLink to="/dashboard" onClick={onNavigate} className="inline-flex items-center py-0.5">
+          <Logo height={34} />
+        </NavLink>
 
-      <nav className={`flex-1 py-2 flex flex-col gap-1 overflow-y-auto ${collapsed ? 'px-2' : 'px-3'}`}>
-        {visibleLinks.map((link) => (
+        {/* Quick Search Bar */}
+        {!collapsed && openPalette && (
+          <button
+            type="button"
+            onClick={openPalette}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-border/80 bg-surface-alt/70 text-fg-subtle text-xs hover:border-border-strong hover:text-fg transition-all shadow-2xs"
+          >
+            <div className="flex items-center gap-2">
+              <svg className="w-3.5 h-3.5 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span>Quick search...</span>
+            </div>
+            <kbd className="text-[9px] font-mono font-medium bg-surface border border-border px-1.5 py-0.5 rounded text-fg-muted">⌘K</kbd>
+          </button>
+        )}
+      </div>
+
+      {/* Cloudflare-style Nav Section */}
+      <nav className={`flex-1 py-3 flex flex-col gap-1 overflow-y-auto ${collapsed ? 'px-2' : 'px-3'}`}>
+        <NavLink
+          to="/dashboard"
+          end
+          title={collapsed ? 'Studio' : undefined}
+          className={(state) => navLinkClassName(state, collapsed)}
+          onClick={onNavigate}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            {!collapsed && <span>Studio Overview</span>}
+          </div>
+          {!collapsed && (
+            <svg className="w-3 h-3 text-fg-subtle shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          )}
+        </NavLink>
+
+        {user && (
           <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.end}
-            title={collapsed ? link.label : undefined}
+            to={PROFILE_DETAILS_PATH}
+            title={collapsed ? 'Profile Identity' : undefined}
             className={(state) => navLinkClassName(state, collapsed)}
             onClick={onNavigate}
           >
-            {link.icon}
-            {!collapsed && link.label}
-          </NavLink>
-        ))}
-
-        {user && (
-          <div className={collapsed ? 'mt-3 pt-3 border-t border-border space-y-1' : 'mt-4 pt-4 border-t border-border space-y-1'}>
-            {!collapsed && (
-              <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-fg-subtle">
-                Profile
-              </p>
-            )}
-            <NavLink
-              to={PROFILE_DETAILS_PATH}
-              title={collapsed ? 'Profile Details' : undefined}
-              className={(state) => navLinkClassName(state, collapsed)}
-              onClick={onNavigate}
-            >
-              <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              {!collapsed && 'Profile Details'}
-            </NavLink>
-          </div>
+              {!collapsed && <span>Profile Identity</span>}
+            </div>
+            {!collapsed && (
+              <svg className="w-3 h-3 text-fg-subtle shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            )}
+          </NavLink>
         )}
       </nav>
 
