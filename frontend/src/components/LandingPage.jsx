@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ApiService from '../services/api';
 import Iridescence from './ui/Iridescence';
+import Logo from './ui/Logo';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -29,8 +30,8 @@ export default function LandingPage() {
       {/* Top Navbar Header */}
       <header className="w-full max-w-7xl mx-auto py-4 px-2 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="font-serif font-bold text-2xl tracking-tight text-slate-900">
-          Link<span className="text-emerald-600">Makeup</span>
+        <Link to="/" className="group transition-transform hover:scale-105 inline-flex items-center">
+          <Logo height={44} />
         </Link>
 
         {/* Right Navigation */}
