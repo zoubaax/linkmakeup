@@ -30,7 +30,9 @@ class ApiService {
 
       return data;
     } catch (error) {
-      console.error(`❌ API Error [${endpoint}]:`, error.message);
+      if (endpoint !== '/auth/me') {
+        console.error(`❌ API Error [${endpoint}]:`, error.message);
+      }
       throw error;
     }
   }
