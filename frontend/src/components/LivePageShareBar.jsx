@@ -9,6 +9,7 @@ import {
   HiArrowTopRightOnSquare,
   HiArrowDownTray,
   HiChevronDown,
+  HiShare,
 } from 'react-icons/hi2';
 import { useToast } from '../contexts/ToastContext';
 import { buildEmbedCode, exportPreviewNode } from '../utils/pageExport';
@@ -44,6 +45,34 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
   const qrSvgRef = useRef(null);
 
   const embedCode = buildEmbedCode({ profile, publicUrl });
+
+  const handleSharePage = async () => {
+    const shareTitle = profile?.displayName
+      ? profile.role
+        ? `${profile.displayName} · ${profile.role}`
+        : profile.displayName
+      : 'LinkMakeup';
+
+    const shareText = profile?.role
+      ? `${profile.role}${profile.bio ? ` — ${profile.bio}` : ''}`
+      : profile?.bio || `Check out my bio link page on LinkMakeup`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: publicUrl,
+        });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          handleCopyLink();
+        }
+      }
+    } else {
+      handleCopyLink();
+    }
+  };
 
   useEffect(() => {
     if (!exportOpen) return undefined;
@@ -179,6 +208,11 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
 
           {/* Right Action Buttons */}
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 shrink-0 w-full sm:w-auto">
+            <ActionButton variant="primary" onClick={handleSharePage}>
+              <HiShare className="w-4 h-4 shrink-0" />
+              Share page
+            </ActionButton>
+
             {/* Quick QR Code Button */}
             <ActionButton onClick={() => setQrOpen(true)}>
               <HiQrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -190,8 +224,8 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
               Copy link
             </ActionButton>
 
-            <ActionButton variant="primary" onClick={() => window.open(publicUrl, '_blank', 'noopener,noreferrer')}>
-              <HiArrowTopRightOnSquare className="w-4 h-4 shrink-0" />
+            <ActionButton onClick={() => window.open(publicUrl, '_blank', 'noopener,noreferrer')}>
+              <HiArrowTopRightOnSquare className="w-4 h-4 shrink-0 text-fg-muted" />
               Visit page
             </ActionButton>
 
