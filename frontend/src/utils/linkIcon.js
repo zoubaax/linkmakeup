@@ -13,7 +13,6 @@ export const PLATFORM_ICON_IDS = new Set([
   'figma',
   'phone',
   'email',
-  'portfolio',
 ]);
 
 export function isPlatformIcon(icon) {
