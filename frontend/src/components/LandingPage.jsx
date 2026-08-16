@@ -13,6 +13,8 @@ export default function LandingPage() {
   const { user, profile, loading } = useAuth();
 
   useEffect(() => {
+    document.title = 'LinkMakeup — 100% Free Link in Bio Tool for Creators & Developers';
+
     if (!loading && user) {
       navigate(profile ? '/dashboard' : '/onboarding', { replace: true });
     }
@@ -23,17 +25,20 @@ export default function LandingPage() {
       {/* 1. Navbar Header */}
       <Header user={user} profile={profile} />
 
-      {/* 2. Floating Hero Section */}
-      <HeroSection />
+      {/* Main Landmark for SEO accessibility */}
+      <main id="main-content" className="flex-1 flex flex-col justify-between">
+        {/* 2. Floating Hero Section */}
+        <HeroSection />
 
-      {/* 3. Infinite Logo Ticker (Platform Ecosystem Marquee) */}
-      <LogoTicker />
+        {/* 3. Infinite Logo Ticker (Platform Ecosystem Marquee) */}
+        <LogoTicker />
 
-      {/* 4. Brand Manifesto Section (GSAP ScrollReveal) */}
-      <QuoteSection />
+        {/* 4. Brand Manifesto Section (GSAP ScrollReveal) */}
+        <QuoteSection />
 
-      {/* 5. Why LinkMakeup Section (Glassy Stacking Cards) */}
-      <WhySection />
+        {/* 5. Why LinkMakeup Section (Glassy Stacking Cards) */}
+        <WhySection />
+      </main>
 
       {/* 6. Trust Bar & Footer */}
       <Footer />

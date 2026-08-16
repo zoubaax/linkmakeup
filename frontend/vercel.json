@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "https://api.linkmakeup.com/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "https://api.linkmakeup.com/robots.txt"
+    },
+    {
       "source": "/:username",
       "has": [
         {

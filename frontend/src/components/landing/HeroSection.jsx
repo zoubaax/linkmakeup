@@ -32,8 +32,8 @@ export default function HeroSection() {
           </h1>
 
           {/* Subtext */}
-          <p className="text-slate-600 dark:text-slate-300 text-xs min-[380px]:text-sm sm:text-base md:text-lg leading-relaxed max-w-xl mx-auto px-2">
-            LinkMakeup empowers creators and developers — claim your custom subdomain, customize themes in real-time, and manage everything from one dashboard.
+          <p className="text-slate-600 dark:text-slate-300 text-xs min-[380px]:text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto px-2">
+            LinkMakeup is the ultimate <strong>free link-in-bio platform</strong> for creators, software engineers, and brands. Claim your custom subdomain, customize themes in real-time, and showcase all your links for free.
           </p>
 
           {/* Single Centered Parley Chevron CTA Button */}

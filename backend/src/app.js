@@ -20,6 +20,11 @@ app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cookieParser());
 
 import { ProfileController } from './controllers/profile.controller.js';
+import { SeoController } from './controllers/seo.controller.js';
+
+// SEO Endpoints (Googlebot / Bingbot Crawlers)
+app.get('/sitemap.xml', SeoController.getSitemapXml);
+app.get('/robots.txt', SeoController.getRobotsTxt);
 
 // Social Scraper & Subdomain OG Preview Middleware (WhatsApp, iMessage, Twitter, Telegram, LinkedIn)
 app.use(async (req, res, next) => {
