@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ApiService from '../services/api';
+import { getPublicUserUrl } from '../config/env';
 import { SkeletonProfile } from './ui/Skeleton';
 import ProfilePageView from './profile/ProfilePageView';
 
@@ -44,11 +45,13 @@ export default function PublicProfile({ usernameOverride } = {}) {
       ? `${profile.role}${profile.bio ? ` — ${profile.bio}` : ''}`
       : profile.bio || `Check out ${profile.displayName || 'this'}'s bio link page on LinkMakeup.`;
 
+    const canonicalUrl = getPublicUserUrl(profile.username || username);
+
     const metaTags = [
       { property: 'og:title', content: shareTitle },
       { property: 'og:description', content: shareDesc },
       { property: 'og:image', content: profile.avatarUrl || '' },
-      { property: 'og:url', content: window.location.href },
+      { property: 'og:url', content: canonicalUrl },
       { name: 'twitter:title', content: shareTitle },
       { name: 'twitter:description', content: shareDesc },
       { name: 'twitter:image', content: profile.avatarUrl || '' },
@@ -67,6 +70,15 @@ export default function PublicProfile({ usernameOverride } = {}) {
       }
       element.setAttribute('content', content);
     });
+
+    // Update canonical link for mobile browser share sheets (Safari & Chrome)
+    let canonical = document.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute('href', canonicalUrl);
 
     return () => {
       document.title = 'LinkMakeup';
