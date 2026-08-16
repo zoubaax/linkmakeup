@@ -23,18 +23,32 @@ export default function PublicProfile({ usernameOverride } = {}) {
 
   useEffect(() => {
     if (!profile) return;
-    const title = profile.displayName ? `${profile.displayName} | LinkMakeup` : 'LinkMakeup';
-    document.title = title;
+    const displayTitle = profile.displayName
+      ? profile.role
+        ? `${profile.displayName} — ${profile.role}`
+        : `${profile.displayName} | LinkMakeup`
+      : 'LinkMakeup';
+    document.title = displayTitle;
+
+    const shareTitle = profile.displayName
+      ? profile.role
+        ? `${profile.displayName} · ${profile.role}`
+        : profile.displayName
+      : 'LinkMakeup';
+
+    const shareDesc = profile.role
+      ? `${profile.role}${profile.bio ? ` — ${profile.bio}` : ''}`
+      : profile.bio || `Check out ${profile.displayName || 'this'}'s bio link page on LinkMakeup.`;
 
     const metaTags = [
-      { property: 'og:title', content: profile.displayName || 'LinkMakeup' },
-      { property: 'og:description', content: profile.role || profile.bio || `Check out ${profile.displayName}'s profile on LinkMakeup.` },
+      { property: 'og:title', content: shareTitle },
+      { property: 'og:description', content: shareDesc },
       { property: 'og:image', content: profile.avatarUrl || '' },
       { property: 'og:url', content: window.location.href },
-      { name: 'twitter:title', content: profile.displayName || 'LinkMakeup' },
-      { name: 'twitter:description', content: profile.role || profile.bio || `Check out ${profile.displayName}'s profile on LinkMakeup.` },
+      { name: 'twitter:title', content: shareTitle },
+      { name: 'twitter:description', content: shareDesc },
       { name: 'twitter:image', content: profile.avatarUrl || '' },
-      { name: 'twitter:card', content: 'summary' },
+      { name: 'twitter:card', content: 'summary_large_image' },
     ];
 
     metaTags.forEach(({ property, name, content }) => {

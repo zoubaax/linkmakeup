@@ -230,14 +230,16 @@ export default function ProfilePageView({
 
           {/* ── Footer ── */}
           {showFooter && (
-            <Link
-              to="/"
-              style={{ ...visuals.text.style, opacity: 0.5 }}
-              className={`mt-6 text-center ${compact ? 'text-[9px]' : 'text-[11px]'} tracking-wide hover:opacity-85 transition-opacity font-medium`}
+            <a
+              href={getMarketingSiteUrl()}
+              target="_top"
+              rel="noopener noreferrer"
+              style={{ ...visuals.text.style, opacity: 0.6 }}
+              className={`mt-6 text-center ${compact ? 'text-[9px]' : 'text-[11px]'} tracking-wide hover:opacity-90 transition-opacity font-semibold cursor-pointer z-30 relative inline-block`}
               title="Create your own bio link page on LinkMakeup"
             >
               {getCopyrightLine()}
-            </Link>
+            </a>
           )}
 
         </div>

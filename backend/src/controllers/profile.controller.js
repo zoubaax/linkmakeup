@@ -134,8 +134,22 @@ export class ProfileController {
       }
 
       const p = profileData.profile;
-      const title = `${p.displayName || username} | LinkMakeup`;
-      const description = p.role || p.bio || `Check out ${p.displayName || username}'s links on LinkMakeup.`;
+      const title = p.displayName
+        ? p.role
+          ? `${p.displayName} — ${p.role}`
+          : `${p.displayName} | LinkMakeup`
+        : 'LinkMakeup';
+
+      const ogTitle = p.displayName
+        ? p.role
+          ? `${p.displayName} · ${p.role}`
+          : p.displayName
+        : 'LinkMakeup';
+
+      const description = p.role
+        ? `${p.role}${p.bio ? ` — ${p.bio}` : ''}`
+        : p.bio || `Check out ${p.displayName || username}'s bio link page on LinkMakeup.`;
+
       const image = p.avatarUrl || 'https://linkmakeup.com/logo-d.png';
 
       const html = `<!DOCTYPE html>
@@ -145,17 +159,17 @@ export class ProfileController {
   <title>${title}</title>
   <meta name="description" content="${description}">
   <meta property="og:site_name" content="LinkMakeup">
-  <meta property="og:title" content="${p.displayName || username}">
+  <meta property="og:title" content="${ogTitle}">
   <meta property="og:description" content="${description}">
   <meta property="og:image" content="${image}">
   <meta property="og:type" content="profile">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${p.displayName || username}">
+  <meta name="twitter:title" content="${ogTitle}">
   <meta name="twitter:description" content="${description}">
   <meta name="twitter:image" content="${image}">
 </head>
 <body>
-  <h1>${p.displayName || username}</h1>
+  <h1>${ogTitle}</h1>
   <p>${description}</p>
 </body>
 </html>`;
