@@ -95,6 +95,12 @@ class ApiService {
     });
   }
 
+  static async getAvatarUploadSignature() {
+    return this.request('/profiles/avatar-upload-signature', {
+      method: 'POST',
+    });
+  }
+
   static async getPublicProfile(username) {
     return this.request(`/profiles/${encodeURIComponent(username)}`);
   }

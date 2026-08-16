@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import ApiService from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import { validateImageFile } from '../utils/imageUpload';
+import { uploadAvatarToCloudinary } from '../utils/cloudinary';
 import ImageCropper from './ui/ImageCropper';
 
 import { StatusPill } from './StatusPill';
@@ -84,15 +85,20 @@ export default function ProfileEditor({ profile, onProfileUpdated }) {
 
   const handleCropConfirm = async (croppedUrl) => {
     closeCropper();
-    setAvatarUrl(croppedUrl);
     setSavingAvatar(true);
     setErrorMsg('');
 
     try {
-      const response = await ApiService.updateProfile({ avatarUrl: croppedUrl });
+      const signatureResponse = await ApiService.getAvatarUploadSignature();
+      if (!signatureResponse.success || !signatureResponse.data) {
+        throw new Error('Could not prepare photo upload.');
+      }
+      const uploadedAvatarUrl = await uploadAvatarToCloudinary(croppedUrl, signatureResponse.data);
+      const response = await ApiService.updateProfile({ avatarUrl: uploadedAvatarUrl });
       if (!response.success || !response.data) {
         throw new Error('Failed to save profile photo.');
       }
+      setAvatarUrl(uploadedAvatarUrl);
       onProfileUpdated?.({ ...profile, ...response.data });
       toastSuccess('Profile photo saved');
     } catch (err) {

@@ -15,5 +15,6 @@ router.get('/profiles/:username/og', ProfileController.getPublicProfileOgHtml);
 // Protected routes
 router.post('/profiles', requireAuth, ProfileController.createProfile);
 router.patch('/profiles/me', requireAuth, ProfileController.updateProfile);
+router.post('/profiles/avatar-upload-signature', requireAuth, ProfileController.getAvatarUploadSignature);
 
 export default router;

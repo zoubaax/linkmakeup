@@ -1,6 +1,6 @@
 export const IMAGE_UPLOAD_DEFAULTS = {
-  maxWidth: 512,
-  maxHeight: 512,
+  maxWidth: 1024,
+  maxHeight: 1024,
   quality: 0.82,
   maxDataUrlLength: 500_000,
 };

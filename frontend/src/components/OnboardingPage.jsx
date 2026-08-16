@@ -5,6 +5,7 @@ import ApiService from '../services/api';
 import { env } from '../config/env';
 import AppLayout from './layout/AppLayout';
 import { validateImageFile } from '../utils/imageUpload';
+import { uploadAvatarToCloudinary } from '../utils/cloudinary';
 import { generateAvatarDataUrl, DUMMY_NAMES } from '../utils/avatar';
 import ImageCropper from './ui/ImageCropper';
 import Stepper, { Step } from './ui/Stepper';
@@ -108,10 +109,21 @@ export default function OnboardingPage() {
     openCropper(URL.createObjectURL(file));
   };
 
-  const handleCropConfirm = (croppedUrl) => {
-    setAvatarUrl(croppedUrl);
-    setAvatarError(false);
-    closeCropper();
+  const handleCropConfirm = async (croppedUrl) => {
+    setErrorMsg('');
+    try {
+      const signatureResponse = await ApiService.getAvatarUploadSignature();
+      if (!signatureResponse.success || !signatureResponse.data) {
+        throw new Error('Could not prepare photo upload.');
+      }
+      const uploadedAvatarUrl = await uploadAvatarToCloudinary(croppedUrl, signatureResponse.data);
+      setAvatarUrl(uploadedAvatarUrl);
+      setAvatarError(false);
+      closeCropper();
+    } catch (error) {
+      setErrorMsg(error.message || 'Could not upload your photo. Please try again.');
+      throw error;
+    }
   };
 
   // Subdomain Availability check

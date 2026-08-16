@@ -1,6 +1,7 @@
 import { ProfileService } from '../services/profile.service.js';
 import { ApiResponse, ApiError } from '../utils/apiResponse.js';
 import { z } from 'zod';
+import crypto from 'node:crypto';
 
 const usernameParamSchema = z.object({
   username: z.string().min(3).max(50).regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores, and hyphens'),
@@ -46,6 +47,32 @@ const updateProfileSchema = z.object({
 });
 
 export class ProfileController {
+  static async getAvatarUploadSignature(req, res, next) {
+    try {
+      const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+      if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET) {
+        throw new ApiError('Profile photo uploads are not configured yet.', 503);
+      }
+
+      const timestamp = Math.floor(Date.now() / 1000);
+      const folder = 'linkmakeup/avatars';
+      const publicId = `user-${req.user.id}`;
+      const toSign = `folder=${folder}&overwrite=true&public_id=${publicId}&timestamp=${timestamp}${CLOUDINARY_API_SECRET}`;
+      const signature = crypto.createHash('sha1').update(toSign).digest('hex');
+
+      return ApiResponse.success(res, 'Avatar upload prepared', {
+        cloudName: CLOUDINARY_CLOUD_NAME,
+        apiKey: CLOUDINARY_API_KEY,
+        timestamp,
+        signature,
+        folder,
+        publicId,
+      });
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async checkUsernameAvailability(req, res, next) {
     try {
       const { username } = req.query;
@@ -194,6 +221,8 @@ export class ProfileController {
         image = `https://api.dicebear.com/7.x/avataaars/png?seed=${encodeURIComponent(username)}&size=512`;
       } else if (image.startsWith('/')) {
         image = `https://${req.headers['x-original-host'] || req.headers.host || 'linkmakeup.com'}${image}`;
+      } else if (image.includes('res.cloudinary.com/') && image.includes('/image/upload/')) {
+        image = image.replace('/image/upload/', '/image/upload/c_fill,g_face,w_600,h_600/q_auto/f_jpg/');
       }
 
       const html = `<!DOCTYPE html>

@@ -136,7 +136,7 @@ export default function ImageCropper({ src, onCancel, onCrop }) {
       ctx.drawImage(cropCanvas, 0, 0, AVATAR_SIZE, AVATAR_SIZE);
 
       const dataUrl = await canvasToDataUrl(avatarCanvas);
-      onCrop(dataUrl);
+      await onCrop(dataUrl);
     } catch (error) {
       setSaveError(error.message || 'Could not save this crop. Try again.');
       setIsSaving(false);

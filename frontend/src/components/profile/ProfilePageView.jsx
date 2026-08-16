@@ -5,6 +5,7 @@ import { getThemeVisuals } from '../../utils/themeStyles';
 import { getCopyrightLine, getMarketingSiteUrl } from '../../utils/pageExport';
 import { StatusPill } from '../StatusPill';
 import { getDefaultSubtitle } from '../SocialIcons';
+import { getProfileAvatarUrl } from '../../utils/cloudinary';
 
 /* ─── Staggered entrance animation styles ─── */
 const fadeUp = (delay = 0) => ({
@@ -63,7 +64,7 @@ export default function ProfilePageView({
   const theme = normalizeThemeConfig(themeInput);
   const visuals = getThemeVisuals(theme, { compact });
   const activeLinks = links.filter((link) => link.isActive !== false);
-  const avatarSrc = profile?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile?.username || 'user')}`;
+  const avatarSrc = getProfileAvatarUrl(profile?.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile?.username || 'user')}`;
 
   const cleanClassName = (cls = '') => cls.replace(/rounded-(full|none|2xl|xl|lg|md|sm)/g, '');
 
