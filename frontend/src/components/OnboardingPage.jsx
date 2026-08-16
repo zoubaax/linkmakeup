@@ -35,12 +35,12 @@ export default function OnboardingPage() {
   const [layoutStyle, setLayoutStyle] = useState('minimal');
   const [presetTheme, setPresetTheme] = useState('minimal-mono');
 
-  // Custom Colors State
+  // Custom Colors State (Default: Mono Editorial)
   const [customColors, setCustomColors] = useState({
-    backgroundColor: '#0b0f19',
-    cardColor: '#161e2e',
-    textColor: '#f8fafc',
-    accentColor: '#10b981',
+    backgroundColor: '#FFFFFF',
+    cardColor: '#FFFFFF',
+    textColor: '#111827',
+    accentColor: '#111827',
   });
   const [showCustomColors, setShowCustomColors] = useState(false);
 

@@ -10,6 +10,18 @@ export const MOOD_FILTERS = [
 
 export const THEME_PRESETS = [
   {
+    id: 'minimal-mono',
+    name: 'Mono Editorial',
+    layoutStyle: 'minimal',
+    mood: 'light',
+    description: 'Black & white editorial spacing',
+    isDark: false,
+    backgroundColor: '#FFFFFF',
+    cardColor: '#FFFFFF',
+    accentColor: '#111827',
+    textColor: '#111827',
+  },
+  {
     id: 'default',
     name: 'Soft Periwinkle',
     layoutStyle: 'classic',
@@ -44,18 +56,6 @@ export const THEME_PRESETS = [
     cardColor: '#FFFFFF',
     accentColor: '#DB2777',
     textColor: '#374151',
-  },
-  {
-    id: 'minimal-mono',
-    name: 'Mono Editorial',
-    layoutStyle: 'minimal',
-    mood: 'light',
-    description: 'Black & white editorial spacing',
-    isDark: false,
-    backgroundColor: '#FFFFFF',
-    cardColor: '#FFFFFF',
-    accentColor: '#111827',
-    textColor: '#111827',
   },
   {
     id: 'minimal-sage',
