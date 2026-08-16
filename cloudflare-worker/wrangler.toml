@@ -1,0 +1,7 @@
+name = "subdomain-router"
+main = "src/index.js"
+compatibility_date = "2026-08-16"
+
+[vars]
+ROOT_DOMAIN = "linkmakeup.com"
+API_ORIGIN = "https://api.linkmakeup.com"

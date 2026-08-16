@@ -193,7 +193,7 @@ export class ProfileController {
       if (!image || image.startsWith('data:')) {
         image = `https://api.dicebear.com/7.x/avataaars/png?seed=${encodeURIComponent(username)}&size=512`;
       } else if (image.startsWith('/')) {
-        image = `https://${req.headers.host || 'linkmakeup.com'}${image}`;
+        image = `https://${req.headers['x-original-host'] || req.headers.host || 'linkmakeup.com'}${image}`;
       }
 
       const html = `<!DOCTYPE html>
@@ -213,7 +213,7 @@ export class ProfileController {
   <meta property="og:image:secure_url" content="${image}">
   <meta property="og:image:width" content="600">
   <meta property="og:image:height" content="600">
-  <meta property="og:url" content="https://${req.headers.host || 'linkmakeup.com'}/${username}">
+  <meta property="og:url" content="https://${req.headers['x-original-host'] || req.headers.host || 'linkmakeup.com'}/">
   
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
@@ -230,7 +230,7 @@ export class ProfileController {
   <h1 style="margin:0 0 0.5rem;font-size:1.75rem;">${p.displayName || username}</h1>
   ${p.role ? `<p style="font-size:1.1rem;color:#10b981;font-weight:600;margin:0 0 0.5rem;">${p.role}</p>` : ''}
   ${p.bio ? `<p style="color:#94a3b8;max-width:400px;margin:0 auto 1.5rem;">${p.bio}</p>` : ''}
-  <a href="https://${req.headers.host || 'linkmakeup.com'}/${username}" style="display:inline-block;padding:0.75rem 1.5rem;background:#10b981;color:#fff;text-decoration:none;border-radius:99px;font-weight:700;">View Profile Links</a>
+  <a href="https://${req.headers['x-original-host'] || req.headers.host || 'linkmakeup.com'}/" style="display:inline-block;padding:0.75rem 1.5rem;background:#10b981;color:#fff;text-decoration:none;border-radius:99px;font-weight:700;">View Profile Links</a>
 </body>
 </html>`;
 
