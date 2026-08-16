@@ -135,6 +135,7 @@ html, body {
   .animate-scale-in {
     animation: none;
   }
+
 }
 
 :focus-visible {

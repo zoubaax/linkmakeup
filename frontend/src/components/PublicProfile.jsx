@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import ApiService from '../services/api';
 import { SkeletonProfile } from './ui/Skeleton';
 import ProfilePageView from './profile/ProfilePageView';
@@ -20,6 +20,10 @@ export default function PublicProfile({ usernameOverride } = {}) {
 
   const profile = data?.profile;
   const links = data?.links || [];
+  const appDomain = import.meta.env.VITE_APP_DOMAIN || 'linkmakeup.com';
+  const landingUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? '/'
+    : `https://${appDomain}/`;
 
   useEffect(() => {
     if (!profile) return;
@@ -69,6 +73,10 @@ export default function PublicProfile({ usernameOverride } = {}) {
     };
   }, [profile]);
 
+  useEffect(() => {
+    if (notFound) document.title = '404 — Page Not Found | LinkMakeup';
+  }, [notFound]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-app flex items-center justify-center">
@@ -80,14 +88,15 @@ export default function PublicProfile({ usernameOverride } = {}) {
   if (notFound) {
     return (
       <div className="min-h-screen bg-app flex flex-col items-center justify-center text-center px-6 py-24 gap-6">
-        <span className="text-6xl">🔍</span>
-        <h1 className="text-3xl font-bold text-fg">Profile Not Found</h1>
+        <span className="text-6xl font-black tracking-tight text-accent leading-none">404</span>
+        <p className="text-sm font-bold tracking-[0.2em] text-accent">ERROR 404</p>
+        <h1 className="text-3xl font-bold text-fg">Page Not Found</h1>
         <p className="text-fg-muted max-w-xs leading-relaxed">
-          <strong className="text-accent">/{username}</strong> does not exist on LinkMakeup yet.
+          The page for <strong className="text-accent">/{username}</strong> does not exist on LinkMakeup yet.
         </p>
-        <Link to="/" className="px-6 py-3 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]">
+        <a href={landingUrl} className="px-6 py-3 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]">
           Create Your Own Page
-        </Link>
+        </a>
       </div>
     );
   }
