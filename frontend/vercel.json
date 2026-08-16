@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/:username",
       "has": [
         {
           "type": "header",
@@ -9,7 +9,7 @@
           "value": ".*(facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|Applebot).*"
         }
       ],
-      "destination": "https://api.linkmakeup.com/api/v1/profiles/check-og"
+      "destination": "https://api.linkmakeup.com/api/v1/profiles/check-og?u=:username"
     },
     {
       "source": "/(.*)",
