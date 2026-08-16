@@ -61,9 +61,10 @@ export class FaviconService {
     }
 
     const candidates = [
-      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`,
       `https://${domain}/favicon.ico`,
       `https://${domain}/favicon.png`,
+      `https://${domain}/favicon.svg`,
+      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`,
     ];
 
     for (const url of candidates) {
