@@ -130,52 +130,71 @@ export class ProfileController {
       const profileData = await ProfileService.getPublicProfileByUsername(username);
 
       if (!profileData || !profileData.profile) {
-        return res.status(404).send('<!DOCTYPE html><html><head><title>Linktree Profile Not Found</title></head><body>Profile Not Found</body></html>');
+        return res.status(404).send('<!DOCTYPE html><html><head><title>Profile Not Found | LinkMakeup</title></head><body>Profile Not Found</body></html>');
       }
 
       const p = profileData.profile;
-      const title = p.displayName
-        ? p.role
-          ? `${p.displayName} — ${p.role}`
-          : `${p.displayName} | LinkMakeup`
-        : 'LinkMakeup';
 
+      // Construct Title: "Display Name · Job Title"
       const ogTitle = p.displayName
         ? p.role
           ? `${p.displayName} · ${p.role}`
           : p.displayName
-        : 'LinkMakeup';
+        : username;
 
+      const pageTitle = `${ogTitle} | LinkMakeup`;
+
+      // Construct Description: "Job Title — Bio"
       const description = p.role
         ? `${p.role}${p.bio ? ` — ${p.bio}` : ''}`
         : p.bio || `Check out ${p.displayName || username}'s bio link page on LinkMakeup.`;
 
-      const image = p.avatarUrl || 'https://linkmakeup.com/logo-d.png';
+      // Ensure valid absolute HTTPS image URL for WhatsApp / iMessage scrapers
+      let image = p.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`;
+      if (image.startsWith('/')) {
+        image = `https://${req.headers.host || 'linkmakeup.com'}${image}`;
+      }
 
       const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>${title}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${pageTitle}</title>
   <meta name="description" content="${description}">
+  
+  <!-- Open Graph / WhatsApp / iMessage / Facebook -->
+  <meta property="og:type" content="profile">
   <meta property="og:site_name" content="LinkMakeup">
   <meta property="og:title" content="${ogTitle}">
   <meta property="og:description" content="${description}">
   <meta property="og:image" content="${image}">
-  <meta property="og:type" content="profile">
+  <meta property="og:image:secure_url" content="${image}">
+  <meta property="og:image:width" content="600">
+  <meta property="og:image:height" content="600">
+  <meta property="og:url" content="https://${req.headers.host || 'linkmakeup.com'}/${username}">
+  
+  <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${ogTitle}">
   <meta name="twitter:description" content="${description}">
   <meta name="twitter:image" content="${image}">
+  
+  <!-- Favicon / Apple Touch Icon for WhatsApp & iMessage preview thumbnails -->
+  <link rel="icon" href="${image}">
+  <link rel="apple-touch-icon" href="${image}">
 </head>
-<body>
-  <h1>${ogTitle}</h1>
-  <p>${description}</p>
+<body style="font-family:system-ui,sans-serif;padding:2rem;text-align:center;background:#0f172a;color:#fff;">
+  <img src="${image}" alt="${p.displayName || username}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;margin-bottom:1rem;" />
+  <h1 style="margin:0 0 0.5rem;font-size:1.75rem;">${p.displayName || username}</h1>
+  ${p.role ? `<p style="font-size:1.1rem;color:#10b981;font-weight:600;margin:0 0 0.5rem;">${p.role}</p>` : ''}
+  ${p.bio ? `<p style="color:#94a3b8;max-width:400px;margin:0 auto 1.5rem;">${p.bio}</p>` : ''}
+  <a href="https://${req.headers.host || 'linkmakeup.com'}/${username}" style="display:inline-block;padding:0.75rem 1.5rem;background:#10b981;color:#fff;text-decoration:none;border-radius:99px;font-weight:700;">View Profile Links</a>
 </body>
 </html>`;
 
-      res.setHeader('Content-Type', 'text/html');
-      return res.send(html);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.status(200).send(html);
     } catch (err) {
       next(err);
     }

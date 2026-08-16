@@ -19,6 +19,36 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cookieParser());
 
+import { ProfileController } from './controllers/profile.controller.js';
+
+// Social Scraper & Subdomain OG Preview Middleware (WhatsApp, iMessage, Twitter, Telegram, LinkedIn)
+app.use(async (req, res, next) => {
+  const host = req.headers.host || '';
+  const userAgent = req.headers['user-agent'] || '';
+  const isSocialScraper = /facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|Applebot/i.test(userAgent);
+
+  // Check if request is for a user profile via subdomain (e.g. "mee.linkmakeup.com") or path "/u/:username" or "/:username"
+  const domainParts = host.split('.');
+  let targetUsername = null;
+
+  if (domainParts.length >= 3 && !['www', 'api', 'app'].includes(domainParts[0])) {
+    targetUsername = domainParts[0].toLowerCase();
+  } else {
+    // Check path for /u/username or /username if scraper
+    const match = req.path.match(/^\/(?:u\/)?([a-zA-Z0-9_-]+)$/);
+    if (match && !['api', 'dashboard', 'login', 'register', 'settings'].includes(match[1].toLowerCase())) {
+      targetUsername = match[1].toLowerCase();
+    }
+  }
+
+  if (targetUsername && (isSocialScraper || req.headers.accept?.includes('text/html'))) {
+    req.params = { username: targetUsername };
+    return ProfileController.getPublicProfileOgHtml(req, res, next);
+  }
+
+  next();
+});
+
 // Root health check
 app.get('/', (req, res) => {
   res.json({
