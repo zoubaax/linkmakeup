@@ -10,6 +10,29 @@ function isValidDomain(domain) {
   return DOMAIN_RE.test(normalized);
 }
 
+async function fetchPageHtml(url, timeoutMs = 5000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      redirect: 'follow',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+    });
+
+    if (!response.ok) return null;
+    return await response.text();
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function fetchImage(url, timeoutMs = 8000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -19,7 +42,7 @@ async function fetchImage(url, timeoutMs = 8000) {
       signal: controller.signal,
       redirect: 'follow',
       headers: {
-        'User-Agent': 'LinkMakeup/1.0 (+https://linkmakeup.com)',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         Accept: 'image/*,*/*;q=0.8',
       },
     });
@@ -27,7 +50,7 @@ async function fetchImage(url, timeoutMs = 8000) {
     if (!response.ok) return null;
 
     const contentType = response.headers.get('content-type') || '';
-    if (!contentType.startsWith('image/') && contentType !== 'application/octet-stream') {
+    if (!contentType.startsWith('image/') && !contentType.includes('svg') && contentType !== 'application/octet-stream') {
       return null;
     }
 
@@ -36,7 +59,7 @@ async function fetchImage(url, timeoutMs = 8000) {
 
     return {
       buffer,
-      contentType: contentType.startsWith('image/') ? contentType.split(';')[0] : 'image/png',
+      contentType: contentType.split(';')[0].trim() || 'image/png',
     };
   } catch {
     return null;
@@ -60,12 +83,34 @@ export class FaviconService {
       return null;
     }
 
-    const candidates = [
+    const candidates = [];
+
+    // 1. Try extracting actual favicon URL directly from website HTML head
+    try {
+      const html = await fetchPageHtml(`https://${domain}/`);
+      if (html) {
+        const match =
+          html.match(/<link[^>]*rel=[\"'](?:shortcut )?icon[\"'][^>]*href=[\"']([^\"']+)[\"']/i) ||
+          html.match(/<link[^>]*href=[\"']([^\"']+)[\"'][^>]*rel=[\"'](?:shortcut )?icon[\"']/i);
+
+        if (match && match[1]) {
+          let iconUrl = match[1];
+          if (iconUrl.startsWith('//')) iconUrl = `https:${iconUrl}`;
+          else if (iconUrl.startsWith('/')) iconUrl = `https://${domain}${iconUrl}`;
+          else if (!iconUrl.startsWith('http')) iconUrl = `https://${domain}/${iconUrl}`;
+          candidates.push(iconUrl);
+        }
+      }
+    } catch {
+      // ignore HTML parse error
+    }
+
+    candidates.push(
       `https://${domain}/favicon.ico`,
       `https://${domain}/favicon.png`,
       `https://${domain}/favicon.svg`,
-      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`,
-    ];
+      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`
+    );
 
     for (const url of candidates) {
       const result = await fetchImage(url);
