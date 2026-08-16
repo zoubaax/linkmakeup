@@ -8,6 +8,7 @@ const router = Router();
 router.get('/profiles/check-availability', ProfileController.checkUsernameAvailability);
 
 // GET /api/v1/profiles/:username (Public profile view)
+router.get('/profiles/check-og', ProfileController.checkOgRoute);
 router.get('/profiles/:username', ProfileController.getPublicProfile);
 router.get('/profiles/:username/og', ProfileController.getPublicProfileOgHtml);
 

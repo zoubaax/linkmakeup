@@ -4,27 +4,12 @@
       "source": "/(.*)",
       "has": [
         {
-          "type": "host",
-          "value": "(?<username>[^.]+)\\.linkmakeup\\.com"
-        },
-        {
           "type": "header",
           "key": "user-agent",
           "value": ".*(facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|Applebot).*"
         }
       ],
-      "destination": "https://api.linkmakeup.com/api/v1/profiles/:username/og"
-    },
-    {
-      "source": "/:username",
-      "has": [
-        {
-          "type": "header",
-          "key": "user-agent",
-          "value": ".*(facebookexternalhit|WhatsApp|Twitterbot|TelegramBot|LinkedInBot|Slackbot|Discordbot|Applebot).*"
-        }
-      ],
-      "destination": "https://api.linkmakeup.com/api/v1/profiles/:username/og"
+      "destination": "https://api.linkmakeup.com/api/v1/profiles/check-og"
     },
     {
       "source": "/(.*)",

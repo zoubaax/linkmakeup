@@ -124,6 +124,34 @@ export class ProfileController {
     }
   }
 
+  static async checkOgRoute(req, res, next) {
+    try {
+      const host = req.headers['x-forwarded-host'] || req.headers.host || '';
+      const path = req.headers['x-matched-path'] || req.headers['x-forwarded-uri'] || req.url || '';
+
+      let username = null;
+      const domainParts = host.split('.');
+      if (domainParts.length >= 3 && !['www', 'api', 'app'].includes(domainParts[0])) {
+        username = domainParts[0].toLowerCase();
+      } else {
+        const match = path.match(/^\/(?:u\/)?([a-zA-Z0-9_-]+)/);
+        if (match && !['api', 'dashboard', 'login', 'register', 'settings'].includes(match[1].toLowerCase())) {
+          username = match[1].toLowerCase();
+        }
+      }
+
+      if (username) {
+        req.params = { username };
+        return ProfileController.getPublicProfileOgHtml(req, res, next);
+      }
+
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.status(200).send('<!DOCTYPE html><html><head><title>LinkMakeup — Create Your Bio Link Page</title><meta property="og:title" content="LinkMakeup — Create Your Bio Link Page"><meta property="og:description" content="Create your custom bio link page, showcase social links, portfolio, and custom themes."><meta property="og:type" content="website"></head><body>LinkMakeup</body></html>');
+    } catch (err) {
+      next(err);
+    }
+  }
+
   static async getPublicProfileOgHtml(req, res, next) {
     try {
       const { username } = req.params;
