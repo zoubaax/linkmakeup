@@ -213,7 +213,7 @@ export default function ProfilePageView({
                       {link.title}
                     </span>
                     {(() => {
-                      const sub = link.subtitle || getDefaultSubtitle(link.icon, link.title);
+                      const sub = getDefaultSubtitle(link.icon, link.title);
                       return sub ? (
                         <span style={{ ...visuals.text.style, opacity: 0.5 }} className={`${visuals.linkSubtitle.className} block truncate`}>
                           {sub}

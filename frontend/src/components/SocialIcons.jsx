@@ -8,7 +8,12 @@ export const PLATFORM_PRESETS = [
   { id: 'whatsapp', name: 'WhatsApp', baseUrl: 'https://wa.me/', color: 'from-emerald-500 to-teal-600', icon: 'whatsapp' },
   { id: 'pinterest', name: 'Pinterest', baseUrl: 'https://pinterest.com/', color: 'from-red-600 to-red-700', icon: 'pinterest' },
   { id: 'spotify', name: 'Spotify', baseUrl: 'https://open.spotify.com/', color: 'from-emerald-500 to-emerald-700', icon: 'spotify' },
-  { id: 'website', name: 'Website', baseUrl: 'https://', color: 'from-violet-600 to-fuchsia-600', icon: 'globe' },
+  { id: 'behance', name: 'Behance', baseUrl: 'https://www.behance.net/', color: 'from-blue-600 to-indigo-700', icon: 'behance' },
+  { id: 'dribbble', name: 'Dribbble', baseUrl: 'https://dribbble.com/', color: 'from-pink-500 to-rose-600', icon: 'dribbble' },
+  { id: 'figma', name: 'Figma', baseUrl: 'https://www.figma.com/', color: 'from-violet-600 to-purple-700', icon: 'figma' },
+  { id: 'phone', name: 'Phone', baseUrl: '', color: 'from-emerald-500 to-teal-600', icon: 'phone' },
+  { id: 'email', name: 'Email', baseUrl: '', color: 'from-amber-500 to-orange-600', icon: 'email' },
+  { id: 'portfolio', name: 'Portfolio', baseUrl: 'https://', color: 'from-violet-600 to-fuchsia-600', icon: 'portfolio' },
 ];
 
 export function getPlatformPreset(id) {
@@ -33,6 +38,8 @@ export const DEFAULT_SUBTITLES = {
   spotify: 'Listen with me',
   behance: 'See my designs',
   dribbble: 'See my shots',
+  figma: 'See my designs',
+  phone: 'Call me',
 };
 
 export function getDefaultSubtitle(iconName, title) {
@@ -40,7 +47,7 @@ export function getDefaultSubtitle(iconName, title) {
   for (const [platform, subtitle] of Object.entries(DEFAULT_SUBTITLES)) {
     if (key.includes(platform)) return subtitle;
   }
-  return null;
+  return 'Visit this link';
 }
 
 export function getPlatformContainerStyle(iconName) {
@@ -56,6 +63,10 @@ export function getPlatformContainerStyle(iconName) {
   if (name.includes('tiktok')) return 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400';
   if (name.includes('pinterest')) return 'bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400';
   if (name.includes('spotify')) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
+  if (name.includes('behance')) return 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400';
+  if (name.includes('dribbble')) return 'bg-pink-50 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400';
+  if (name.includes('figma')) return 'bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400';
+  if (name.includes('phone')) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
   return 'bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400';
 }
 
@@ -140,6 +151,26 @@ export function getPlatformIcon(iconName, className = "w-4 h-4") {
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     );
+  }
+
+  if (name.includes('phone') || name.includes('tel')) {
+    return (
+      <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.95.684l1.5 4.493a1 1 0 01-.502 1.21l-2.257 1.128a11.042 11.042 0 005.516 5.516l1.128-2.257a1 1 0 011.21-.502l4.493 1.5A1 1 0 0121 15.72V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+      </svg>
+    );
+  }
+
+  if (name.includes('behance')) {
+    return <span className={`${className} inline-flex items-center justify-center font-black leading-none`}>Bē</span>;
+  }
+
+  if (name.includes('dribbble')) {
+    return <span className={`${className} inline-flex items-center justify-center font-black leading-none`}>◉</span>;
+  }
+
+  if (name.includes('figma')) {
+    return <span className={`${className} inline-flex items-center justify-center font-black leading-none`}>F</span>;
   }
 
   if (name.includes('pinterest')) {

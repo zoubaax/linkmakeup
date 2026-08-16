@@ -4,7 +4,6 @@ import { z } from 'zod';
 
 const createLinkSchema = z.object({
   title: z.string().min(1, 'Title is required').max(255),
-  subtitle: z.string().max(255).optional(),
   url: z.string().url('Must be a valid URL'),
   icon: z.string().optional(),
   isActive: z.boolean().optional(),

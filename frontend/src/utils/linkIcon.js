@@ -8,6 +8,12 @@ export const PLATFORM_ICON_IDS = new Set([
   'youtube',
   'tiktok',
   'whatsapp',
+  'behance',
+  'dribbble',
+  'figma',
+  'phone',
+  'email',
+  'portfolio',
 ]);
 
 export function isPlatformIcon(icon) {

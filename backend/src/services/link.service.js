@@ -3,6 +3,21 @@ import { links } from '../models/schema.js';
 import { eq, and, asc } from 'drizzle-orm';
 
 export class LinkService {
+  static getAutomaticSubtitle(icon, title) {
+    const key = `${icon || ''} ${title || ''}`.toLowerCase();
+    if (key.includes('behance')) return 'See my designs';
+    if (key.includes('dribbble')) return 'See my shots';
+    if (key.includes('figma')) return 'See my designs';
+    if (key.includes('phone')) return 'Call me';
+    if (key.includes('email') || key.includes('mail')) return 'Send me a message';
+    if (key.includes('instagram')) return 'Follow me on Instagram';
+    if (key.includes('linkedin')) return "Let's connect";
+    if (key.includes('github')) return 'Explore my code';
+    if (key.includes('portfolio')) return 'View my work';
+    if (key.includes('website')) return 'Visit my website';
+    return 'Visit this link';
+  }
+
   static async getUserLinks(userId) {
     try {
       return await db
@@ -17,7 +32,7 @@ export class LinkService {
   }
 
   static async createLink(userId, linkData) {
-    const { title, subtitle, url, icon, isActive = true } = linkData;
+    const { title, url, icon, isActive = true } = linkData;
     
     try {
       // Calculate next position
@@ -29,7 +44,7 @@ export class LinkService {
         .values({
           userId,
           title,
-          subtitle: subtitle || null,
+          subtitle: this.getAutomaticSubtitle(icon, title),
           url,
           icon: icon || null,
           position: nextPosition,
@@ -46,10 +61,17 @@ export class LinkService {
 
   static async updateLink(userId, linkId, updateData) {
     try {
+      const { subtitle: _ignoredSubtitle, ...safeUpdateData } = updateData;
+      const current = await db.select().from(links).where(and(eq(links.id, linkId), eq(links.userId, userId))).limit(1);
+      const existingLink = current[0];
+      if (!existingLink) return null;
+      const title = safeUpdateData.title ?? existingLink.title;
+      const icon = safeUpdateData.icon ?? existingLink.icon;
       const [updated] = await db
         .update(links)
         .set({
-          ...updateData,
+          ...safeUpdateData,
+          subtitle: this.getAutomaticSubtitle(icon, title),
           updatedAt: new Date(),
         })
         .where(and(eq(links.id, linkId), eq(links.userId, userId)))
