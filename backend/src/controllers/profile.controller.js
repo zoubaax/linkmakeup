@@ -149,9 +149,11 @@ export class ProfileController {
         ? `${p.role}${p.bio ? ` — ${p.bio}` : ''}`
         : p.bio || `Check out ${p.displayName || username}'s bio link page on LinkMakeup.`;
 
-      // Ensure valid absolute HTTPS image URL for WhatsApp / iMessage scrapers
-      let image = p.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`;
-      if (image.startsWith('/')) {
+      // Ensure valid absolute HTTPS image URL for WhatsApp / iMessage scrapers (WhatsApp ignores base64 & SVG thumbnails)
+      let image = p.avatarUrl;
+      if (!image || image.startsWith('data:')) {
+        image = `https://api.dicebear.com/7.x/avataaars/png?seed=${encodeURIComponent(username)}&size=512`;
+      } else if (image.startsWith('/')) {
         image = `https://${req.headers.host || 'linkmakeup.com'}${image}`;
       }
 
