@@ -126,18 +126,29 @@ export class ProfileController {
 
   static async checkOgRoute(req, res, next) {
     try {
-      const host = req.headers['x-forwarded-host'] || req.headers.host || '';
+      const rawHost = req.headers['x-forwarded-host'] || req.headers.host || '';
+      const host = rawHost.split(',')[0].trim().split(':')[0];
       const path = req.headers['x-matched-path'] || req.headers['x-forwarded-uri'] || req.url || '';
 
       let username = null;
       const domainParts = host.split('.');
-      if (domainParts.length >= 3 && !['www', 'api', 'app'].includes(domainParts[0])) {
+
+      // 1. Check subdomain: e.g. mee.linkmakeup.com -> username = "mee"
+      if (domainParts.length >= 3 && !['www', 'api', 'app', 'localhost'].includes(domainParts[0])) {
         username = domainParts[0].toLowerCase();
-      } else {
+      }
+
+      // 2. Check path: e.g. linkmakeup.com/mee -> username = "mee"
+      if (!username) {
         const match = path.match(/^\/(?:u\/)?([a-zA-Z0-9_-]+)/);
-        if (match && !['api', 'dashboard', 'login', 'register', 'settings'].includes(match[1].toLowerCase())) {
+        if (match && !['api', 'dashboard', 'login', 'register', 'settings', 'profiles'].includes(match[1].toLowerCase())) {
           username = match[1].toLowerCase();
         }
+      }
+
+      // 3. Check query param: e.g. check-og?u=mee
+      if (!username && req.query.u) {
+        username = String(req.query.u).toLowerCase();
       }
 
       if (username) {
