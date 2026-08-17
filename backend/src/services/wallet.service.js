@@ -104,6 +104,7 @@ export class WalletService {
     const role = profile?.role || '';
     const bio = profile?.bio || 'Digital business card powered by LinkMakeup.';
     const username = profile?.username || 'card';
+    const avatarUrl = profile?.avatarUrl || profile?.avatar || '';
     const targetUrl = publicUrl || `https://linkmakeup.com/${username}`;
 
     const names = displayName.trim().split(' ');
@@ -115,6 +116,7 @@ export class WalletService {
       'VERSION:3.0',
       `FN:${displayName}`,
       `N:${lastName};${firstName};;;`,
+      avatarUrl ? `PHOTO;VALUE=URL:${avatarUrl}` : '',
       role ? `TITLE:${role}` : '',
       `NOTE:${bio}`,
       `URL:${targetUrl}`,
