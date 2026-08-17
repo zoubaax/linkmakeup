@@ -92,35 +92,36 @@ export default function WalletCardModal({ profile, publicUrl, onClose }) {
 
         {/* Action Buttons Stack */}
         <div className="space-y-2.5 mb-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {/* Save Contact (.vcf for iPhone & Android) */}
-            <a
-              href={vcardUrl}
-              download={`${username}-contact.vcf`}
-              className="py-3 px-4 rounded-xl bg-slate-900 dark:bg-slate-900 border border-slate-800 hover:border-slate-600 font-bold text-xs text-white shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <HiUserPlus className="w-4 h-4 text-emerald-400" /> Save Contact
-            </a>
+          {/* Primary Mobile Action: Save Contact (.vcf for iPhone & Android) */}
+          <a
+            href={vcardUrl}
+            download={`${username}-contact.vcf`}
+            className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold text-xs text-white shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <HiUserPlus className="w-4 h-4 text-white" /> Save Contact to Phone
+          </a>
 
-            {/* Google Wallet (Live) */}
+          {/* Wallet Pass Buttons */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {/* Google Wallet (Live with Signed JWT) */}
             <a
               href={googleWalletUrl}
               target="_blank"
               rel="noreferrer"
-              className="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-bold text-xs text-white shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+              className="py-2.5 px-3 rounded-xl bg-slate-900 dark:bg-slate-900 border border-slate-800 hover:border-slate-600 font-bold text-xs text-white shadow-md transition-all flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>G</span> Save to Google Wallet
             </a>
-          </div>
 
-          {/* Apple Wallet (Coming Soon) */}
-          <button
-            type="button"
-            disabled
-            className="w-full py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 text-xs font-bold text-slate-400 dark:text-slate-500 cursor-not-allowed flex items-center justify-center gap-2 opacity-85"
-          >
-            <span></span> Apple Wallet <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Coming Soon</span>
-          </button>
+            {/* Apple Wallet (Coming Soon) */}
+            <button
+              type="button"
+              disabled
+              className="py-2.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80 text-xs font-bold text-slate-400 dark:text-slate-500 cursor-not-allowed flex items-center justify-center gap-1.5 opacity-85"
+            >
+              <span></span> Apple Wallet <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Soon</span>
+            </button>
+          </div>
         </div>
 
         {/* Direct Send via Email Action */}

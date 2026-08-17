@@ -61,7 +61,7 @@ export class WalletController {
 
       const profile = profileResult[0];
       const publicUrl = `${env.clientUrl}/${profile.username}`;
-      const vcardContent = WalletService.generateVCard(profile, publicUrl);
+      const vcardContent = await WalletService.generateVCard(profile, publicUrl);
 
       res.set({
         'Content-Type': 'text/vcard; charset=utf-8',

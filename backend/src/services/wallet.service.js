@@ -1,5 +1,30 @@
+import fs from 'fs';
+import path from 'path';
+import jwt from 'jsonwebtoken';
 import { ZipArchive } from 'archiver';
 import { transporter } from '../config/mailer.js';
+
+// Helper to get Google Service Account Private Key
+function getGoogleServiceAccountKey() {
+  try {
+    const keyPath = path.resolve(process.cwd(), 'linkmakeup-505822-6a6c31eaf734.json');
+    if (fs.existsSync(keyPath)) {
+      const fileData = fs.readFileSync(keyPath, 'utf8');
+      const parsed = JSON.parse(fileData);
+      return {
+        clientEmail: parsed.client_email,
+        privateKey: parsed.private_key,
+      };
+    }
+  } catch (err) {
+    console.error('Could not load service account JSON file:', err);
+  }
+
+  return {
+    clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
+    privateKey: (process.env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+  };
+}
 
 export class WalletService {
   /**
@@ -97,26 +122,56 @@ export class WalletService {
   }
 
   /**
-   * Generates vCard (.vcf) format for mobile contacts (iOS & Android)
+   * Generates vCard (.vcf) format for mobile contacts with Base64 embedded photo
    */
-  static generateVCard(profile, publicUrl) {
+  static async generateVCard(profile, publicUrl) {
     const displayName = profile?.displayName || 'LinkMakeup Creator';
     const role = profile?.role || '';
     const bio = profile?.bio || 'Digital business card powered by LinkMakeup.';
     const username = profile?.username || 'card';
-    const avatarUrl = profile?.avatarUrl || profile?.avatar || '';
+    const rawAvatarUrl = profile?.avatarUrl || profile?.avatar || '';
     const targetUrl = publicUrl || `https://linkmakeup.com/${username}`;
 
     const names = displayName.trim().split(' ');
     const firstName = names[0] || displayName;
     const lastName = names.slice(1).join(' ') || '';
 
+    let photoField = '';
+
+    if (rawAvatarUrl) {
+      try {
+        let fullAvatarUrl = rawAvatarUrl;
+        if (rawAvatarUrl.startsWith('/')) {
+          const appDomain = process.env.CLIENT_URL || 'https://www.linkmakeup.com';
+          fullAvatarUrl = `${appDomain.replace(/\/+$/, '')}${rawAvatarUrl}`;
+        }
+
+        const response = await fetch(fullAvatarUrl, { signal: AbortSignal.timeout(3000) });
+        if (response.ok) {
+          const arrayBuffer = await response.arrayBuffer();
+          const base64Photo = Buffer.from(arrayBuffer).toString('base64');
+          const contentType = response.headers.get('content-type') || 'image/jpeg';
+          const imageType = contentType.includes('png') ? 'PNG' : 'JPEG';
+          photoField = `PHOTO;TYPE=${imageType};ENCODING=b:${base64Photo}`;
+        } else {
+          photoField = `PHOTO;VALUE=URL:${fullAvatarUrl}`;
+        }
+      } catch {
+        let fullAvatarUrl = rawAvatarUrl;
+        if (rawAvatarUrl.startsWith('/')) {
+          const appDomain = process.env.CLIENT_URL || 'https://www.linkmakeup.com';
+          fullAvatarUrl = `${appDomain.replace(/\/+$/, '')}${rawAvatarUrl}`;
+        }
+        photoField = `PHOTO;VALUE=URL:${fullAvatarUrl}`;
+      }
+    }
+
     return [
       'BEGIN:VCARD',
       'VERSION:3.0',
       `FN:${displayName}`,
       `N:${lastName};${firstName};;;`,
-      avatarUrl ? `PHOTO;VALUE=URL:${avatarUrl}` : '',
+      photoField,
       role ? `TITLE:${role}` : '',
       `NOTE:${bio}`,
       `URL:${targetUrl}`,
@@ -128,11 +183,72 @@ export class WalletService {
   }
 
   /**
-   * Generates Google Wallet Save URL
+   * Generates signed Google Wallet Save URL
    */
-  static getGoogleWalletUrl(username, publicUrl) {
+  static getGoogleWalletUrl(profile, publicUrl) {
+    const issuerId = process.env.GOOGLE_WALLET_ISSUER_ID || '3388000000023186080';
+    const classId = process.env.GOOGLE_WALLET_CLASS_ID || `${issuerId}.linkmakeup_card`;
+    const credentials = getGoogleServiceAccountKey();
+
+    const username = typeof profile === 'string' ? profile : (profile?.username || 'card');
+    const displayName = typeof profile === 'string' ? 'LinkMakeup Creator' : (profile?.displayName || 'LinkMakeup Creator');
     const targetUrl = publicUrl || `https://linkmakeup.com/${username}`;
-    return `https://pay.google.com/gp/v/save/${encodeURIComponent(targetUrl)}`;
+
+    if (!credentials.privateKey || !credentials.clientEmail) {
+      return `https://pay.google.com/gp/v/save/${encodeURIComponent(targetUrl)}`;
+    }
+
+    const payload = {
+      iss: credentials.clientEmail,
+      aud: 'google',
+      origins: ['https://linkmakeup.com', 'https://www.linkmakeup.com', 'http://localhost:5173'],
+      typ: 'savetowallet',
+      payload: {
+        genericObjects: [
+          {
+            id: `${issuerId}.${username}_${Date.now()}`,
+            classId: classId,
+            logo: {
+              sourceUri: {
+                uri: 'https://www.linkmakeup.com/logo-lite.png',
+              },
+            },
+            cardTitle: {
+              defaultValue: {
+                language: 'en',
+                value: 'LinkMakeup Pass',
+              },
+            },
+            header: {
+              defaultValue: {
+                language: 'en',
+                value: displayName,
+              },
+            },
+            subheader: {
+              defaultValue: {
+                language: 'en',
+                value: `@${username}`,
+              },
+            },
+            hexBackgroundColor: '#0f172a',
+            barcode: {
+              type: 'QR_CODE',
+              value: targetUrl,
+              alternateText: targetUrl,
+            },
+          },
+        ],
+      },
+    };
+
+    try {
+      const token = jwt.sign(payload, credentials.privateKey, { algorithm: 'RS256' });
+      return `https://pay.google.com/gp/v/save/${token}`;
+    } catch (err) {
+      console.error('Error signing Google Wallet JWT:', err);
+      return `https://pay.google.com/gp/v/save/${encodeURIComponent(targetUrl)}`;
+    }
   }
 
   /**
