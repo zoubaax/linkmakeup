@@ -92,14 +92,16 @@ export default function WalletCardModal({ profile, publicUrl, onClose }) {
 
         {/* 1-Click Action Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-4">
-          <a
-            href={appleWalletUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="py-3 px-4 rounded-xl bg-slate-900 dark:bg-slate-900 border border-slate-800 hover:border-slate-600 font-bold text-xs text-white shadow-md transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+          {/* Apple Wallet (Coming Soon) */}
+          <button
+            type="button"
+            disabled
+            className="py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-400 dark:text-slate-500 cursor-not-allowed flex items-center justify-center gap-1.5 opacity-80"
           >
-            <span></span> Add to Apple Wallet
-          </a>
+            <span></span> Apple Wallet <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">Soon</span>
+          </button>
+
+          {/* Google Wallet (Live) */}
           <a
             href={googleWalletUrl}
             target="_blank"

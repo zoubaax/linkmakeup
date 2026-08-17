@@ -108,16 +108,11 @@ export class WalletService {
    * Email Wallet Pass to any specified email address
    */
   static async sendWalletCardToEmail({ recipientEmail, profile, publicUrl }) {
-    const passBuffer = await this.createApplePassBuffer(profile, publicUrl);
     const displayName = profile?.displayName || 'LinkMakeup Creator';
     const username = profile?.username || 'card';
     const targetUrl = publicUrl || `https://linkmakeup.com/${username}`;
-    
-    // Construct backend API base URL for pkpass download
-    const apiDomain = process.env.API_URL || (process.env.CLIENT_URL ? `${process.env.CLIENT_URL.replace(/:\d+$/, ':5000')}/api/v1` : 'http://localhost:5000/api/v1');
-    const applePassApiUrl = `${apiDomain}/wallet/apple/${username}`;
 
-    const subject = `Your LinkMakeup Apple Wallet & Google Wallet Card 💳`;
+    const subject = `Your LinkMakeup Digital Wallet Pass 💳`;
 
     const html = `
 <!DOCTYPE html>
@@ -125,7 +120,7 @@ export class WalletService {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Wallet Card</title>
+  <title>Your Wallet Pass</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A;">
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; padding: 40px 15px;">
@@ -152,26 +147,26 @@ export class WalletService {
           <!-- Subtitle -->
           <tr>
             <td style="font-size: 14px; color: #475569; line-height: 1.6; padding-bottom: 28px;">
-              Here is the digital Apple Wallet & Google Wallet pass for <strong>${displayName}</strong> (<a href="${targetUrl}" style="color: #059669; font-weight: bold; text-decoration: none;">${targetUrl.replace(/^https?:\/\//, '')}</a>).
+              Here is the digital wallet pass for <strong>${displayName}</strong> (<a href="${targetUrl}" style="color: #059669; font-weight: bold; text-decoration: none;">${targetUrl.replace(/^https?:\/\//, '')}</a>).
             </td>
           </tr>
 
           <!-- Wallet Buttons Stack -->
           <tr>
             <td align="center" style="padding-bottom: 28px;">
-              <a href="${applePassApiUrl}" style="display: inline-block; background-color: #0F172A; color: #FFFFFF; border-radius: 14px; padding: 14px 28px; font-weight: 700; font-size: 14px; text-decoration: none; margin: 6px; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);">
-                 Add to Apple Wallet
-              </a>
               <a href="${this.getGoogleWalletUrl(username, targetUrl)}" style="display: inline-block; background-color: #059669; color: #FFFFFF; border-radius: 14px; padding: 14px 28px; font-weight: 700; font-size: 14px; text-decoration: none; margin: 6px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);">
                 G Save to Google Wallet
               </a>
+              <span style="display: inline-block; background-color: #F1F5F9; color: #64748B; border: 1px solid #E2E8F0; border-radius: 14px; padding: 14px 24px; font-weight: 700; font-size: 13px; margin: 6px;">
+                 Apple Wallet (Coming Soon)
+              </span>
             </td>
           </tr>
 
-          <!-- Pass Attachment Note -->
+          <!-- Support Note -->
           <tr>
             <td style="font-size: 12px; color: #64748B; border-top: 1px solid #F1F5F9; padding-top: 20px;">
-              iPhone Users: Tap the attached <strong>linkmakeup-card.pkpass</strong> file in this email to save your card directly into Apple Pay / Apple Wallet!
+              Android Users: Tap <strong>Save to Google Wallet</strong> above to save your pass directly to your phone! Apple Wallet support for iPhone is coming soon.
             </td>
           </tr>
 
@@ -197,13 +192,6 @@ export class WalletService {
       to: recipientEmail,
       subject,
       html,
-      attachments: [
-        {
-          filename: `${username}-linkmakeup.pkpass`,
-          content: passBuffer,
-          contentType: 'application/vnd.apple.pkpass',
-        },
-      ],
     });
   }
 }
