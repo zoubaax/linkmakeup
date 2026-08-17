@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /onboarding
+Disallow: /api/
+
+Sitemap: https://linkmakeup.com/sitemap.xml

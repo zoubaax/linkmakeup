@@ -52,12 +52,40 @@ export default function PricingPage() {
     },
   ];
 
+  const pricingSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: 'LinkMakeup Smart NFC Card & Bio Link',
+    description: 'Physical matte black NFC business card with lifetime bio link profile and custom subdomain.',
+    brand: {
+      '@type': 'Brand',
+      name: 'LinkMakeup',
+    },
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'Free Forever Bio Link',
+        price: '0',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+      {
+        '@type': 'Offer',
+        name: 'NFC Smart Card Bundle',
+        price: '29',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-[var(--lm-app)] text-[var(--lm-fg)] font-sans p-2.5 sm:p-6 lg:p-8 flex flex-col justify-between selection:bg-emerald-600 selection:text-white transition-colors duration-300 antialiased">
       <SeoHead
         title={seo.title}
         description={seo.description}
         keywords={seo.keywords}
+        structuredData={pricingSchema}
       />
 
       <Header user={user} profile={profile} />
