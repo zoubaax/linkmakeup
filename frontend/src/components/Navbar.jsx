@@ -22,7 +22,7 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
-        <div className="flex items-center gap-3">
+        <a href="/" className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 via-fuchsia-500 to-amber-400 p-[2px] shadow-lg shadow-violet-500/20">
             <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center font-bold text-transparent bg-clip-text bg-gradient-to-tr from-violet-400 to-fuchsia-300 text-lg">
               L
@@ -31,30 +31,17 @@ export default function Navbar() {
           <span className="font-extrabold text-xl tracking-tight text-white">
             Link<span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-400">Makeup</span>
           </span>
-          
-          {/* API Connection Health Badge */}
-          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-medium">
-            <span
-              className={`w-2 h-2 rounded-full ${
-                apiStatus === 'connected'
-                  ? 'bg-emerald-400 animate-pulse'
-                  : apiStatus === 'error'
-                  ? 'bg-rose-500'
-                  : 'bg-amber-400 animate-ping'
-              }`}
-            />
-            <span className="text-slate-400">
-              API: {apiStatus === 'connected' ? 'Connected' : apiStatus === 'error' ? 'Offline' : 'Checking...'}
-            </span>
-          </div>
-        </div>
+        </a>
 
         {/* Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-300">
-          <a href="#features" className="hover:text-white transition-colors">Features</a>
-          <a href="#demo" className="hover:text-white transition-colors">Live Preview</a>
-          <a href="#dashboard" className="hover:text-white transition-colors">Dashboard Demo</a>
-          <a href="#architecture" className="hover:text-white transition-colors">Architecture</a>
+        <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
+          <a href="/for/engineers" className="hover:text-white transition-colors">For Engineers</a>
+          <a href="/for/linkedin-creators" className="hover:text-white transition-colors">For Creators</a>
+          <a href="/for/founders" className="hover:text-white transition-colors">For Founders</a>
+          <a href="/for/nfc-business-cards" className="hover:text-white transition-colors flex items-center gap-1">
+            <span>NFC Cards</span>
+            <span className="px-1.5 py-0.5 text-[10px] rounded bg-violet-500/20 text-violet-300 font-mono font-bold">HOT</span>
+          </a>
         </nav>
 
         {/* CTA Buttons */}

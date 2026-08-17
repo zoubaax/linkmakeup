@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import Iridescence from '../ui/Iridescence';
+import { ScrollAndClickNfc3DFlip } from './strategy/StrategyPageLayout';
 
 export default function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative w-full max-w-7xl mx-auto rounded-[32px] sm:rounded-[44px] border border-emerald-100/80 dark:border-emerald-900/40 overflow-hidden bg-gradient-to-b from-emerald-50/60 via-white to-emerald-50/30 dark:from-emerald-950/40 dark:via-zinc-900 dark:to-emerald-950/20 shadow-xl shadow-emerald-950/5 flex flex-col justify-between my-2 sm:my-4 min-h-[75vh] sm:min-h-[75vh] md:min-h-[72vh]">
+    <div className="relative w-full max-w-7xl mx-auto rounded-[28px] sm:rounded-[44px] border border-emerald-100/80 dark:border-emerald-900/40 overflow-hidden bg-gradient-to-b from-emerald-50/60 via-white to-emerald-50/30 dark:from-emerald-950/40 dark:via-zinc-900 dark:to-emerald-950/20 shadow-xl shadow-emerald-950/5 flex flex-col justify-between my-2 sm:my-4 py-8 sm:py-16 md:py-20">
       
       {/* Background WebGL Iridescence Canvas */}
       <div className="absolute inset-0 z-0 opacity-40">
@@ -20,41 +21,92 @@ export default function HeroSection() {
       {/* Soft light overlay */}
       <div className="absolute inset-0 z-0 bg-gradient-to-b from-white/90 via-white/75 to-emerald-50/60 dark:from-zinc-900/90 dark:via-zinc-900/80 dark:to-emerald-950/60 backdrop-blur-[1px]" />
 
-      {/* Content Container */}
-      <div className="relative z-10 p-6 sm:p-14 md:p-20 flex flex-col items-center justify-center text-center my-auto w-full">
-        
-        <div className="space-y-5 sm:space-y-6 w-full max-w-5xl mx-auto text-center">
+      {/* Hero Content Container */}
+      <div className="relative z-10 px-2.5 sm:px-10 md:px-16 flex flex-col items-center justify-center my-auto w-full">
+        <div className="grid lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 items-center w-full max-w-6xl mx-auto">
           
-          {/* Headline - Prominent, Bold & Balanced 2 Lines */}
-          <h1 className="font-serif text-[26px] min-[380px]:text-[28px] sm:text-5xl md:text-6xl lg:text-[68px] font-normal text-slate-900 dark:text-white leading-[1.18] sm:leading-[1.08] tracking-tight max-w-5xl mx-auto px-1">
-            The link page that works <em className="italic font-serif text-emerald-600">with</em> you,<br />
-            not just for you
-          </h1>
+          {/* Left Column (Desktop: Headline, Subtitle, Buttons) */}
+          <div className="lg:col-span-7 flex flex-col space-y-4 sm:space-y-6 text-center lg:text-left">
+            
+            {/* Headline - Dual-Mode Responsive 2 Lines */}
+            <h1 className="font-serif text-[22px] min-[380px]:text-[25px] sm:text-[30px] md:text-[34px] lg:text-[36px] xl:text-[42px] font-normal text-slate-900 dark:text-white leading-[1.18] tracking-tight">
+              <span className="block sm:whitespace-nowrap">
+                The link page that works <span className="hidden sm:inline"><em className="italic font-serif text-emerald-600">with</em> you,</span>
+              </span>
+              <span className="block sm:whitespace-nowrap">
+                <span className="inline sm:hidden"><em className="italic font-serif text-emerald-600">with</em> you, </span>
+                not just for you
+              </span>
+            </h1>
 
-          {/* Subtext */}
-          <p className="text-slate-600 dark:text-slate-300 text-xs min-[380px]:text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto px-2">
-            LinkMakeup is the ultimate <strong>free link-in-bio platform</strong> for creators, software engineers, and brands. Claim your custom subdomain, customize themes in real-time, and showcase all your links for free.
-          </p>
+            {/* Mobile Small Description (< sm) */}
+            <p className="block sm:hidden text-slate-600 dark:text-slate-300 text-[12px] leading-relaxed max-w-xs mx-auto font-normal">
+              The ultimate free bio link & tap-to-share NFC smart card for software engineers, creators & founders.
+            </p>
 
-          {/* Single Centered Parley Chevron CTA Button */}
-          <div className="flex items-center justify-center pt-2 sm:pt-4">
+            {/* Desktop Full Description (≥ sm) */}
+            <p className="hidden sm:block text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal">
+              LinkMakeup is the ultimate free link-in-bio platform for software engineers, LinkedIn creators, and tech founders. Claim your custom subdomain, tap-to-share physical NFC cards, and showcase your links.
+            </p>
+
+            {/* Desktop Action Buttons (Visible on lg:) */}
+            <div className="hidden lg:flex flex-wrap items-center justify-start gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => navigate('/signup')}
+                className="group flex items-center justify-center gap-2.5 p-2 pr-5 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold text-xs sm:text-sm hover:opacity-95 transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white shrink-0 group-hover:translate-x-0.5 transition-transform">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+                <span>Get started free</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate('/signup?type=nfc')}
+                className="px-5 py-3 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/60 text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-sm hover:border-emerald-500 transition-all shadow-xs cursor-pointer"
+              >
+                Order NFC Smart Card
+              </button>
+            </div>
+
+          </div>
+
+          {/* Right Column: 3D NFC Card Showcase */}
+          <div className="lg:col-span-5 flex justify-center w-full my-2 lg:my-0">
+            <ScrollAndClickNfc3DFlip />
+          </div>
+
+          {/* Mobile Action Buttons (Placed below NFC Card Image, Visible on < lg) */}
+          <div className="lg:hidden flex flex-col sm:flex-row items-center justify-center gap-3 w-full pt-2">
             <button
               type="button"
               onClick={() => navigate('/signup')}
-              className="group flex items-center gap-2.5 sm:gap-3 p-2 sm:p-2.5 pr-6 sm:pr-6 rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 text-white hover:bg-black font-semibold text-xs sm:text-sm transition-all shadow-md hover:scale-105 active:scale-95"
+              className="group flex items-center justify-center gap-2.5 p-2 pr-5 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold text-xs sm:text-sm hover:opacity-95 transition-all shadow-md hover:scale-105 active:scale-95 w-full sm:w-auto cursor-pointer"
             >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white shrink-0 group-hover:translate-x-0.5 transition-transform">
-                <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-600 flex items-center justify-center text-white shrink-0 group-hover:translate-x-0.5 transition-transform">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </div>
               <span>Get started free</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/signup?type=nfc')}
+              className="px-5 py-3 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/60 text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-sm hover:border-emerald-500 transition-all shadow-xs w-full sm:w-auto text-center cursor-pointer"
+            >
+              Order NFC Smart Card
+            </button>
           </div>
 
         </div>
-
       </div>
+
     </div>
   );
 }

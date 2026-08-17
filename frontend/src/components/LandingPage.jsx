@@ -27,7 +27,7 @@ export default function LandingPage() {
 
       {/* Main Landmark for SEO accessibility */}
       <main id="main-content" className="flex-1 flex flex-col justify-between">
-        {/* 2. Floating Hero Section */}
+        {/* 2. Floating Hero Section (With 3D NFC Card Showcase) */}
         <HeroSection />
 
         {/* 3. Infinite Logo Ticker (Platform Ecosystem Marquee) */}

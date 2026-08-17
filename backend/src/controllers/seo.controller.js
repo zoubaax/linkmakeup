@@ -17,7 +17,15 @@ export class SeoController {
 
       const staticPages = [
         { url: `${baseUrl}/`, priority: '1.0', changefreq: 'daily' },
-        { url: `${baseUrl}/register`, priority: '0.8', changefreq: 'monthly' },
+        { url: `${baseUrl}/link-in-bio`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/pricing`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/why-us`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/server-specs`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/for/engineers`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/for/linkedin-creators`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/for/founders`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/for/nfc-business-cards`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/signup`, priority: '0.8', changefreq: 'monthly' },
         { url: `${baseUrl}/login`, priority: '0.5', changefreq: 'monthly' },
       ];
 
