@@ -326,6 +326,12 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
                   marginSize={1}
                   fgColor="#0F172A"
                   bgColor="#FFFFFF"
+                  imageSettings={{
+                    src: '/favicon.svg',
+                    height: 38,
+                    width: 38,
+                    excavate: true,
+                  }}
                 />
                 <p className="mt-4 text-xs font-bold text-slate-900">{profile?.displayName || 'LinkMakeup'}</p>
                 <p className="text-[10px] font-mono text-slate-500 mt-0.5">{publicUrl}</p>
