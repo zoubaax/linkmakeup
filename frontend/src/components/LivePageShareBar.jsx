@@ -10,10 +10,12 @@ import {
   HiArrowDownTray,
   HiChevronDown,
   HiShare,
+  HiCreditCard,
 } from 'react-icons/hi2';
 import { useToast } from '../contexts/ToastContext';
 import { buildEmbedCode, exportPreviewNode } from '../utils/pageExport';
 import ExportPreviewCard from './ExportPreviewCard';
+import WalletCardModal from './WalletCardModal';
 import Logo from './ui/Logo';
 
 function ActionButton({ children, onClick, variant = 'secondary', className = '', disabled = false }) {
@@ -39,6 +41,7 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
   const [exportOpen, setExportOpen] = useState(false);
   const [embedOpen, setEmbedOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const [walletOpen, setWalletOpen] = useState(false);
   const [exporting, setExporting] = useState('');
   const menuRef = useRef(null);
   const exportRef = useRef(null);
@@ -211,6 +214,12 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
             <ActionButton variant="primary" onClick={handleSharePage}>
               <HiShare className="w-4 h-4 shrink-0" />
               Share page
+            </ActionButton>
+
+            {/* Wallet Pass Button */}
+            <ActionButton onClick={() => setWalletOpen(true)}>
+              <HiCreditCard className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              Wallet Pass
             </ActionButton>
 
             {/* Quick QR Code Button */}
@@ -403,6 +412,15 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
             </div>
           </div>
         </>
+      )}
+
+      {/* Wallet Pass Modal */}
+      {walletOpen && (
+        <WalletCardModal
+          profile={profile}
+          publicUrl={publicUrl}
+          onClose={() => setWalletOpen(false)}
+        />
       )}
     </>
   );

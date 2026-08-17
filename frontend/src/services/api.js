@@ -57,6 +57,27 @@ class ApiService {
     });
   }
 
+  static async verifyEmail(data) {
+    return this.request('/auth/verify-email', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  static async resendVerificationCode(data) {
+    return this.request('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  static async sendWalletEmail(data) {
+    return this.request('/wallet/send-email', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
   static async getGoogleAuthUrl() {
     return this.request('/auth/google');
   }

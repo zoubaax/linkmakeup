@@ -6,6 +6,8 @@ const router = Router();
 
 // Public auth endpoints
 router.post('/auth/signup', AuthController.signup);
+router.post('/auth/verify-email', AuthController.verifyEmail);
+router.post('/auth/resend-verification', AuthController.resendCode);
 router.post('/auth/login', AuthController.login);
 router.get('/auth/google', AuthController.getGoogleAuthUrl);
 router.get('/auth/google/callback', AuthController.handleGoogleCallback);

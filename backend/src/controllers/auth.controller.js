@@ -35,6 +35,22 @@ export class AuthController {
       const { email, password, name } = validation.data;
       const result = await AuthService.registerWithEmail(email, password, name);
 
+      return ApiResponse.success(res, 'Verification code sent to your email', result, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // 1b. Verify Email OTP Code
+  static async verifyEmail(req, res, next) {
+    try {
+      const { email, code } = req.body;
+      if (!email || !code) {
+        throw new ApiError('Email and 6-digit verification code are required.', 400);
+      }
+
+      const result = await AuthService.verifyEmailCode(email, code);
+
       res.cookie('session_token', `session_${result.user.id}`, {
         httpOnly: true,
         secure: env.nodeEnv === 'production',
@@ -43,7 +59,22 @@ export class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      return ApiResponse.success(res, 'Account created successfully', result, 201);
+      return ApiResponse.success(res, 'Email verified successfully', result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // 1c. Resend Email Verification Code
+  static async resendCode(req, res, next) {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        throw new ApiError('Email is required', 400);
+      }
+
+      await AuthService.resendVerificationCode(email);
+      return ApiResponse.success(res, 'A new 6-digit verification code has been sent to your email.');
     } catch (err) {
       next(err);
     }

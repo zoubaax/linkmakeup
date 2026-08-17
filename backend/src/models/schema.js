@@ -8,6 +8,9 @@ export const users = pgTable('users', {
   passwordHash: text('password_hash'),
   name: varchar('name', { length: 255 }),
   avatarUrl: text('avatar_url'),
+  emailVerified: boolean('email_verified').default(false).notNull(),
+  verificationCode: varchar('verification_code', { length: 6 }),
+  verificationCodeExpiresAt: timestamp('verification_code_expires_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
