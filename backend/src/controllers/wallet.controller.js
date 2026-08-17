@@ -42,6 +42,40 @@ export class WalletController {
   }
 
   /**
+   * Serve vCard (.vcf) mobile contact card download
+   */
+  static async getVCard(req, res, next) {
+    try {
+      const { username } = req.params;
+      if (!username) throw new ApiError('Username required', 400);
+
+      const profileResult = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.username, username.toLowerCase()))
+        .limit(1);
+
+      if (profileResult.length === 0) {
+        throw new ApiError('Profile not found', 404);
+      }
+
+      const profile = profileResult[0];
+      const publicUrl = `${env.clientUrl}/${profile.username}`;
+      const vcardContent = WalletService.generateVCard(profile, publicUrl);
+
+      res.set({
+        'Content-Type': 'text/vcard; charset=utf-8',
+        'Content-Disposition': `attachment; filename="${profile.username}-contact.vcf"`,
+        'Cache-Control': 'no-cache',
+      });
+
+      return res.send(vcardContent);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  /**
    * Redirect to Google Wallet Save URL
    */
   static async getGooglePass(req, res, next) {

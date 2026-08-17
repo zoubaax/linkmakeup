@@ -97,6 +97,35 @@ export class WalletService {
   }
 
   /**
+   * Generates vCard (.vcf) format for mobile contacts (iOS & Android)
+   */
+  static generateVCard(profile, publicUrl) {
+    const displayName = profile?.displayName || 'LinkMakeup Creator';
+    const role = profile?.role || '';
+    const bio = profile?.bio || 'Digital business card powered by LinkMakeup.';
+    const username = profile?.username || 'card';
+    const targetUrl = publicUrl || `https://linkmakeup.com/${username}`;
+
+    const names = displayName.trim().split(' ');
+    const firstName = names[0] || displayName;
+    const lastName = names.slice(1).join(' ') || '';
+
+    return [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      `FN:${displayName}`,
+      `N:${lastName};${firstName};;;`,
+      role ? `TITLE:${role}` : '',
+      `NOTE:${bio}`,
+      `URL:${targetUrl}`,
+      `ORG:LinkMakeup`,
+      'END:VCARD',
+    ]
+      .filter(Boolean)
+      .join('\r\n');
+  }
+
+  /**
    * Generates Google Wallet Save URL
    */
   static getGoogleWalletUrl(username, publicUrl) {
