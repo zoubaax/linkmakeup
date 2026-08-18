@@ -1,6 +1,11 @@
-import { and, desc, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../config/db.js';
 import { adminAuditLogs } from '../models/schema.js';
+
+const ACTION_PREFIX_FILTERS = {
+  links: ['link.'],
+  profiles: ['profile.'],
+};
 
 function buildPagination(total, page, limit) {
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -70,3 +75,5 @@ export class AdminAuditService {
       .limit(limit);
   }
 }
+
+export { ACTION_PREFIX_FILTERS };

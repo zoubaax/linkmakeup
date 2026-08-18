@@ -1,0 +1,140 @@
+{
+  "writes": {
+    "AdminShell.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminShell.jsx",
+      "lineNum": 152,
+      "length": 1918
+    },
+    "AdminUserDrawer.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminUserDrawer.jsx",
+      "lineNum": 72,
+      "length": 12445
+    },
+    "AdminActionModal.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminActionModal.jsx",
+      "lineNum": 71,
+      "length": 3316
+    },
+    "AdminActivityPage.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminActivityPage.jsx",
+      "lineNum": 74,
+      "length": 2186
+    },
+    "SignupChart.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\SignupChart.jsx",
+      "lineNum": 15,
+      "length": 2088
+    },
+    "auditFormatters.js": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\auditFormatters.js",
+      "lineNum": 71,
+      "length": 1154
+    },
+    "AdminDataTable.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminDataTable.jsx",
+      "lineNum": 152,
+      "length": 4911
+    },
+    "AdminOverview.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminOverview.jsx",
+      "lineNum": 153,
+      "length": 3351
+    },
+    "AdminUsersPage.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminUsersPage.jsx",
+      "lineNum": 153,
+      "length": 1659
+    },
+    "AdminProfilesPage.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminProfilesPage.jsx",
+      "lineNum": 153,
+      "length": 1704
+    },
+    "AdminLinksPage.jsx": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\frontend\\src\\components\\admin\\AdminLinksPage.jsx",
+      "lineNum": 153,
+      "length": 2038
+    },
+    "adminAudit.service.js": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\backend\\src\\services\\adminAudit.service.js",
+      "lineNum": 58,
+      "length": 1897
+    },
+    "adminSafeguards.js": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\backend\\src\\utils\\adminSafeguards.js",
+      "lineNum": 58,
+      "length": 986
+    },
+    "migrate-admin-power.js": {
+      "path": "c:\\Users\\ken\\Documents\\GitHub\\linkmakeup\\backend\\scripts\\migrate-admin-power.js",
+      "lineNum": 79,
+      "length": 673
+    }
+  },
+  "missing": [],
+  "strReplaces": {
+    "AdminShell.jsx": [
+      {
+        "lineNum": 73,
+        "oldLen": 29,
+        "newLen": 62
+      }
+    ],
+    "AdminDataTable.jsx": [
+      {
+        "lineNum": 74,
+        "oldLen": 470,
+        "newLen": 518
+      },
+      {
+        "lineNum": 74,
+        "oldLen": 40,
+        "newLen": 51
+      }
+    ],
+    "AdminOverview.jsx": [
+      {
+        "lineNum": 43,
+        "oldLen": 979,
+        "newLen": 1158
+      },
+      {
+        "lineNum": 43,
+        "oldLen": 204,
+        "newLen": 245
+      },
+      {
+        "lineNum": 43,
+        "oldLen": 220,
+        "newLen": 270
+      },
+      {
+        "lineNum": 43,
+        "oldLen": 199,
+        "newLen": 244
+      },
+      {
+        "lineNum": 76,
+        "oldLen": 60,
+        "newLen": 116
+      },
+      {
+        "lineNum": 76,
+        "oldLen": 82,
+        "newLen": 103
+      },
+      {
+        "lineNum": 76,
+        "oldLen": 1185,
+        "newLen": 1811
+      }
+    ],
+    "AdminUsersPage.jsx": [
+      {
+        "lineNum": 76,
+        "oldLen": 111,
+        "newLen": 111
+      }
+    ]
+  }
+}

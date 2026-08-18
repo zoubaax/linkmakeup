@@ -1,26 +1,24 @@
-import { useEffect, useState } from 'react';
-import useDebouncedValue from '../../hooks/useDebouncedValue';
+import { useCallback, useEffect, useState } from 'react';
 import { SkeletonCard } from '../ui/Skeleton';
 
-export function useAdminList(fetcher, { status = 'all' } = {}) {
+export function useAdminList(fetcher) {
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState(null);
-  const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebouncedValue(searchInput);
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, status]);
+  }, [search]);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setError('');
 
-    fetcher({ page, limit: 20, search: debouncedSearch, status })
+    fetcher({ page, limit: 20, search })
       .then((res) => {
         if (cancelled) return;
         if (res.success) {
@@ -40,43 +38,18 @@ export function useAdminList(fetcher, { status = 'all' } = {}) {
     return () => {
       cancelled = true;
     };
-  }, [fetcher, page, debouncedSearch, status]);
-
-  const isSearching = searchInput !== debouncedSearch || loading;
+  }, [fetcher, page, search]);
 
   return {
     items,
     pagination,
-    search: searchInput,
-    setSearch: setSearchInput,
-    isSearching,
+    search,
+    setSearch,
     page,
     setPage,
     loading,
     error,
   };
-}
-
-export function AdminFilterPills({ options, value, onChange }) {
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          onClick={() => onChange(option.value)}
-          className={[
-            'rounded-full border px-3 py-1 text-xs font-semibold transition-colors',
-            value === option.value
-              ? 'border-accent-border bg-accent-subtle text-fg'
-              : 'border-border bg-surface text-fg-muted hover:text-fg hover:bg-surface-alt',
-          ].join(' ')}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
 }
 
 export default function AdminDataTable({
@@ -85,8 +58,6 @@ export default function AdminDataTable({
   searchPlaceholder,
   search,
   onSearchChange,
-  isSearching = false,
-  filters,
   loading,
   error,
   isEmpty,
@@ -94,7 +65,6 @@ export default function AdminDataTable({
   pagination,
   onPageChange,
   children,
-  showSearch = true,
 }) {
   return (
     <div className="space-y-4">
@@ -103,28 +73,19 @@ export default function AdminDataTable({
           <h2 className="text-lg font-bold text-fg">{title}</h2>
           {description && <p className="text-sm text-fg-muted mt-1">{description}</p>}
         </div>
-        {showSearch && (
-          <div className="relative w-full lg:max-w-sm">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="w-full rounded-xl border border-border bg-surface-alt/70 pl-10 pr-4 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30"
-            />
-            {isSearching && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-fg-subtle">
-                Searching…
-              </span>
-            )}
-          </div>
-        )}
+        <div className="relative w-full lg:max-w-sm">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder={searchPlaceholder}
+            className="w-full rounded-xl border border-border bg-surface-alt/70 pl-10 pr-4 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30"
+          />
+        </div>
       </div>
-
-      {filters && <div>{filters}</div>}
 
       {error && (
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
@@ -195,4 +156,8 @@ export function AdminTableHead({ columns }) {
       </tr>
     </thead>
   );
+}
+
+export function useStableFetcher(fn) {
+  return useCallback((params) => fn(params), [fn]);
 }

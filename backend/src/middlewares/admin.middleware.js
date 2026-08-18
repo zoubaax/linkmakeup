@@ -22,7 +22,7 @@ export const requireAdminAccess = (req, res, next) => {
     if (err) return next(err);
 
     if (req.user && isAdminEmail(req.user.email)) {
-      req.adminActor = { email: req.user.email, type: 'session' };
+      req.adminActor = { email: req.user.email, type: 'session', userId: req.user.id };
       return next();
     }
 

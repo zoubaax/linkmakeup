@@ -1,0 +1,72 @@
+import { useCallback } from 'react';
+import ApiService from '../../services/api';
+import AdminDataTable, { AdminTableHead, AdminTableShell, useAdminList } from './AdminDataTable';
+import { formatDateTime, truncateText } from './formatters';
+
+export default function AdminLinksPage() {
+  const fetchLinks = useCallback(
+    (params) => ApiService.getAdminLinks(params),
+    [],
+  );
+
+  const {
+    items,
+    pagination,
+    search,
+    setSearch,
+    setPage,
+    loading,
+    error,
+  } = useAdminList(fetchLinks);
+
+  return (
+    <AdminDataTable
+      title="Links"
+      description="Every link created across the platform, including hidden entries."
+      searchPlaceholder="Search title, URL, username, or email..."
+      search={search}
+      onSearchChange={setSearch}
+      loading={loading}
+      error={error}
+      isEmpty={items.length === 0}
+      emptyMessage="No links match your search."
+      pagination={pagination}
+      onPageChange={setPage}
+    >
+      <AdminTableShell>
+        <AdminTableHead columns={['Link', 'Owner', 'Status', 'Position', 'Created']} />
+        <tbody>
+          {items.map((entry) => (
+            <tr key={entry.id} className="border-t border-border/70">
+              <td className="px-5 py-3 min-w-[240px]">
+                <div className="font-medium text-fg">{entry.title}</div>
+                {entry.subtitle && (
+                  <div className="text-xs text-fg-muted mt-0.5">{entry.subtitle}</div>
+                )}
+                <a
+                  href={entry.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-accent hover:text-accent-hover mt-1 inline-block max-w-md truncate"
+                >
+                  {truncateText(entry.url, 72)}
+                </a>
+              </td>
+              <td className="px-5 py-3">
+                <div className="text-fg-muted">{entry.username ? `@${entry.username}` : '—'}</div>
+                {entry.email && <div className="text-xs text-fg-subtle truncate max-w-[180px]">{entry.email}</div>}
+              </td>
+              <td className="px-5 py-3">
+                <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${entry.isActive ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'border-border bg-surface-alt text-fg-muted'}`}>
+                  {entry.isActive ? 'Active' : 'Hidden'}
+                </span>
+              </td>
+              <td className="px-5 py-3 text-fg tabular-nums">{entry.position}</td>
+              <td className="px-5 py-3 text-fg-muted whitespace-nowrap">{formatDateTime(entry.createdAt)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </AdminTableShell>
+    </AdminDataTable>
+  );
+}

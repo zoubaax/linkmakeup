@@ -1,0 +1,269 @@
+import { and, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { db } from '../config/db.js';
+import { links, profiles, users } from '../models/schema.js';
+
+const SIGNUP_TREND_DAYS = 14;
+
+function buildSignupTrend(rows) {
+  const countsByDay = new Map(rows.map((row) => [String(row.day), row.count]));
+  const trend = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (let offset = SIGNUP_TREND_DAYS - 1; offset >= 0; offset -= 1) {
+    const day = new Date(today);
+    day.setDate(today.getDate() - offset);
+    const key = day.toISOString().slice(0, 10);
+    trend.push({ date: key, count: countsByDay.get(key) ?? 0 });
+  }
+
+  return trend;
+}
+
+function buildPagination(total, page, limit) {
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  return {
+    page,
+    limit,
+    total,
+    totalPages,
+    hasNext: page < totalPages,
+    hasPrev: page > 1,
+  };
+}
+
+export class AdminService {
+  static async getPlatformStats() {
+    const [
+      [{ count: totalUsers }],
+      [{ count: totalProfiles }],
+      [{ count: totalLinks }],
+      [{ count: activeLinks }],
+      signupRows,
+      recentUsers,
+    ] = await Promise.all([
+      db.select({ count: sql`count(*)::int` }).from(users),
+      db.select({ count: sql`count(*)::int` }).from(profiles),
+      db.select({ count: sql`count(*)::int` }).from(links),
+      db.select({ count: sql`count(*)::int` }).from(links).where(eq(links.isActive, true)),
+      db
+        .select({
+          day: sql`date_trunc('day', ${users.createdAt})::date`.as('day'),
+          count: sql`count(*)::int`.as('count'),
+        })
+        .from(users)
+        .where(sql`${users.createdAt} >= now() - interval '14 days'`)
+        .groupBy(sql`date_trunc('day', ${users.createdAt})::date`)
+        .orderBy(sql`date_trunc('day', ${users.createdAt})::date`),
+      db
+        .select({
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          createdAt: users.createdAt,
+          username: profiles.username,
+        })
+        .from(users)
+        .leftJoin(profiles, eq(profiles.userId, users.id))
+        .orderBy(desc(users.createdAt))
+        .limit(10),
+    ]);
+
+    return {
+      totals: {
+        users: totalUsers,
+        profiles: totalProfiles,
+        links: totalLinks,
+        activeLinks,
+      },
+      signupTrend: buildSignupTrend(signupRows),
+      recentSignups: recentUsers,
+    };
+  }
+
+  static async listUsers({ page, limit, search, status = 'all' }) {
+    const offset = (page - 1) * limit;
+    const filters = [];
+
+    if (search) {
+      const pattern = `%${search}%`;
+      filters.push(or(ilike(users.email, pattern), ilike(users.name, pattern)));
+    }
+
+    if (status === 'with_profile') {
+      filters.push(sql`${profiles.id} is not null`);
+    } else if (status === 'awaiting_profile') {
+      filters.push(sql`${profiles.id} is null`);
+    }
+
+    const whereClause = filters.length ? and(...filters) : undefined;
+
+    const [rows, [{ count: total }]] = await Promise.all([
+      db
+        .select({
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          avatarUrl: users.avatarUrl,
+          emailVerified: users.emailVerified,
+          createdAt: users.createdAt,
+          username: profiles.username,
+          displayName: profiles.displayName,
+          linkCount: sql`(select count(*)::int from ${links} where ${links.userId} = ${users.id})`.as('linkCount'),
+        })
+        .from(users)
+        .leftJoin(profiles, eq(profiles.userId, users.id))
+        .where(whereClause)
+        .orderBy(desc(users.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: sql`count(*)::int` })
+        .from(users)
+        .leftJoin(profiles, eq(profiles.userId, users.id))
+        .where(whereClause),
+    ]);
+
+    return {
+      items: rows,
+      pagination: buildPagination(total, page, limit),
+    };
+  }
+
+  static async listProfiles({ page, limit, search }) {
+    const offset = (page - 1) * limit;
+    const filters = [];
+
+    if (search) {
+      const pattern = `%${search}%`;
+      filters.push(or(
+        ilike(profiles.username, pattern),
+        ilike(profiles.displayName, pattern),
+        ilike(users.email, pattern),
+      ));
+    }
+
+    const whereClause = filters.length ? and(...filters) : undefined;
+
+    const [rows, [{ count: total }]] = await Promise.all([
+      db
+        .select({
+          id: profiles.id,
+          userId: profiles.userId,
+          username: profiles.username,
+          displayName: profiles.displayName,
+          role: profiles.role,
+          createdAt: profiles.createdAt,
+          updatedAt: profiles.updatedAt,
+          email: users.email,
+          linkCount: sql`(select count(*)::int from ${links} where ${links.userId} = ${profiles.userId})`.as('linkCount'),
+        })
+        .from(profiles)
+        .innerJoin(users, eq(users.id, profiles.userId))
+        .where(whereClause)
+        .orderBy(desc(profiles.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: sql`count(*)::int` })
+        .from(profiles)
+        .innerJoin(users, eq(users.id, profiles.userId))
+        .where(whereClause),
+    ]);
+
+    return {
+      items: rows,
+      pagination: buildPagination(total, page, limit),
+    };
+  }
+
+  static async listLinks({ page, limit, search, status = 'all' }) {
+    const offset = (page - 1) * limit;
+    const filters = [];
+
+    if (search) {
+      const pattern = `%${search}%`;
+      filters.push(or(
+        ilike(links.title, pattern),
+        ilike(links.url, pattern),
+        ilike(profiles.username, pattern),
+      ));
+    }
+
+    if (status === 'active') {
+      filters.push(eq(links.isActive, true));
+    } else if (status === 'hidden') {
+      filters.push(eq(links.isActive, false));
+    }
+
+    const whereClause = filters.length ? and(...filters) : undefined;
+
+    const [rows, [{ count: total }]] = await Promise.all([
+      db
+        .select({
+          id: links.id,
+          title: links.title,
+          url: links.url,
+          isActive: links.isActive,
+          position: links.position,
+          createdAt: links.createdAt,
+          username: profiles.username,
+          displayName: profiles.displayName,
+          email: users.email,
+        })
+        .from(links)
+        .innerJoin(users, eq(users.id, links.userId))
+        .leftJoin(profiles, eq(profiles.userId, users.id))
+        .where(whereClause)
+        .orderBy(desc(links.createdAt))
+        .limit(limit)
+        .offset(offset),
+      db
+        .select({ count: sql`count(*)::int` })
+        .from(links)
+        .innerJoin(users, eq(users.id, links.userId))
+        .leftJoin(profiles, eq(profiles.userId, users.id))
+        .where(whereClause),
+    ]);
+
+    return {
+      items: rows,
+      pagination: buildPagination(total, page, limit),
+    };
+  }
+
+  static async getUserDetail(userId) {
+    const userRows = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        avatarUrl: users.avatarUrl,
+        emailVerified: users.emailVerified,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!userRows.length) return null;
+
+    const profileRows = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.userId, userId))
+      .limit(1);
+
+    const userLinks = await db
+      .select()
+      .from(links)
+      .where(eq(links.userId, userId))
+      .orderBy(links.position);
+
+    return {
+      user: userRows[0],
+      profile: profileRows[0] || null,
+      links: userLinks,
+    };
+  }
+}

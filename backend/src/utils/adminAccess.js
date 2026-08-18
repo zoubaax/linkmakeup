@@ -6,6 +6,7 @@ export function isAdminEmail(email) {
 }
 
 export function toPublicUser(user) {
+  if (!user) return null;
   return {
     id: user.id,
     email: user.email,

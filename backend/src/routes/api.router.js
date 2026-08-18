@@ -14,7 +14,7 @@ apiRouter.use(faviconRouter);
 apiRouter.use(authRouter);
 apiRouter.use(profileRouter);
 apiRouter.use(linkRouter);
-apiRouter.use(adminRouter);
 apiRouter.use(walletRouter);
+apiRouter.use(adminRouter);
 
 export default apiRouter;

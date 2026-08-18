@@ -1,24 +1,25 @@
 export function formatDateTime(value) {
   if (!value) return '—';
-  return new Date(value).toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  });
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value));
 }
 
 export function formatShortDate(value) {
   if (!value) return '—';
-  return new Date(value).toLocaleDateString(undefined, {
+  return new Intl.DateTimeFormat(undefined, {
     month: 'short',
     day: 'numeric',
-  });
+  }).format(new Date(value));
 }
 
-export function truncateText(value, max = 48) {
+export function formatNumber(value) {
+  return new Intl.NumberFormat().format(value ?? 0);
+}
+
+export function truncateText(value, maxLength = 48) {
   if (!value) return '—';
-  if (value.length <= max) return value;
-  return `${value.slice(0, max - 1)}…`;
+  if (value.length <= maxLength) return value;
+  return `${value.slice(0, maxLength - 1)}…`;
 }

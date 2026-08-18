@@ -163,7 +163,7 @@ export class AuthService {
     }).catch((e) => console.error('⚠️ Could not send Welcome Wallet Email:', e.message));
 
     return {
-      user: updatedUser,
+      user: toPublicUser(updatedUser),
       profile: profileData,
       isNewUser: !profileData,
     };
@@ -303,10 +303,7 @@ export class AuthService {
       const profileData = userProfile[0] || null;
 
       return {
-        user: toPublicUser({
-          ...user,
-          avatarUrl: updateData.avatarUrl || user.avatarUrl || avatarUrl,
-        }),
+        user: toPublicUser({ ...user, avatarUrl: updateData.avatarUrl || user.avatarUrl || avatarUrl }),
         profile: profileData,
         isNewUser: !profileData,
       };
