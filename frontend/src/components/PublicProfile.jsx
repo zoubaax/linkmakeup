@@ -156,8 +156,11 @@ export default function PublicProfile({ usernameOverride } = {}) {
   }, [notFound, suspended]);
 
   const handleLinkClick = useCallback((link) => {
+    if (profile?.id) {
+      ApiService.trackLinkClick(profile.id, link.id);
+    }
     trackLinkClick(username, link.id);
-  }, [username]);
+  }, [profile, username]);
 
   if (loading) {
     return (
@@ -200,11 +203,7 @@ export default function PublicProfile({ usernameOverride } = {}) {
       theme={profile.themeConfig}
       showFooter
       className="min-h-screen"
-<<<<<<< Updated upstream
-      onLinkClick={(link) => ApiService.trackLinkClick(profile.id, link.id)}
-=======
       onLinkClick={handleLinkClick}
->>>>>>> Stashed changes
     />
   );
 }

@@ -8,12 +8,7 @@ import { sendCsv } from '../utils/csv.js';
 const USER_STATUS_FILTERS = new Set(['all', 'with_profile', 'awaiting_profile']);
 const PROFILE_STATUS_FILTERS = new Set(['all', 'live', 'suspended']);
 const LINK_STATUS_FILTERS = new Set(['all', 'active', 'hidden']);
-<<<<<<< Updated upstream
-const PROFILE_STATUS_FILTERS = new Set(['all', 'live', 'suspended']);
-const AUDIT_ACTION_FILTERS = new Set(['all', 'links', 'profiles']);
-=======
 const AUDIT_ACTION_FILTERS = new Set(['all', 'links', 'profiles', 'user']);
->>>>>>> Stashed changes
 
 function parsePagination(query) {
   const page = Math.max(1, Number.parseInt(query.page, 10) || 1);
@@ -35,11 +30,6 @@ function parseProfileStatus(query) {
 function parseLinkStatus(query) {
   const status = String(query.status || 'all');
   return LINK_STATUS_FILTERS.has(status) ? status : 'all';
-}
-
-function parseProfileStatus(query) {
-  const status = String(query.status || 'all');
-  return PROFILE_STATUS_FILTERS.has(status) ? status : 'all';
 }
 
 function parseAuditFilter(query) {
@@ -108,42 +98,6 @@ export class AdminController {
     }
   }
 
-  static async exportUsers(req, res, next) {
-    try {
-      const items = await AdminService.exportUsers({
-        search: parsePagination(req.query).search,
-        status: parseUserStatus(req.query),
-      });
-      return ApiResponse.success(res, 'Users exported', { items });
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  static async exportProfiles(req, res, next) {
-    try {
-      const items = await AdminService.exportProfiles({
-        search: parsePagination(req.query).search,
-        status: parseProfileStatus(req.query),
-      });
-      return ApiResponse.success(res, 'Profiles exported', { items });
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  static async exportLinks(req, res, next) {
-    try {
-      const items = await AdminService.exportLinks({
-        search: parsePagination(req.query).search,
-        status: parseLinkStatus(req.query),
-      });
-      return ApiResponse.success(res, 'Links exported', { items });
-    } catch (err) {
-      next(err);
-    }
-  }
-
   static async listLinks(req, res, next) {
     try {
       const result = await AdminService.listLinks({
@@ -166,14 +120,10 @@ export class AdminController {
       const result = await AdminAuditService.listLogs({
         ...parsePagination(req.query),
         actionFilter: parseAuditFilter(req.query),
-<<<<<<< Updated upstream
-        actor: parseActorFilter(req.query),
-=======
         actor: String(req.query.actor || '').trim(),
         targetId: String(req.query.targetId || '').trim() || undefined,
         targetType: String(req.query.targetType || '').trim() || undefined,
         targetIds,
->>>>>>> Stashed changes
       });
       return ApiResponse.success(res, 'Audit logs retrieved', result);
     } catch (err) {
@@ -181,15 +131,6 @@ export class AdminController {
     }
   }
 
-<<<<<<< Updated upstream
-  static async exportAuditLogs(req, res, next) {
-    try {
-      const items = await AdminAuditService.exportLogs({
-        actionFilter: parseAuditFilter(req.query),
-        actor: parseActorFilter(req.query),
-      });
-      return ApiResponse.success(res, 'Audit logs exported', { items });
-=======
   static async search(req, res, next) {
     try {
       const limit = Math.min(20, Math.max(1, Number.parseInt(req.query.limit, 10) || 8));
@@ -237,7 +178,6 @@ export class AdminController {
         req.adminActor.email,
       );
       return ApiResponse.success(res, 'Note deleted', result);
->>>>>>> Stashed changes
     } catch (err) {
       next(err);
     }

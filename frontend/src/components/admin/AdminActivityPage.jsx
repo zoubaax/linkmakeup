@@ -32,11 +32,7 @@ export default function AdminActivityPage() {
       page: params.page,
       limit: params.limit,
       action: params.status,
-<<<<<<< Updated upstream
-      actor: params.search,
-=======
-      actor: debouncedActor,
->>>>>>> Stashed changes
+      actor: params.search || debouncedActor,
     }),
     [debouncedActor],
   );
@@ -56,11 +52,6 @@ export default function AdminActivityPage() {
 
   const rows = items.map(formatAuditRow);
 
-  const exportLogs = useCallback(
-    () => ApiService.getAdminAuditLogsCsv({ action: actionFilter, actor: debouncedActor }),
-    [actionFilter, debouncedActor],
-  );
-
   return (
     <AdminDataTable
       title="Activity log"
@@ -76,16 +67,6 @@ export default function AdminActivityPage() {
             value={actionFilter}
             onChange={setActionFilter}
           />
-          <div className="flex flex-wrap items-center gap-2 ml-auto">
-            <input
-              type="search"
-              value={actorInput}
-              onChange={(event) => setActorInput(event.target.value)}
-              placeholder="Filter by actor email…"
-              className="rounded-xl border border-border bg-surface-alt/70 px-3 py-2 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30 w-full sm:w-64"
-            />
-            <ExportCsvButton fetcher={exportLogs} label="Export CSV" className="shrink-0" />
-          </div>
         </div>
       )}
       actions={(
@@ -93,7 +74,7 @@ export default function AdminActivityPage() {
           filename={`linkmakeup-activity-${new Date().toISOString().slice(0, 10)}.csv`}
           columns={EXPORT_COLUMNS}
           fetchRows={() => ApiService.getAdminAuditLogsExport({ action: actionFilter, actor: search })
-            .then((res) => res.data.items.map((entry) => ({
+            .then((res) => (res.data?.items || []).map((entry) => ({
               ...entry,
               reason: entry.metadata?.reason || '',
             })))}

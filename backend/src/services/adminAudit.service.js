@@ -1,8 +1,4 @@
-<<<<<<< Updated upstream
-import { and, desc, eq, ilike, sql } from 'drizzle-orm';
-=======
-import { and, desc, eq, sql, inArray } from 'drizzle-orm';
->>>>>>> Stashed changes
+import { and, desc, eq, sql, inArray, ilike } from 'drizzle-orm';
 import { db } from '../config/db.js';
 import { adminAuditLogs } from '../models/schema.js';
 
@@ -18,36 +14,20 @@ function buildPagination(total, page, limit) {
   };
 }
 
-<<<<<<< Updated upstream
-function buildLogFilters({ actionFilter = 'all', actor = '' }) {
+function buildLogsWhere({ actionFilter = 'all', actor = '', targetId, targetType, targetIds }) {
   const filters = [];
 
   if (actionFilter === 'links') {
-    filters.push(eq(adminAuditLogs.targetType, 'link'));
+    filters.push(sql`${adminAuditLogs.action} like 'link.%' or ${adminAuditLogs.targetType} = 'link'`);
   } else if (actionFilter === 'profiles') {
-    filters.push(eq(adminAuditLogs.targetType, 'profile'));
-  }
-
-  if (actor) {
-    filters.push(ilike(adminAuditLogs.actorEmail, `%${actor}%`));
-  }
-
-  return filters;
-=======
-function buildLogsWhere({ actionFilter, actor, targetId, targetType, targetIds }) {
-  const filters = [];
-
-  if (actionFilter === 'links') {
-    filters.push(sql`${adminAuditLogs.action} like 'link.%'`);
-  } else if (actionFilter === 'profiles') {
-    filters.push(sql`${adminAuditLogs.action} like 'profile.%'`);
+    filters.push(sql`${adminAuditLogs.action} like 'profile.%' or ${adminAuditLogs.targetType} = 'profile'`);
   } else if (actionFilter === 'user') {
-    filters.push(sql`${adminAuditLogs.action} like 'user.%'`);
+    filters.push(sql`${adminAuditLogs.action} like 'user.%' or ${adminAuditLogs.targetType} = 'user'`);
   }
 
   const cleanActor = String(actor || '').trim().toLowerCase();
   if (cleanActor) {
-    filters.push(eq(sql`lower(${adminAuditLogs.actorEmail})`, cleanActor));
+    filters.push(ilike(adminAuditLogs.actorEmail, `%${cleanActor}%`));
   }
 
   const ids = targetIds?.length
@@ -64,7 +44,6 @@ function buildLogsWhere({ actionFilter, actor, targetId, targetType, targetIds }
   }
 
   return filters.length > 0 ? and(...filters) : undefined;
->>>>>>> Stashed changes
 }
 
 export class AdminAuditService {
@@ -84,16 +63,9 @@ export class AdminAuditService {
     return entry;
   }
 
-<<<<<<< Updated upstream
-  static async listLogs({ page, limit, actionFilter = 'all', actor = '' }) {
-    const offset = (page - 1) * limit;
-    const filters = buildLogFilters({ actionFilter, actor });
-    const whereClause = filters.length > 0 ? and(...filters) : undefined;
-=======
   static async listLogs({ page, limit, actionFilter = 'all', actor = '', targetId, targetType, targetIds }) {
     const offset = (page - 1) * limit;
     const whereClause = buildLogsWhere({ actionFilter, actor, targetId, targetType, targetIds });
->>>>>>> Stashed changes
 
     const [countRow] = await db
       .select({ count: sql`count(*)::int` })
@@ -114,15 +86,17 @@ export class AdminAuditService {
     };
   }
 
-<<<<<<< Updated upstream
-  static async exportLogs({ actionFilter = 'all', actor = '' }) {
-    const filters = buildLogFilters({ actionFilter, actor });
-    const whereClause = filters.length > 0 ? and(...filters) : undefined;
-=======
+  static async exportLogs({ actionFilter = 'all', actor = '' } = {}) {
+    const whereClause = buildLogsWhere({ actionFilter, actor });
+    return db
+      .select()
+      .from(adminAuditLogs)
+      .where(whereClause)
+      .orderBy(desc(adminAuditLogs.createdAt));
+  }
+
   static async listLogsForExport({ actionFilter = 'all', actor = '' } = {}) {
     const whereClause = buildLogsWhere({ actionFilter, actor });
->>>>>>> Stashed changes
-
     return db
       .select()
       .from(adminAuditLogs)

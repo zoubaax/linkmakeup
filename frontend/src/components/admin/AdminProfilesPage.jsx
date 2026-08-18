@@ -4,27 +4,17 @@ import { getPublicUserUrl } from '../../config/env';
 import { useAdmin } from '../../contexts/AdminContext';
 import AdminActionModal from './AdminActionModal';
 import AdminDataTable, { AdminFilterPills, AdminTableHead, AdminTableShell, useAdminList } from './AdminDataTable';
-<<<<<<< Updated upstream
-import AdminUserDrawer from './AdminUserDrawer';
-import ExportCsvButton from './ExportCsvButton';
-import { formatDateTime, truncateText } from './formatters';
-
-const PROFILE_FILTERS = [
-  { value: 'all', label: 'All profiles' },
-=======
 import AdminRowActions from './AdminRowActions';
 import AdminStatusPill from './AdminStatusPill';
 import ExportCsvButton from './ExportCsvButton';
 import { formatDateTime, truncateText } from './formatters';
 
 const STATUS_FILTERS = [
-  { value: 'all', label: 'All pages' },
->>>>>>> Stashed changes
+  { value: 'all', label: 'All profiles' },
   { value: 'live', label: 'Live' },
   { value: 'suspended', label: 'Suspended' },
 ];
 
-<<<<<<< Updated upstream
 const EXPORT_COLUMNS = [
   { key: 'id', label: 'ID' },
   { key: 'username', label: 'Username' },
@@ -37,15 +27,12 @@ const EXPORT_COLUMNS = [
   { key: 'createdAt', label: 'Created' },
 ];
 
-=======
->>>>>>> Stashed changes
 export default function AdminProfilesPage() {
   const { openUserDrawer } = useAdmin();
   const [status, setStatus] = useState('all');
   const [refreshNonce, setRefreshNonce] = useState(0);
   const [actionLoading, setActionLoading] = useState(false);
   const [modal, setModal] = useState(null);
-  const [status, setStatus] = useState('all');
 
   const fetchProfiles = useCallback(
     (params) => {
@@ -66,18 +53,10 @@ export default function AdminProfilesPage() {
     setLimit,
     loading,
     error,
-<<<<<<< Updated upstream
-=======
     clearFilters,
->>>>>>> Stashed changes
   } = useAdminList(fetchProfiles, { status });
 
   const refresh = () => setRefreshNonce((value) => value + 1);
-
-  const exportProfiles = useCallback(
-    () => ApiService.getAdminProfilesCsv({ search, status }),
-    [search, status],
-  );
 
   const runSuspension = async (reason) => {
     setActionLoading(true);
@@ -103,26 +82,16 @@ export default function AdminProfilesPage() {
         onSearchChange={setSearch}
         isSearching={isSearching}
         filters={(
-<<<<<<< Updated upstream
-          <AdminFilterPills
-            options={PROFILE_FILTERS}
-            value={status}
-            onChange={setStatus}
-          />
+          <div className="flex flex-wrap items-center justify-between gap-3 w-full">
+            <AdminFilterPills options={STATUS_FILTERS} value={status} onChange={setStatus} />
+          </div>
         )}
         actions={(
           <ExportCsvButton
             filename={`linkmakeup-profiles-${new Date().toISOString().slice(0, 10)}.csv`}
             columns={EXPORT_COLUMNS}
-            fetchRows={() => ApiService.getAdminProfilesExport({ search, status })
-              .then((res) => res.data.items)}
+            fetchRows={() => ApiService.getAdminProfilesExport({ search, status }).then((res) => res.data.items)}
           />
-=======
-          <div className="flex flex-wrap items-center justify-between gap-3 w-full">
-            <AdminFilterPills options={STATUS_FILTERS} value={status} onChange={setStatus} />
-            <ExportCsvButton fetcher={exportProfiles} label="Export CSV" className="ml-auto" />
-          </div>
->>>>>>> Stashed changes
         )}
         loading={loading}
         error={error}

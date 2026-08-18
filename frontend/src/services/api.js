@@ -3,13 +3,39 @@ import { env } from '../config/env';
 const API_BASE_URL = env.apiUrl;
 
 class ApiService {
+  static _responseCache = new Map();
+  static _cacheTTL = 3 * 60 * 1000; // 3 minutes TTL
+
+  static invalidateCache(pattern) {
+    if (!pattern) {
+      this._responseCache.clear();
+      return;
+    }
+    for (const key of this._responseCache.keys()) {
+      if (key.includes(pattern)) {
+        this._responseCache.delete(key);
+      }
+    }
+  }
+
   static async request(endpoint, options = {}) {
+    const isGet = !options.method || options.method.toUpperCase() === 'GET';
+    const useCache = isGet && options.useMemoryCache !== false;
+    const cacheKey = `${options.method || 'GET'}:${endpoint}`;
+
+    if (useCache) {
+      const cached = this._responseCache.get(cacheKey);
+      if (cached && (Date.now() - cached.timestamp < this._cacheTTL)) {
+        return cached.data;
+      }
+    }
+
     const url = `${API_BASE_URL}${endpoint}`;
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers,
     };
-    const { cache, ...fetchOptions } = options;
+    const { cache, useMemoryCache, ...fetchOptions } = options;
 
     try {
       const response = await fetch(url, {
@@ -26,6 +52,14 @@ class ApiService {
           || (response.status === 413 ? 'Image is too large. Try a smaller photo.' : null)
           || `API Request failed with status ${response.status}`;
         throw new Error(message);
+      }
+
+      if (useCache && data.success !== false) {
+        this._responseCache.set(cacheKey, { data, timestamp: Date.now() });
+      }
+
+      if (!isGet) {
+        this.invalidateCache();
       }
 
       return data;
@@ -360,12 +394,6 @@ class ApiService {
     });
   }
 
-<<<<<<< Updated upstream
-  static async getAdminAuditLogs({ page = 1, limit = 20, action = 'all', actor = '' } = {}) {
-    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-    if (action && action !== 'all') params.set('action', action);
-    if (actor) params.set('actor', actor);
-=======
   static async getAdminAuditLogs({
     page = 1,
     limit = 20,
@@ -379,11 +407,9 @@ class ApiService {
     if (actor) params.set('actor', actor);
     if (targetId) params.set('targetId', targetId);
     if (targetIds?.length) params.set('targetIds', targetIds.join(','));
->>>>>>> Stashed changes
     return this.request(`/admin/audit-logs?${params.toString()}`, { cache: 'no-store' });
   }
 
-<<<<<<< Updated upstream
   static async sendAdminOnboardingReminder(userId) {
     return this.request(`/admin/users/${encodeURIComponent(userId)}/remind-onboarding`, {
       method: 'POST',
@@ -394,7 +420,8 @@ class ApiService {
     return this.request('/admin/users/remind-all-onboarding', {
       method: 'POST',
     });
-=======
+  }
+
   static async getAdminAuditLogsExport({ action = 'all', actor = '' } = {}) {
     const params = new URLSearchParams();
     if (action && action !== 'all') params.set('action', action);
@@ -403,21 +430,24 @@ class ApiService {
   }
 
   // 📈 Admin analytics
-  static async getAdminAnalytics() {
-    return this.request('/admin/analytics', { cache: 'no-store' });
+  static async getAdminAnalytics({ period = '30d' } = {}) {
+    return this.request(`/admin/analytics?period=${encodeURIComponent(period)}`, { cache: 'no-store' });
   }
 
-  static async getAdminAnalyticsPages({ page = 1, limit = 20, search = '' } = {}) {
+  static async getAdminAnalyticsPages({ page = 1, limit = 20, search = '', status = 'all', sort = 'views', period = '30d' } = {}) {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    if (sort && sort !== 'views') params.set('sort', sort);
+    if (period) params.set('period', period);
     return this.request(`/admin/analytics/pages?${params.toString()}`, { cache: 'no-store' });
   }
 
-  static async getAdminAnalyticsPagesExport({ search = '' } = {}) {
+  static async getAdminAnalyticsPagesExport({ search = '', status = 'all' } = {}) {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
     return this.request(`/admin/analytics/export?${params.toString()}`, { cache: 'no-store' });
->>>>>>> Stashed changes
   }
 }
 

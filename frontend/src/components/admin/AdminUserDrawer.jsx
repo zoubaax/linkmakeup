@@ -299,60 +299,6 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
                   </div>
                 )}
               </section>
-<<<<<<< Updated upstream
-
-              <section>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-muted mb-3">
-                  Links ({detail.links.length})
-                </h3>
-                {detail.links.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-sm text-fg-muted text-center">
-                    No links yet
-                  </div>
-                ) : (
-                  <ul className="space-y-2">
-                    {detail.links.map((link) => (
-                      <li key={link.id} className="rounded-xl border border-border px-4 py-3 space-y-3">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="font-medium text-fg truncate">{link.title}</p>
-                            <p className="text-xs text-fg-subtle mt-0.5 truncate">{truncateText(link.url, 64)}</p>
-                          </div>
-                          <span className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold ${link.isActive ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'border-border bg-surface-alt text-fg-muted'}`}>
-                            {link.isActive ? 'Active' : 'Hidden'}
-                          </span>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <button
-                            type="button"
-                            disabled={actionLoading}
-                            onClick={() => {
-                              if (link.isActive) {
-                                setModal({ type: 'hideLink', linkId: link.id, linkTitle: link.title });
-                                return;
-                              }
-                              runAction(() => ApiService.patchAdminLink(link.id, { isActive: true }));
-                            }}
-                            className="rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-fg-muted hover:text-fg hover:bg-surface-alt disabled:opacity-50"
-                          >
-                            {link.isActive ? 'Hide' : 'Show'}
-                          </button>
-                          <button
-                            type="button"
-                            disabled={actionLoading}
-                            onClick={() => setModal({ type: 'deleteLink', linkId: link.id, linkTitle: link.title })}
-                            className="rounded-lg border border-red-500/30 px-2.5 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-500/10 disabled:opacity-50"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
-=======
->>>>>>> Stashed changes
             </>
           )}
 

@@ -14,7 +14,6 @@ import AdminAnalyticsPage from './components/admin/AdminAnalyticsPage';
 import AdminUsersPage from './components/admin/AdminUsersPage';
 import AdminProfilesPage from './components/admin/AdminProfilesPage';
 import AdminLinksPage from './components/admin/AdminLinksPage';
-import AdminAnalyticsPage from './components/admin/AdminAnalyticsPage';
 import AdminActivityPage from './components/admin/AdminActivityPage';
 import SuspendedAccountPage from './components/SuspendedAccountPage';
 

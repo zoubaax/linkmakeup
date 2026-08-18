@@ -1,68 +1,4 @@
-<<<<<<< Updated upstream
-import { and, eq, ilike, or, sql } from 'drizzle-orm';
-import { db } from '../config/db.js';
-import { analyticsEvents, links, profiles } from '../models/schema.js';
-
-const PAGE_VIEW = 'page_view';
-const LINK_CLICK = 'link_click';
-
-const round2 = (n) => Math.round(n * 100) / 100;
-
-const pct = (numerator, denominator) =>
-  denominator > 0 ? round2((numerator / denominator) * 100) : null;
-
-function dailyTrendBuilder(rows, type) {
-  const map = new Map();
-  for (const row of rows) {
-    if (row.eventType !== type) continue;
-    const raw = row.day;
-    const key = raw instanceof Date ? raw.toISOString().slice(0, 10) : String(raw).slice(0, 10);
-    map.set(key, row.count);
-  }
-  const days = [];
-  const now = new Date();
-  for (let i = 13; i >= 0; i--) {
-    const key = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i))
-      .toISOString()
-      .slice(0, 10);
-    days.push({ date: key, count: map.get(key) || 0 });
-  }
-  return days;
-}
-
-function sumCounts(trend) {
-  return trend.reduce((sum, item) => sum + item.count, 0);
-}
-
-const pageStatsProjection = {
-  profileId: profiles.id,
-  username: profiles.username,
-  displayName: profiles.displayName,
-  avatarUrl: profiles.avatarUrl,
-  pageViews: sql`count(*) filter (where ${analyticsEvents.eventType} = '${sql.raw(PAGE_VIEW)}')::int`,
-  pageViews7d: sql`count(*) filter (where ${analyticsEvents.eventType} = '${sql.raw(PAGE_VIEW)}' and ${analyticsEvents.createdAt} >= now() - interval '7 days')::int`,
-  linkClicks: sql`count(*) filter (where ${analyticsEvents.eventType} = '${sql.raw(LINK_CLICK)}')::int`,
-  linkClicks7d: sql`count(*) filter (where ${analyticsEvents.eventType} = '${sql.raw(LINK_CLICK)}' and ${analyticsEvents.createdAt} >= now() - interval '7 days')::int`,
-};
-
-export default class AnalyticsService {
-  static async recordPageView({ profileId, source, userAgent }) {
-    const [existingProfile] = await db
-      .select({ id: profiles.id, isSuspended: profiles.isSuspended })
-      .from(profiles)
-      .where(and(eq(profiles.id, profileId), eq(profiles.isSuspended, false)))
-      .limit(1);
-
-    if (!existingProfile) return { recorded: false };
-
-    await db.insert(analyticsEvents).values({
-      profileId,
-      eventType: PAGE_VIEW,
-      source: source || null,
-      userAgent: userAgent || null,
-    });
-=======
-import { and, asc, desc, eq, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import { db } from '../config/db.js';
 import { analyticsEvents, links, profiles } from '../models/schema.js';
 import { ApiError } from '../utils/apiResponse.js';
@@ -76,8 +12,9 @@ const PERIOD_DAYS = {
 };
 
 const ALL_TREND_DAYS = 90;
-
 const EVENT_TYPES = new Set(['page_view', 'link_click']);
+const PAGE_VIEW = 'page_view';
+const LINK_CLICK = 'link_click';
 
 function cleanPeriod(value) {
   const period = String(value || '30d');
@@ -139,8 +76,6 @@ export class AnalyticsService {
       resolvedLinkId = link.id;
     }
 
-    // Omit the uuid link_id column when null: the Neon driver serializes a
-    // null uuid param as an empty string, which Postgres rejects.
     const values = {
       profileId: profile.id,
       eventType,
@@ -150,12 +85,29 @@ export class AnalyticsService {
     };
 
     await db.insert(analyticsEvents).values(values);
->>>>>>> Stashed changes
+    return { recorded: true };
+  }
+
+  static async recordPageView({ profileId, source, userAgent }) {
+    const [existingProfile] = await db
+      .select({ id: profiles.id, isSuspended: profiles.isSuspended })
+      .from(profiles)
+      .where(and(eq(profiles.id, profileId), eq(profiles.isSuspended, false)))
+      .limit(1);
+
+    if (!existingProfile) return { recorded: false };
+
+    await db.insert(analyticsEvents).values({
+      profileId,
+      eventType: PAGE_VIEW,
+      source: source || null,
+      userAgent: userAgent || null,
+      deviceType: detectDeviceType(userAgent),
+    });
 
     return { recorded: true };
   }
 
-<<<<<<< Updated upstream
   static async recordLinkClick({ profileId, linkId, source, userAgent }) {
     const [matchedLink] = await db
       .select({ id: links.id, icon: links.icon })
@@ -173,186 +125,26 @@ export class AnalyticsService {
       platform: matchedLink.icon || 'other',
       source: source || null,
       userAgent: userAgent || null,
+      deviceType: detectDeviceType(userAgent),
     });
 
     return { recorded: true };
   }
 
-  static async getAdminAnalytics() {
-    const [totals] = await db
-      .select({
-        pageViews: sql`count(*) filter (where ${analyticsEvents.eventType} = '${sql.raw(PAGE_VIEW)}')::int`,
-        pageViews7d: sql`count(*) filter (where ${analyticsEvents.eventType} = '${sql.raw(PAGE_VIEW)}' and ${analyticsEvents.createdAt} >= now() - interval '7 days')::int`,
-        linkClicks: sql`count(*) filter (where ${analyticsEvents.eventType} = '${sql.raw(LINK_CLICK)}')::int`,
-        linkClicks7d: sql`count(*) filter (where ${analyticsEvents.eventType} = '${sql.raw(LINK_CLICK)}' and ${analyticsEvents.createdAt} >= now() - interval '7 days')::int`,
-        activePages7d: sql`(select count(*) from (select distinct ${analyticsEvents.profileId} from ${analyticsEvents} where ${analyticsEvents.eventType} = '${sql.raw(PAGE_VIEW)}' and ${analyticsEvents.createdAt} >= now() - interval '7 days') as active_pages)::int`,
-      })
-      .from(analyticsEvents);
-
-    const trendRows = await db
-      .select({
-        day: sql`date_trunc('day', ${analyticsEvents.createdAt})::date`,
-        eventType: analyticsEvents.eventType,
-        count: sql`count(*)::int`,
-      })
-      .from(analyticsEvents)
-      .where(sql`${analyticsEvents.createdAt} >= now() - interval '14 days'`)
-      .groupBy(sql`date_trunc('day', ${analyticsEvents.createdAt})::date`, analyticsEvents.eventType)
-      .orderBy(sql`date_trunc('day', ${analyticsEvents.createdAt})::date`);
-
-    const pageViewsTrend = dailyTrendBuilder(trendRows, PAGE_VIEW);
-    const linkClicksTrend = dailyTrendBuilder(trendRows, LINK_CLICK);
-
-    const topPlatformsPromise = db
-      .select({
-        platform: sql`coalesce(${analyticsEvents.platform}, 'other')`,
-        clicks: sql`count(*)::int`,
-      })
-      .from(analyticsEvents)
-      .where(eq(analyticsEvents.eventType, LINK_CLICK))
-      .groupBy(sql`coalesce(${analyticsEvents.platform}, 'other')`)
-      .orderBy(sql`count(*) desc`)
-      .limit(8);
-
-    const topPagesPromise = db
-      .select({
-        ...pageStatsProjection,
-      })
-      .from(profiles)
-      .leftJoin(analyticsEvents, eq(analyticsEvents.profileId, profiles.id))
-      .groupBy(
-        profiles.id,
-        profiles.username,
-        profiles.displayName,
-        profiles.avatarUrl,
-      )
-      .orderBy(sql`${pageStatsProjection.pageViews} desc`)
-      .limit(5);
-
-    const topLinksPromise = db
-      .select({
-        linkId: links.id,
-        title: links.title,
-        url: links.url,
-        icon: links.icon,
-        username: profiles.username,
-        clicks: sql`count(*)::int`,
-      })
-      .from(analyticsEvents)
-      .innerJoin(links, eq(links.id, analyticsEvents.linkId))
-      .innerJoin(profiles, eq(profiles.id, analyticsEvents.profileId))
-      .where(eq(analyticsEvents.eventType, LINK_CLICK))
-      .groupBy(links.id, links.title, links.url, links.icon, profiles.username)
-      .orderBy(sql`count(*) desc`)
-      .limit(8);
-
-    const [topPlatforms, topPages, topLinks] = await Promise.all([
-      topPlatformsPromise,
-      topPagesPromise,
-      topLinksPromise,
-    ]);
-
-    return {
-      totals: {
-        pageViews: totals?.pageViews ?? 0,
-        pageViews7d: totals?.pageViews7d ?? 0,
-        linkClicks: totals?.linkClicks ?? 0,
-        linkClicks7d: totals?.linkClicks7d ?? 0,
-        ctr: pct(totals?.linkClicks ?? 0, totals?.pageViews ?? 0),
-        ctr7d: pct(totals?.linkClicks7d ?? 0, totals?.pageViews7d ?? 0),
-        activePages7d: totals?.activePages7d ?? 0,
-      },
-      trends: {
-        pageViews: pageViewsTrend,
-        linkClicks: linkClicksTrend,
-      },
-      topPlatforms,
-      topPages: topPages.map((row) => ({
-        ...row,
-        ctr: pct(row.linkClicks ?? 0, row.pageViews ?? 0),
-      })),
-      topLinks,
-    };
-  }
-
-  static async listPageStats({ page = 1, limit = 20, search = '' }) {
-    const cleanPage = Math.max(1, parseInt(page, 10) || 1);
-    const cleanLimit = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
-    const offset = (cleanPage - 1) * cleanLimit;
-
-    const searchTerm = search?.trim();
-    let profileFilter = null;
-    if (searchTerm) {
-      const pattern = `%${searchTerm}%`;
-      profileFilter = or(
-        ilike(profiles.username, pattern),
-        ilike(profiles.displayName, pattern),
-      );
-    }
-
-    const rowsPromise = db
-      .select({
-        ...pageStatsProjection,
-      })
-      .from(profiles)
-      .leftJoin(analyticsEvents, eq(analyticsEvents.profileId, profiles.id))
-      .where(profileFilter ?? undefined)
-      .groupBy(
-        profiles.id,
-        profiles.username,
-        profiles.displayName,
-        profiles.avatarUrl,
-      )
-      .orderBy(sql`${pageStatsProjection.pageViews} desc`)
-      .limit(cleanLimit)
-      .offset(offset);
-
-    const countPromise = db
-      .select({ count: sql`count(*)::int` })
-      .from(profiles)
-      .where(profileFilter ?? undefined);
-
-    const [rows, [countRow]] = await Promise.all([rowsPromise, countPromise]);
-    const total = countRow?.count ?? 0;
-    const totalPages = Math.max(1, Math.ceil(total / cleanLimit));
-
-    return {
-      items: rows.map((row) => ({
-        ...row,
-        ctr: pct(row.linkClicks ?? 0, row.pageViews ?? 0),
-        ctr7d: pct(row.linkClicks7d ?? 0, row.pageViews7d ?? 0),
-      })),
-      pagination: {
-        page: cleanPage,
-        limit: cleanLimit,
-        total,
-        totalPages,
-        hasNextPage: cleanPage < totalPages,
-        hasPrevPage: cleanPage > 1,
-      },
-    };
-  }
-=======
-  static async getSummary({ period = '30d' } = {}) {
-    return AnalyticsService.getPlatformSummary({ period });
-  }
-
-  static async getProfileSummary({ profileId, period = '30d' } = {}) {
-    if (!profileId) {
-      throw new ApiError('Profile not found', 404);
-    }
-
+  static async getProfileSummary({ profileId, period = '30d' }) {
     const resolvedPeriod = cleanPeriod(period);
-    const periodFilter = periodWhere(resolvedPeriod);
-    const profileFilter = eq(analyticsEvents.profileId, profileId);
-    const where = periodFilter ? and(periodFilter, profileFilter) : profileFilter;
+    const pWhere = periodWhere(resolvedPeriod);
+    const where = pWhere
+      ? and(eq(analyticsEvents.profileId, profileId), pWhere)
+      : eq(analyticsEvents.profileId, profileId);
+
     const days = PERIOD_DAYS[resolvedPeriod] || ALL_TREND_DAYS;
 
-    const [[totalsRow], trendRows, deviceRows, referrerRows, topLinkRows, [lastActiveRow]] = await Promise.all([
+    const [[totalsRow], trendRows, deviceRows, referrerRows] = await Promise.all([
       db
         .select({
-          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
-          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`,
+          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`,
         })
         .from(analyticsEvents)
         .where(where),
@@ -373,8 +165,7 @@ export class AnalyticsService {
         })
         .from(analyticsEvents)
         .where(and(where, eq(analyticsEvents.eventType, 'page_view')))
-        .groupBy(analyticsEvents.deviceType)
-        .orderBy(desc(sql`count(*)`)),
+        .groupBy(analyticsEvents.deviceType),
       db
         .select({
           referrer: analyticsEvents.referrer,
@@ -384,34 +175,11 @@ export class AnalyticsService {
         .where(and(where, eq(analyticsEvents.eventType, 'page_view')))
         .groupBy(analyticsEvents.referrer)
         .orderBy(desc(sql`count(*)`))
-        .limit(8),
-      db
-        .select({
-          linkId: links.id,
-          title: links.title,
-          url: links.url,
-          icon: links.icon,
-          clicks: sql`count(*)::int`.as('clicks'),
-        })
-        .from(analyticsEvents)
-        .innerJoin(links, eq(links.id, analyticsEvents.linkId))
-        .where(and(where, eq(analyticsEvents.eventType, 'link_click')))
-        .groupBy(links.id)
-        .orderBy(desc(sql`count(*)`))
-        .limit(10),
-      db
-        .select({ lastActiveAt: sql`max(${analyticsEvents.createdAt})`.as('lastActiveAt') })
-        .from(analyticsEvents)
-        .where(profileFilter),
+        .limit(5),
     ]);
 
-    const views = totalsRow.views;
-    const clicks = totalsRow.clicks;
-    const totalClicks = Math.max(clicks, 1);
-    const topLinks = topLinkRows.map((link) => ({
-      ...link,
-      percentage: roundToOne((link.clicks / totalClicks) * 100),
-    }));
+    const views = totalsRow?.views || 0;
+    const clicks = totalsRow?.clicks || 0;
 
     const devices = { mobile: 0, desktop: 0, tablet: 0 };
     deviceRows.forEach((row) => {
@@ -420,39 +188,24 @@ export class AnalyticsService {
       }
     });
 
-    const referrers = referrerRows.map((row) => ({
-      label: row.referrer || 'direct',
-      count: row.count,
-    }));
-
     return {
       period: resolvedPeriod,
       totals: {
         views,
         clicks,
         ctr: computeCtr(clicks, views),
-        lastActiveAt: lastActiveRow?.lastActiveAt || null,
-        topLinks,
         devices,
-        referrers,
+        referrers: referrerRows,
       },
       trend: buildDaySeries(trendRows, days),
     };
   }
 
-  static async getProfileLinkStats({ profileId, userId, period = '30d' } = {}) {
-    if (!profileId || !userId) {
-      throw new ApiError('Profile not found', 404);
-    }
-
+  static async getProfileLinkStats({ profileId, userId, period = '30d' }) {
     const resolvedPeriod = cleanPeriod(period);
-    const periodFilter = periodWhere(resolvedPeriod);
+    const pWhere = periodWhere(resolvedPeriod);
 
-    const eventJoin = periodFilter
-      ? and(eq(analyticsEvents.linkId, links.id), periodFilter)
-      : eq(analyticsEvents.linkId, links.id);
-
-    const rows = await db
+    const userLinks = await db
       .select({
         id: links.id,
         title: links.title,
@@ -460,35 +213,71 @@ export class AnalyticsService {
         icon: links.icon,
         isActive: links.isActive,
         position: links.position,
-        clicks: sql`count(${analyticsEvents.id}) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
       })
       .from(links)
-      .leftJoin(analyticsEvents, eventJoin)
       .where(eq(links.userId, userId))
-      .groupBy(links.id)
-      .orderBy(asc(links.position), desc(sql`count(${analyticsEvents.id}) filter (where ${analyticsEvents.eventType} = 'link_click')`));
+      .orderBy(asc(links.position));
 
-    return rows.map((row) => ({
-      ...row,
-      clicks: row.clicks ?? 0,
-    }));
+    if (userLinks.length === 0) return [];
+
+    const where = pWhere
+      ? and(
+          eq(analyticsEvents.profileId, profileId),
+          eq(analyticsEvents.eventType, 'link_click'),
+          pWhere
+        )
+      : and(eq(analyticsEvents.profileId, profileId), eq(analyticsEvents.eventType, 'link_click'));
+
+    const clickRows = await db
+      .select({
+        linkId: analyticsEvents.linkId,
+        clicks: sql`count(*)::int`.as('clicks'),
+      })
+      .from(analyticsEvents)
+      .where(where)
+      .groupBy(analyticsEvents.linkId);
+
+    const clickMap = new Map();
+    clickRows.forEach((r) => {
+      if (r.linkId) clickMap.set(r.linkId, r.clicks);
+    });
+
+    const totalClicks = Array.from(clickMap.values()).reduce((a, b) => a + b, 0);
+
+    return userLinks.map((l) => {
+      const clicks = clickMap.get(l.id) || 0;
+      return {
+        ...l,
+        clicks,
+        share: totalClicks > 0 ? roundToOne((clicks / totalClicks) * 100) : 0,
+      };
+    });
   }
 
-  static async getPlatformSummary({ period = '30d' } = {}) {
+  static async getSummary({ period = '30d' } = {}) {
     const resolvedPeriod = cleanPeriod(period);
-    const where = periodWhere(resolvedPeriod);
+    const pWhere = periodWhere(resolvedPeriod);
+    const where = pWhere ? pWhere : undefined;
     const days = PERIOD_DAYS[resolvedPeriod] || ALL_TREND_DAYS;
 
-    const [[totalsRow], engagedRow, trendRows, deviceRows, topLinkRows] = await Promise.all([
+    const [
+      [totalsRow],
+      [engagedRow],
+      trendRows,
+      deviceRows,
+      topLinkRows,
+    ] = await Promise.all([
       db
         .select({
-          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
-          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`,
+          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`,
         })
         .from(analyticsEvents)
         .where(where),
       db
-        .select({ count: sql`count(distinct ${analyticsEvents.profileId})::int` })
+        .select({
+          count: sql`count(distinct ${analyticsEvents.profileId})::int`,
+        })
         .from(analyticsEvents)
         .where(where),
       db
@@ -526,8 +315,8 @@ export class AnalyticsService {
         .limit(10),
     ]);
 
-    const views = totalsRow.views;
-    const clicks = totalsRow.clicks;
+    const views = totalsRow?.views || 0;
+    const clicks = totalsRow?.clicks || 0;
 
     const totalClicks = Math.max(clicks, 1);
     const topLinks = topLinkRows.map((link) => ({
@@ -548,7 +337,7 @@ export class AnalyticsService {
         views,
         clicks,
         ctr: computeCtr(clicks, views),
-        engagedProfiles: engagedRow.count,
+        engagedProfiles: engagedRow?.count || 0,
         topLinks,
         devices,
       },
@@ -615,13 +404,13 @@ export class AnalyticsService {
       ctr: computeCtr(row.clicks, row.views),
     }));
 
-    const totalPages = Math.max(1, Math.ceil(countRow.count / limit));
+    const totalPages = Math.max(1, Math.ceil((countRow?.count || 0) / limit));
     return {
       items,
       pagination: {
         page,
         limit,
-        total: countRow.count,
+        total: countRow?.count || 0,
         totalPages,
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1,
@@ -672,7 +461,6 @@ export class AnalyticsService {
     }));
   }
 
-  /** Ensures a query param is a non-negative page integer. */
   static parseSort(value) {
     return /^[a-zA-Z_]+$/.test(String(value || '')) ? String(value) : 'views';
   }
@@ -682,5 +470,6 @@ export class AnalyticsService {
       throw new ApiError('Invalid sort option', 400);
     }
   }
->>>>>>> Stashed changes
 }
+
+export default AnalyticsService;
