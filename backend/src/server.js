@@ -1,5 +1,6 @@
 import app from './app.js';
 import { env } from './config/env.js';
+import { verifySmtpConnection } from './config/mailer.js';
 
 const server = app.listen(env.port, () => {
   console.log(`
@@ -8,6 +9,8 @@ const server = app.listen(env.port, () => {
 🔗 Server URL: http://localhost:${env.port}
 🏥 Health Check: http://localhost:${env.port}/api/v1/health
   `);
+
+  verifySmtpConnection();
 });
 
 // Handle unhandled promise rejections

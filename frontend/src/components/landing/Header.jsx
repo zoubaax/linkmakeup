@@ -17,12 +17,16 @@ export default function Header({ user, profile }) {
       {/* Right Navigation */}
       <div className="flex items-center gap-3 sm:gap-6">
         {/* Nav Links */}
-        <div className="hidden md:flex items-center gap-4 text-xs font-semibold tracking-wider uppercase text-[var(--lm-fg-muted)]">
-          <a href="#why" className="hover:text-emerald-600 transition-colors">Why Us</a>
+        <div className="hidden md:flex items-center gap-3.5 text-xs font-semibold tracking-wider uppercase text-[var(--lm-fg-muted)]">
+          <Link to="/features/digital-business-card" className="hover:text-emerald-600 transition-colors">Digital Card</Link>
           <span className="text-[var(--lm-border-strong)]">•</span>
-          <a href="#features" className="hover:text-emerald-600 transition-colors">Server Specs</a>
+          <Link to="/link-in-bio" className="hover:text-emerald-600 transition-colors">Link in Bio</Link>
           <span className="text-[var(--lm-border-strong)]">•</span>
-          <a href="#presets" className="hover:text-emerald-600 transition-colors">Theme Studio</a>
+          <Link to="/fr/carte-de-visite-digitale-maroc" className="hover:text-emerald-600 transition-colors flex items-center gap-1">🇲🇦 Maroc</Link>
+          <span className="text-[var(--lm-border-strong)]">•</span>
+          <Link to="/pricing" className="hover:text-emerald-600 transition-colors">Pricing</Link>
+          <span className="text-[var(--lm-border-strong)]">•</span>
+          <Link to="/why-us" className="hover:text-emerald-600 transition-colors">Why Us</Link>
         </div>
 
         {user ? (

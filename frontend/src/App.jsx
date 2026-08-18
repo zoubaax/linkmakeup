@@ -15,6 +15,20 @@ import AdminLinksPage from './components/admin/AdminLinksPage';
 import AdminActivityPage from './components/admin/AdminActivityPage';
 import SuspendedAccountPage from './components/SuspendedAccountPage';
 
+// SEO Strategy Pages
+import EngineersLanding from './components/landing/strategy/EngineersLanding';
+import LinkedinCreatorsLanding from './components/landing/strategy/LinkedinCreatorsLanding';
+import FoundersLanding from './components/landing/strategy/FoundersLanding';
+import NfcCardsLanding from './components/landing/strategy/NfcCardsLanding';
+import MoroccoNfcLanding from './components/landing/strategy/MoroccoNfcLanding';
+import DigitalBusinessCardLanding from './components/landing/strategy/DigitalBusinessCardLanding';
+
+// Core Landing Pillar Pages
+import WhyUsPage from './components/landing/pages/WhyUsPage';
+import ServerSpecsPage from './components/landing/pages/ServerSpecsPage';
+import PricingPage from './components/landing/pages/PricingPage';
+import LinkInBioLanding from './components/landing/pages/LinkInBioLanding';
+
 /**
  * Detect if the app is being loaded from a user subdomain
  * e.g. allo.linkmakeup.com → returns "allo"
@@ -53,6 +67,34 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<AuthPage initialMode="signin" />} />
           <Route path="/signup" element={<AuthPage initialMode="signup" />} />
+
+          {/* Core Pillar & Feature Hub Pages */}
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/link-in-bio" element={<LinkInBioLanding />} />
+          <Route path="/bio-link" element={<LinkInBioLanding />} />
+          <Route path="/features/link-in-bio" element={<LinkInBioLanding />} />
+          <Route path="/linktree-alternative" element={<LinkInBioLanding />} />
+          <Route path="/why-us" element={<WhyUsPage />} />
+          <Route path="/why" element={<WhyUsPage />} />
+          <Route path="/server-specs" element={<ServerSpecsPage />} />
+          <Route path="/specs" element={<ServerSpecsPage />} />
+
+          {/* Feature Money Pages */}
+          <Route path="/features/digital-business-card" element={<DigitalBusinessCardLanding />} />
+          <Route path="/digital-business-card" element={<DigitalBusinessCardLanding />} />
+          <Route path="/features/nfc" element={<NfcCardsLanding />} />
+
+          {/* Strategy & Moroccan Geo-Targeted Landing Pages */}
+          <Route path="/fr/carte-de-visite-digitale-maroc" element={<MoroccoNfcLanding />} />
+          <Route path="/fr/carte-nfc-maroc" element={<MoroccoNfcLanding />} />
+          <Route path="/solutions/freelancers-maroc" element={<MoroccoNfcLanding />} />
+          <Route path="/maroc" element={<MoroccoNfcLanding />} />
+
+          <Route path="/for/engineers" element={<EngineersLanding />} />
+          <Route path="/for/linkedin-creators" element={<LinkedinCreatorsLanding />} />
+          <Route path="/for/founders" element={<FoundersLanding />} />
+          <Route path="/for/nfc-business-cards" element={<NfcCardsLanding />} />
+          <Route path="/for/nfc-cards" element={<NfcCardsLanding />} />
 
           <Route
             path="/account-suspended"
@@ -113,3 +155,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+

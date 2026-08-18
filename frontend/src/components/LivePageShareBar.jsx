@@ -10,10 +10,12 @@ import {
   HiArrowDownTray,
   HiChevronDown,
   HiShare,
+  HiCreditCard,
 } from 'react-icons/hi2';
 import { useToast } from '../contexts/ToastContext';
 import { buildEmbedCode, exportPreviewNode } from '../utils/pageExport';
 import ExportPreviewCard from './ExportPreviewCard';
+import WalletCardModal from './WalletCardModal';
 import Logo from './ui/Logo';
 
 function ActionButton({ children, onClick, variant = 'secondary', className = '', disabled = false }) {
@@ -39,6 +41,7 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
   const [exportOpen, setExportOpen] = useState(false);
   const [embedOpen, setEmbedOpen] = useState(false);
   const [qrOpen, setQrOpen] = useState(false);
+  const [walletOpen, setWalletOpen] = useState(false);
   const [exporting, setExporting] = useState('');
   const menuRef = useRef(null);
   const exportRef = useRef(null);
@@ -101,24 +104,50 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
     }
   };
 
-  const downloadQrCode = () => {
+  const downloadQrCode = async () => {
     try {
       const svgElement = qrSvgRef.current?.querySelector('svg');
       if (!svgElement) throw new Error('QR code not ready');
 
-      const svgData = new XMLSerializer().serializeToString(svgElement);
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
-
       canvas.width = 1024;
       canvas.height = 1024;
 
-      img.onload = () => {
-        if (!ctx) return;
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, 1024, 1024);
-        ctx.drawImage(img, 64, 64, 896, 896);
+      if (!ctx) return;
+
+      // Fill white background
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      // Clone SVG and convert embedded image to Base64 data URL
+      const clonedSvg = svgElement.cloneNode(true);
+      const svgImage = clonedSvg.querySelector('image');
+
+      let logoDataUrl = null;
+      try {
+        const logoResp = await fetch('/favicon.svg');
+        if (logoResp.ok) {
+          const blob = await logoResp.blob();
+          logoDataUrl = await new Promise((res) => {
+            const r = new FileReader();
+            r.onloadend = () => res(r.result);
+            r.readAsDataURL(blob);
+          });
+        }
+      } catch (err) {
+        console.warn('Could not fetch favicon.svg for QR download:', err);
+      }
+
+      if (svgImage && logoDataUrl) {
+        svgImage.setAttribute('href', logoDataUrl);
+      }
+
+      const svgData = new XMLSerializer().serializeToString(clonedSvg);
+      const qrImg = new Image();
+
+      qrImg.onload = () => {
+        ctx.drawImage(qrImg, 112, 112, 800, 800);
         const pngUrl = canvas.toDataURL('image/png');
         const link = document.createElement('a');
         link.download = `${profile?.username || 'linkmakeup'}-qr.png`;
@@ -127,8 +156,9 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
         toastSuccess('QR Code downloaded as PNG');
       };
 
-      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+      qrImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
     } catch (err) {
+      console.error('QR download error:', err);
       toastError(err.message || 'Failed to download QR code');
     }
   };
@@ -234,6 +264,13 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
               Share page
             </ActionButton>
 
+            {/* Wallet Pass Button */}
+            <ActionButton onClick={() => setWalletOpen(true)}>
+              <HiCreditCard className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              Wallet Pass
+            </ActionButton>
+
+            {/* Quick QR Code Button */}
             <ActionButton onClick={() => setQrOpen(true)} disabled={suspended}>
               <HiQrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               QR Code
@@ -346,6 +383,12 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
                   marginSize={1}
                   fgColor="#0F172A"
                   bgColor="#FFFFFF"
+                  imageSettings={{
+                    src: '/favicon.svg',
+                    height: 38,
+                    width: 38,
+                    excavate: true,
+                  }}
                 />
                 <p className="mt-4 text-xs font-bold text-slate-900">{profile?.displayName || 'LinkMakeup'}</p>
                 <p className="text-[10px] font-mono text-slate-500 mt-0.5">{publicUrl}</p>
@@ -417,6 +460,15 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
             </div>
           </div>
         </>
+      )}
+
+      {/* Wallet Pass Modal */}
+      {walletOpen && (
+        <WalletCardModal
+          profile={profile}
+          publicUrl={publicUrl}
+          onClose={() => setWalletOpen(false)}
+        />
       )}
     </>
   );

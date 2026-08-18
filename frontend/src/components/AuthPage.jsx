@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, useLocation, Link } from 'react-router-do
 import { useAuth } from '../contexts/AuthContext';
 import ApiService from '../services/api';
 import Logo from './ui/Logo';
+import OtpVerificationModal from './OtpVerificationModal';
 import { useTheme } from '../contexts/ThemeContext';
 import { HiBolt, HiPaintBrush, HiLink, HiChartBar } from 'react-icons/hi2';
 import {
@@ -117,6 +118,19 @@ export default function AuthPage({ initialMode }) {
     }
   };
 
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState('');
+
+  const handleOtpSuccess = (data) => {
+    if (data?.user) {
+      setUser(data.user);
+      setProfile(data.profile || null);
+      setPendingVerificationEmail('');
+      const destination = resolvePostLoginPath(returnTo, Boolean(data.profile));
+      clearReturnTo();
+      navigate(destination, { replace: true });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -129,7 +143,10 @@ export default function AuthPage({ initialMode }) {
       const response = mode === 'signup'
         ? await ApiService.signupWithEmail({ email, password, name })
         : await ApiService.loginWithEmail({ email, password });
-      if (response.success && response.data) {
+
+      if (response.data?.requiresVerification || response.data?.email) {
+        setPendingVerificationEmail(response.data.email || email);
+      } else if (response.success && response.data) {
         const userObj = response.data.user;
         let profileObj = response.data.profile || null;
 
@@ -149,6 +166,9 @@ export default function AuthPage({ initialMode }) {
         setErrorMsg(response.error || 'Authentication failed. Please try again.');
       }
     } catch (err) {
+      if (err.message?.includes('verify your email')) {
+        setPendingVerificationEmail(email);
+      }
       setErrorMsg(err.message || 'An unexpected error occurred.');
     } finally {
       setSubmitting(false);
@@ -358,6 +378,15 @@ export default function AuthPage({ initialMode }) {
           © LinkMakeup · <Link to="/" className="hover:text-emerald-600 transition-colors">Back to home</Link>
         </footer>
       </div>
+
+      {/* 6-Digit Email OTP Verification Modal */}
+      {pendingVerificationEmail && (
+        <OtpVerificationModal
+          email={pendingVerificationEmail}
+          onSuccess={handleOtpSuccess}
+          onClose={() => setPendingVerificationEmail('')}
+        />
+      )}
     </div>
   );
 }

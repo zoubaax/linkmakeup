@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
+import { HiCalendarDays, HiBriefcase, HiArrowRightOnRectangle } from 'react-icons/hi2';
 import { useAuth } from '../../contexts/AuthContext';
 import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
 import ThemeToggle from '../ThemeToggle';
@@ -46,25 +47,21 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse, openPalette }
   return (
     <>
       {/* Sidebar Top Brand Header */}
-      <div className="p-4 border-b border-border/80 flex flex-col gap-3">
+      <div className="h-14 px-4 border-b border-border/80 flex items-center justify-between shrink-0">
         <NavLink to="/dashboard" onClick={onNavigate} className="inline-flex items-center py-0.5">
-          <Logo height={34} />
+          <Logo height={30} />
         </NavLink>
 
-        {/* Quick Search Bar */}
-        {!collapsed && openPalette && (
+        {onToggleCollapse && (
           <button
             type="button"
-            onClick={openPalette}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-xl border border-border/80 bg-surface-alt/70 text-fg-subtle text-xs hover:border-border-strong hover:text-fg transition-all shadow-2xs"
+            onClick={onToggleCollapse}
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className="hidden lg:flex p-1.5 rounded-lg text-fg-subtle hover:text-fg hover:bg-surface-alt transition-colors"
           >
-            <div className="flex items-center gap-2">
-              <svg className="w-3.5 h-3.5 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              <span>Quick search...</span>
-            </div>
-            <kbd className="text-[9px] font-mono font-medium bg-surface border border-border px-1.5 py-0.5 rounded text-fg-muted">⌘K</kbd>
+            <svg className={`w-4 h-4 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
           </button>
         )}
       </div>
@@ -132,6 +129,38 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse, openPalette }
             )}
           </NavLink>
         )}
+
+        {/* Calendar (Coming Soon) */}
+        <div
+          title={collapsed ? 'Calendar (Soon)' : undefined}
+          className={`flex items-center justify-between rounded-lg text-xs font-semibold text-fg-subtle/80 hover:bg-surface-alt/40 cursor-not-allowed transition-all ${collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5'}`}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <HiCalendarDays className="w-4 h-4 shrink-0 text-fg-muted" />
+            {!collapsed && <span>Calendar</span>}
+          </div>
+          {!collapsed && (
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
+              Soon
+            </span>
+          )}
+        </div>
+
+        {/* Custom Portfolio (Coming Soon) */}
+        <div
+          title={collapsed ? 'Custom Portfolio (Soon)' : undefined}
+          className={`flex items-center justify-between rounded-lg text-xs font-semibold text-fg-subtle/80 hover:bg-surface-alt/40 cursor-not-allowed transition-all ${collapsed ? 'justify-center px-2 py-2.5' : 'px-3 py-2.5'}`}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <HiBriefcase className="w-4 h-4 shrink-0 text-fg-muted" />
+            {!collapsed && <span>Custom Portfolio</span>}
+          </div>
+          {!collapsed && (
+            <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 uppercase tracking-wider">
+              Soon
+            </span>
+          )}
+        </div>
       </nav>
 
       <div className={`border-t border-border space-y-3 ${collapsed ? 'px-2 py-3' : 'px-3 py-4'}`}>
@@ -158,15 +187,10 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse, openPalette }
               type="button"
               onClick={handleSignOut}
               title={collapsed ? 'Sign Out' : undefined}
-              className={`w-full rounded-lg border border-border-strong bg-surface text-fg-muted text-sm font-medium hover:bg-nav-hover transition-colors ${collapsed ? 'p-2 flex justify-center' : 'px-3 py-2 text-left'}`}
+              className={`w-full rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50/70 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 text-xs font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-all flex items-center justify-center gap-2 shadow-2xs ${collapsed ? 'p-2.5' : 'px-3 py-2.5'}`}
             >
-              {collapsed ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.75" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              ) : (
-                'Sign Out'
-              )}
+              <HiArrowRightOnRectangle className="w-4 h-4 shrink-0 text-rose-600 dark:text-rose-400" />
+              {!collapsed && <span>Sign Out</span>}
             </button>
           </div>
         ) : (

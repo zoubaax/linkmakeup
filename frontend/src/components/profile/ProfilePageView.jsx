@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { LinkIcon, getLinkIconContainerStyle } from '../LinkIcon';
 import { normalizeThemeConfig } from '../../utils/themePresets';
 import { getThemeVisuals } from '../../utils/themeStyles';
-import { getCopyrightLine, getMarketingSiteUrl } from '../../utils/pageExport';
+import ProfileBrandingFooter from './ProfileBrandingFooter';
 import { StatusPill } from '../StatusPill';
 import { getDefaultSubtitle } from '../SocialIcons';
 import { getProfileAvatarUrl } from '../../utils/cloudinary';
@@ -231,16 +231,10 @@ export default function ProfilePageView({
 
           {/* ── Footer ── */}
           {showFooter && (
-            <a
-              href={getMarketingSiteUrl()}
-              target="_top"
-              rel="noopener noreferrer"
-              style={{ ...visuals.text.style, opacity: 0.6 }}
-              className={`mt-6 text-center ${compact ? 'text-[9px]' : 'text-[11px]'} tracking-wide hover:opacity-90 transition-opacity font-semibold cursor-pointer z-30 relative inline-block`}
-              title="Create your own bio link page on LinkMakeup"
-            >
-              {getCopyrightLine()}
-            </a>
+            <ProfileBrandingFooter
+              compact={compact}
+              style={visuals.text.style}
+            />
           )}
 
         </div>

@@ -2,10 +2,11 @@ import logoLiteSvg from '../../assets/logo-lite.svg';
 import logoDarkSvg from '../../assets/logo-d.svg';
 import { useTheme } from '../../contexts/ThemeContext';
 
-export function Logo({ className = '', height }) {
+export function Logo({ className = '', height, forceDark = false }) {
   const { theme } = useTheme();
   const style = height ? { height: `${height}px` } : undefined;
-  const src = theme === 'dark' ? logoDarkSvg : logoLiteSvg;
+  const isDark = forceDark || theme === 'dark';
+  const src = isDark ? logoDarkSvg : logoLiteSvg;
 
   return (
     <div
@@ -14,7 +15,7 @@ export function Logo({ className = '', height }) {
     >
       <img
         src={src}
-        alt="LinkMakeup"
+        alt="Link Make Up"
         className="h-full w-auto object-contain"
       />
     </div>

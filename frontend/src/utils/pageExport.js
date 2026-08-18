@@ -1,16 +1,20 @@
-import { env } from '../config/env';
+export const MARKETING_DOMAIN = 'linkmakeup.com';
+
+export function getMarketingDomain() {
+  return MARKETING_DOMAIN;
+}
 
 export function getMarketingSiteUrl() {
-  const domain = env.appDomain;
-  const protocol = domain.includes('localhost') ? 'http://' : 'https://';
-  if (domain.includes('localhost')) return `${protocol}${domain}`;
-  return `${protocol}${domain.replace(/^www\./, '')}`;
+  return `https://${MARKETING_DOMAIN}`;
+}
+
+export function getCopyrightNotice() {
+  const year = new Date().getFullYear();
+  return `© ${year} LinkMakeup`;
 }
 
 export function getCopyrightLine() {
-  const year = new Date().getFullYear();
-  const site = getMarketingSiteUrl().replace(/^https?:\/\//, '');
-  return `© ${year} LinkMakeup · ${site}`;
+  return `${getCopyrightNotice()} · All rights reserved.`;
 }
 
 function escapeHtml(value = '') {
@@ -23,7 +27,9 @@ function escapeHtml(value = '') {
 
 export function buildEmbedCode({ profile, publicUrl }) {
   const title = escapeHtml(profile?.displayName || profile?.username || 'LinkMakeup page');
-  const copyright = escapeHtml(getCopyrightLine());
+  const marketingUrl = escapeHtml(getMarketingSiteUrl());
+  const domain = escapeHtml(MARKETING_DOMAIN);
+  const logoUrl = escapeHtml(`${getMarketingSiteUrl()}/favicon.svg`);
 
   return `<div style="max-width:420px;margin:0 auto;font-family:Inter,system-ui,sans-serif">
   <iframe
@@ -35,7 +41,17 @@ export function buildEmbedCode({ profile, publicUrl }) {
     loading="lazy"
     allow="clipboard-write"
   ></iframe>
-  <p style="margin:10px 0 0;text-align:center;font-size:11px;color:#71717a;line-height:1.5">${copyright}</p>
+  <div style="margin:10px 0 0;text-align:center;font-size:11px;color:#71717a;line-height:1.5">
+    <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:9999px;border:1px solid rgba(113,113,122,0.18);background:rgba(113,113,122,0.06)">
+      <span style="font-size:9px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;opacity:0.55">Powered by</span>
+      <span style="width:1px;height:12px;background:rgba(113,113,122,0.25);border-radius:9999px"></span>
+      <a href="${marketingUrl}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center">
+        <img src="${logoUrl}" alt="LinkMakeup" width="14" height="14" style="display:block" />
+      </a>
+      <a href="${marketingUrl}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;font-weight:600">${domain}</a>
+    </span>
+    <p style="margin:6px 0 0;font-size:9px;opacity:0.55;letter-spacing:0.02em">${escapeHtml(getCopyrightLine())}</p>
+  </div>
 </div>`;
 }
 
