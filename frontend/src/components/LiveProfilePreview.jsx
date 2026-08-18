@@ -66,12 +66,6 @@ export default function LiveProfilePreview({ username = 'mohammed' }) {
             </a>
           ))}
         </div>
-
-        {/* Footer Brand Tag */}
-        <div className="mt-auto pt-2 flex items-center gap-1 text-[10px] font-semibold text-slate-500">
-          <span>Powered by</span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">LinkMakeup</span>
-        </div>
       </div>
     </div>
   );

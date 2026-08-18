@@ -104,24 +104,50 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
     }
   };
 
-  const downloadQrCode = () => {
+  const downloadQrCode = async () => {
     try {
       const svgElement = qrSvgRef.current?.querySelector('svg');
       if (!svgElement) throw new Error('QR code not ready');
 
-      const svgData = new XMLSerializer().serializeToString(svgElement);
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
-
       canvas.width = 1024;
       canvas.height = 1024;
 
-      img.onload = () => {
-        if (!ctx) return;
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, 1024, 1024);
-        ctx.drawImage(img, 64, 64, 896, 896);
+      if (!ctx) return;
+
+      // Fill white background
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, 1024, 1024);
+
+      // Clone SVG and convert embedded image to Base64 data URL
+      const clonedSvg = svgElement.cloneNode(true);
+      const svgImage = clonedSvg.querySelector('image');
+
+      let logoDataUrl = null;
+      try {
+        const logoResp = await fetch('/favicon.svg');
+        if (logoResp.ok) {
+          const blob = await logoResp.blob();
+          logoDataUrl = await new Promise((res) => {
+            const r = new FileReader();
+            r.onloadend = () => res(r.result);
+            r.readAsDataURL(blob);
+          });
+        }
+      } catch (err) {
+        console.warn('Could not fetch favicon.svg for QR download:', err);
+      }
+
+      if (svgImage && logoDataUrl) {
+        svgImage.setAttribute('href', logoDataUrl);
+      }
+
+      const svgData = new XMLSerializer().serializeToString(clonedSvg);
+      const qrImg = new Image();
+
+      qrImg.onload = () => {
+        ctx.drawImage(qrImg, 112, 112, 800, 800);
         const pngUrl = canvas.toDataURL('image/png');
         const link = document.createElement('a');
         link.download = `${profile?.username || 'linkmakeup'}-qr.png`;
@@ -130,8 +156,9 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
         toastSuccess('QR Code downloaded as PNG');
       };
 
-      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+      qrImg.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgData);
     } catch (err) {
+      console.error('QR download error:', err);
       toastError(err.message || 'Failed to download QR code');
     }
   };
