@@ -190,9 +190,12 @@ export class WalletService {
     const classId = process.env.GOOGLE_WALLET_CLASS_ID || `${issuerId}.linkmakeup_card`;
     const credentials = getGoogleServiceAccountKey();
 
-    const username = typeof profile === 'string' ? profile : (profile?.username || 'card');
+    const rawUsername = typeof profile === 'string' ? profile : (profile?.username || 'card');
     const displayName = typeof profile === 'string' ? 'LinkMakeup Creator' : (profile?.displayName || 'LinkMakeup Creator');
-    const targetUrl = publicUrl || `https://linkmakeup.com/${username}`;
+    const cleanUsername = String(rawUsername).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const targetUrl = publicUrl || `https://linkmakeup.com/${rawUsername}`;
+    const appDomain = process.env.CLIENT_URL || 'https://www.linkmakeup.com';
+    const logoUrl = `${appDomain.replace(/\/+$/, '')}/card-logo.png`;
 
     if (!credentials.privateKey || !credentials.clientEmail) {
       return `https://pay.google.com/gp/v/save/${encodeURIComponent(targetUrl)}`;
@@ -206,11 +209,11 @@ export class WalletService {
       payload: {
         genericObjects: [
           {
-            id: `${issuerId}.${username}_${Date.now()}`,
+            id: `${issuerId}.${cleanUsername}_${Date.now()}`,
             classId: classId,
             logo: {
               sourceUri: {
-                uri: 'https://www.linkmakeup.com/logo-lite.png',
+                uri: logoUrl,
               },
             },
             cardTitle: {
@@ -228,7 +231,7 @@ export class WalletService {
             subheader: {
               defaultValue: {
                 language: 'en',
-                value: `@${username}`,
+                value: `@${rawUsername}`,
               },
             },
             hexBackgroundColor: '#0f172a',

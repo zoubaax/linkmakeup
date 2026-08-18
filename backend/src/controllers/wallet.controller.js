@@ -83,8 +83,15 @@ export class WalletController {
       const { username } = req.params;
       if (!username) throw new ApiError('Username required', 400);
 
+      const profileResult = await db
+        .select()
+        .from(profiles)
+        .where(eq(profiles.username, username.toLowerCase()))
+        .limit(1);
+
+      const profile = profileResult[0] || { username };
       const publicUrl = `${env.clientUrl}/${username}`;
-      const googleUrl = WalletService.getGoogleWalletUrl(username, publicUrl);
+      const googleUrl = WalletService.getGoogleWalletUrl(profile, publicUrl);
 
       return res.redirect(googleUrl);
     } catch (err) {
