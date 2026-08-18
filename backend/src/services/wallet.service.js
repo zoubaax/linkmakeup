@@ -11,9 +11,13 @@ function getGoogleServiceAccountKey() {
     if (fs.existsSync(keyPath)) {
       const fileData = fs.readFileSync(keyPath, 'utf8');
       const parsed = JSON.parse(fileData);
+      let jsonKey = (parsed.private_key || '').replace(/\\n/g, '\n');
+      if (jsonKey && !jsonKey.includes('-----BEGIN PRIVATE KEY-----')) {
+        jsonKey = `-----BEGIN PRIVATE KEY-----\n${jsonKey}\n-----END PRIVATE KEY-----\n`;
+      }
       return {
         clientEmail: parsed.client_email,
-        privateKey: (parsed.private_key || '').replace(/\\n/g, '\n'),
+        privateKey: jsonKey,
       };
     }
   } catch (err) {
@@ -23,7 +27,10 @@ function getGoogleServiceAccountKey() {
   const rawKey = process.env.GOOGLE_PRIVATE_KEY || process.env.GOOGLE_WALLET_PRIVATE_KEY || '';
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL || '';
 
-  const privateKey = rawKey.replace(/\\n/g, '\n');
+  let privateKey = rawKey.replace(/\\n/g, '\n');
+  if (privateKey && !privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+    privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----\n`;
+  }
 
   return {
     clientEmail,
