@@ -1,18 +1,30 @@
 import { useCallback, useState } from 'react';
 import ApiService from '../../services/api';
 import { getPublicUserUrl } from '../../config/env';
+import { useAdmin } from '../../contexts/AdminContext';
 import AdminActionModal from './AdminActionModal';
 import AdminDataTable, { AdminFilterPills, AdminTableHead, AdminTableShell, useAdminList } from './AdminDataTable';
+<<<<<<< Updated upstream
 import AdminUserDrawer from './AdminUserDrawer';
 import ExportCsvButton from './ExportCsvButton';
 import { formatDateTime, truncateText } from './formatters';
 
 const PROFILE_FILTERS = [
   { value: 'all', label: 'All profiles' },
+=======
+import AdminRowActions from './AdminRowActions';
+import AdminStatusPill from './AdminStatusPill';
+import ExportCsvButton from './ExportCsvButton';
+import { formatDateTime, truncateText } from './formatters';
+
+const STATUS_FILTERS = [
+  { value: 'all', label: 'All pages' },
+>>>>>>> Stashed changes
   { value: 'live', label: 'Live' },
   { value: 'suspended', label: 'Suspended' },
 ];
 
+<<<<<<< Updated upstream
 const EXPORT_COLUMNS = [
   { key: 'id', label: 'ID' },
   { key: 'username', label: 'Username' },
@@ -25,16 +37,22 @@ const EXPORT_COLUMNS = [
   { key: 'createdAt', label: 'Created' },
 ];
 
+=======
+>>>>>>> Stashed changes
 export default function AdminProfilesPage() {
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [reloadKey, setReloadKey] = useState(0);
+  const { openUserDrawer } = useAdmin();
+  const [status, setStatus] = useState('all');
+  const [refreshNonce, setRefreshNonce] = useState(0);
   const [actionLoading, setActionLoading] = useState(false);
   const [modal, setModal] = useState(null);
   const [status, setStatus] = useState('all');
 
   const fetchProfiles = useCallback(
-    (params) => ApiService.getAdminProfiles(params),
-    [reloadKey],
+    (params) => {
+      void refreshNonce;
+      return ApiService.getAdminProfiles(params);
+    },
+    [refreshNonce],
   );
 
   const {
@@ -44,11 +62,22 @@ export default function AdminProfilesPage() {
     setSearch,
     isSearching,
     setPage,
+    limit,
+    setLimit,
     loading,
     error,
+<<<<<<< Updated upstream
+=======
+    clearFilters,
+>>>>>>> Stashed changes
   } = useAdminList(fetchProfiles, { status });
 
-  const refresh = () => setReloadKey((value) => value + 1);
+  const refresh = () => setRefreshNonce((value) => value + 1);
+
+  const exportProfiles = useCallback(
+    () => ApiService.getAdminProfilesCsv({ search, status }),
+    [search, status],
+  );
 
   const runSuspension = async (reason) => {
     setActionLoading(true);
@@ -74,6 +103,7 @@ export default function AdminProfilesPage() {
         onSearchChange={setSearch}
         isSearching={isSearching}
         filters={(
+<<<<<<< Updated upstream
           <AdminFilterPills
             options={PROFILE_FILTERS}
             value={status}
@@ -87,13 +117,22 @@ export default function AdminProfilesPage() {
             fetchRows={() => ApiService.getAdminProfilesExport({ search, status })
               .then((res) => res.data.items)}
           />
+=======
+          <div className="flex flex-wrap items-center justify-between gap-3 w-full">
+            <AdminFilterPills options={STATUS_FILTERS} value={status} onChange={setStatus} />
+            <ExportCsvButton fetcher={exportProfiles} label="Export CSV" className="ml-auto" />
+          </div>
+>>>>>>> Stashed changes
         )}
         loading={loading}
         error={error}
         isEmpty={items.length === 0}
         emptyMessage="No profiles match your search."
+        onClearFilters={clearFilters}
         pagination={pagination}
         onPageChange={setPage}
+        pageSize={limit}
+        onPageSizeChange={setLimit}
       >
         <AdminTableShell>
           <AdminTableHead columns={['Profile', 'Owner', 'Status', 'Links', 'Bio', 'Created', 'Actions']} />
@@ -102,7 +141,7 @@ export default function AdminProfilesPage() {
               <tr
                 key={entry.id}
                 className="border-t border-border/70 hover:bg-surface-alt/60 cursor-pointer transition-colors"
-                onClick={() => setSelectedUserId(entry.userId)}
+                onClick={() => openUserDrawer(entry.userId)}
               >
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3 min-w-0">
@@ -134,15 +173,7 @@ export default function AdminProfilesPage() {
                 </td>
                 <td className="px-5 py-3 text-fg-muted truncate max-w-[180px]">{entry.email || '—'}</td>
                 <td className="px-5 py-3">
-                  {entry.isSuspended ? (
-                    <span className="inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold text-red-600">
-                      Suspended
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-                      Live
-                    </span>
-                  )}
+                  <AdminStatusPill status={entry.isSuspended ? 'suspended' : 'live'} />
                 </td>
                 <td className="px-5 py-3 text-fg tabular-nums">
                   {entry.activeLinkCount}
@@ -151,39 +182,30 @@ export default function AdminProfilesPage() {
                 <td className="px-5 py-3 text-fg-muted max-w-[220px] truncate">{truncateText(entry.bio, 64)}</td>
                 <td className="px-5 py-3 text-fg-muted whitespace-nowrap">{formatDateTime(entry.createdAt)}</td>
                 <td className="px-5 py-3">
-                  <div className="flex flex-wrap gap-2" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()} role="presentation">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedUserId(entry.userId)}
-                      className="rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-fg-muted hover:text-fg hover:bg-surface-alt"
-                    >
-                      View
-                    </button>
-                    <button
-                      type="button"
-                      disabled={actionLoading}
-                      onClick={() => setModal({
-                        profileId: entry.id,
-                        username: entry.username,
-                        suspended: !entry.isSuspended,
-                      })}
-                      className="rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-fg-muted hover:text-fg hover:bg-surface-alt disabled:opacity-50"
-                    >
-                      {entry.isSuspended ? 'Restore' : 'Suspend'}
-                    </button>
-                  </div>
+                  <AdminRowActions
+                    items={[
+                      { label: 'View detail', onClick: () => openUserDrawer(entry.userId) },
+                      {
+                        label: 'Open public page',
+                        onClick: () => window.open(getPublicUserUrl(entry.username), '_blank', 'noopener,noreferrer'),
+                      },
+                      {
+                        label: entry.isSuspended ? 'Restore profile' : 'Suspend profile',
+                        tone: entry.isSuspended ? undefined : 'danger',
+                        onClick: () => setModal({
+                          profileId: entry.id,
+                          username: entry.username,
+                          suspended: !entry.isSuspended,
+                        }),
+                      },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}
           </tbody>
         </AdminTableShell>
       </AdminDataTable>
-
-      <AdminUserDrawer
-        userId={selectedUserId}
-        onClose={() => setSelectedUserId(null)}
-        onUpdated={refresh}
-      />
 
       <AdminActionModal
         open={Boolean(modal)}

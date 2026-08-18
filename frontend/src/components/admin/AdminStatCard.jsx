@@ -5,6 +5,7 @@ const ACCENT_STYLES = {
   amber: 'border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-400',
 };
 
+<<<<<<< Updated upstream
 function formatDelta(delta) {
   const rounded = Math.round(delta);
   return `${rounded > 0 ? '+' : ''}${rounded}%`;
@@ -66,6 +67,15 @@ export default function AdminStatCard({
   deltaLabel = 'vs last week',
   sparkline,
 }) {
+=======
+const DELTA_STYLES = {
+  up: 'text-emerald-600 dark:text-emerald-400',
+  down: 'text-red-600 dark:text-red-400',
+  flat: 'text-fg-subtle',
+};
+
+export default function AdminStatCard({ label, value, hint, accent = 'accent', icon, delta }) {
+>>>>>>> Stashed changes
   const accentClass = ACCENT_STYLES[accent] || ACCENT_STYLES.accent;
 
   return (
@@ -73,6 +83,7 @@ export default function AdminStatCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wide text-fg-subtle">{label}</p>
+<<<<<<< Updated upstream
           <div className="flex items-center gap-2 mt-2">
             <p className="text-3xl font-black text-fg tabular-nums">{value}</p>
             {delta !== undefined && <DeltaBadge delta={delta} />}
@@ -83,6 +94,19 @@ export default function AdminStatCard({
               <span className="text-fg-subtle"> · {deltaLabel}</span>
             )}
           </p>
+=======
+          <p className="text-3xl font-black text-fg mt-2 tabular-nums">{value}</p>
+          {delta && (
+            <p className={`text-xs font-semibold mt-1.5 tabular-nums ${DELTA_STYLES[delta.direction] || DELTA_STYLES.flat}`}>
+              {delta.direction === 'up' && '▲ '}
+              {delta.direction === 'down' && '▼ '}
+              {delta.direction === 'flat' && '— '}
+              {delta.change > 0 ? `+${delta.change}` : delta.change}
+              {delta.label && <span className="text-fg-subtle font-medium"> {delta.label}</span>}
+            </p>
+          )}
+          {hint && <p className="text-xs text-fg-muted mt-2 leading-relaxed">{hint}</p>}
+>>>>>>> Stashed changes
         </div>
         {icon && (
           <div className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${accentClass}`}>

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { and, eq, ilike, or, sql } from 'drizzle-orm';
 import { db } from '../config/db.js';
 import { analyticsEvents, links, profiles } from '../models/schema.js';
@@ -60,10 +61,101 @@ export default class AnalyticsService {
       source: source || null,
       userAgent: userAgent || null,
     });
+=======
+import { and, asc, desc, eq, sql } from 'drizzle-orm';
+import { db } from '../config/db.js';
+import { analyticsEvents, links, profiles } from '../models/schema.js';
+import { ApiError } from '../utils/apiResponse.js';
+import { buildDaySeries } from '../utils/trend.js';
+
+const PERIOD_DAYS = {
+  '7d': 7,
+  '30d': 30,
+  '90d': 90,
+  all: null,
+};
+
+const ALL_TREND_DAYS = 90;
+
+const EVENT_TYPES = new Set(['page_view', 'link_click']);
+
+function cleanPeriod(value) {
+  const period = String(value || '30d');
+  return Object.prototype.hasOwnProperty.call(PERIOD_DAYS, period) ? period : '30d';
+}
+
+function periodWhere(period) {
+  const days = PERIOD_DAYS[period];
+  if (!days) return undefined;
+  return sql`${analyticsEvents.createdAt} >= now() - make_interval(days => ${days})`;
+}
+
+export function roundToOne(value) {
+  return Math.round(value * 10) / 10;
+}
+
+export function computeCtr(clicks, views) {
+  return views > 0 ? roundToOne((clicks / views) * 100) : 0;
+}
+
+export function detectDeviceType(userAgent = '') {
+  const ua = String(userAgent);
+  if (/iPad|Tablet|PlayBook|Silk/i.test(ua)) return 'tablet';
+  if (/Mobi|Android|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return 'mobile';
+  return 'desktop';
+}
+
+function formatTimestamp(value) {
+  if (!value) return '';
+  return typeof value === 'string' ? value : value.toISOString();
+}
+
+export class AnalyticsService {
+  static async recordEvent({ username, eventType, linkId, referrer, deviceType }) {
+    if (!username || !EVENT_TYPES.has(eventType)) {
+      return { recorded: false };
+    }
+
+    const cleanUsername = String(username).toLowerCase().trim();
+    const [profile] = await db
+      .select({ id: profiles.id, userId: profiles.userId, isSuspended: profiles.isSuspended })
+      .from(profiles)
+      .where(sql`lower(${profiles.username}) = ${cleanUsername}`)
+      .limit(1);
+
+    if (!profile || profile.isSuspended) {
+      return { recorded: false };
+    }
+
+    let resolvedLinkId = null;
+    if (eventType === 'link_click') {
+      if (!linkId) return { recorded: false };
+      const [link] = await db
+        .select({ id: links.id })
+        .from(links)
+        .where(and(eq(links.id, linkId), eq(links.userId, profile.userId)))
+        .limit(1);
+      if (!link) return { recorded: false };
+      resolvedLinkId = link.id;
+    }
+
+    // Omit the uuid link_id column when null: the Neon driver serializes a
+    // null uuid param as an empty string, which Postgres rejects.
+    const values = {
+      profileId: profile.id,
+      eventType,
+      referrer: referrer || null,
+      deviceType: deviceType || null,
+      ...(resolvedLinkId ? { linkId: resolvedLinkId } : {}),
+    };
+
+    await db.insert(analyticsEvents).values(values);
+>>>>>>> Stashed changes
 
     return { recorded: true };
   }
 
+<<<<<<< Updated upstream
   static async recordLinkClick({ profileId, linkId, source, userAgent }) {
     const [matchedLink] = await db
       .select({ id: links.id, icon: links.icon })
@@ -240,4 +332,355 @@ export default class AnalyticsService {
       },
     };
   }
+=======
+  static async getSummary({ period = '30d' } = {}) {
+    return AnalyticsService.getPlatformSummary({ period });
+  }
+
+  static async getProfileSummary({ profileId, period = '30d' } = {}) {
+    if (!profileId) {
+      throw new ApiError('Profile not found', 404);
+    }
+
+    const resolvedPeriod = cleanPeriod(period);
+    const periodFilter = periodWhere(resolvedPeriod);
+    const profileFilter = eq(analyticsEvents.profileId, profileId);
+    const where = periodFilter ? and(periodFilter, profileFilter) : profileFilter;
+    const days = PERIOD_DAYS[resolvedPeriod] || ALL_TREND_DAYS;
+
+    const [[totalsRow], trendRows, deviceRows, referrerRows, topLinkRows, [lastActiveRow]] = await Promise.all([
+      db
+        .select({
+          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
+          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .where(where),
+      db
+        .select({
+          day: sql`date_trunc('day', ${analyticsEvents.createdAt})::date`.as('day'),
+          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
+          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .where(where)
+        .groupBy(sql`date_trunc('day', ${analyticsEvents.createdAt})::date`)
+        .orderBy(sql`date_trunc('day', ${analyticsEvents.createdAt})::date`),
+      db
+        .select({
+          deviceType: analyticsEvents.deviceType,
+          count: sql`count(*)::int`.as('count'),
+        })
+        .from(analyticsEvents)
+        .where(and(where, eq(analyticsEvents.eventType, 'page_view')))
+        .groupBy(analyticsEvents.deviceType)
+        .orderBy(desc(sql`count(*)`)),
+      db
+        .select({
+          referrer: analyticsEvents.referrer,
+          count: sql`count(*)::int`.as('count'),
+        })
+        .from(analyticsEvents)
+        .where(and(where, eq(analyticsEvents.eventType, 'page_view')))
+        .groupBy(analyticsEvents.referrer)
+        .orderBy(desc(sql`count(*)`))
+        .limit(8),
+      db
+        .select({
+          linkId: links.id,
+          title: links.title,
+          url: links.url,
+          icon: links.icon,
+          clicks: sql`count(*)::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .innerJoin(links, eq(links.id, analyticsEvents.linkId))
+        .where(and(where, eq(analyticsEvents.eventType, 'link_click')))
+        .groupBy(links.id)
+        .orderBy(desc(sql`count(*)`))
+        .limit(10),
+      db
+        .select({ lastActiveAt: sql`max(${analyticsEvents.createdAt})`.as('lastActiveAt') })
+        .from(analyticsEvents)
+        .where(profileFilter),
+    ]);
+
+    const views = totalsRow.views;
+    const clicks = totalsRow.clicks;
+    const totalClicks = Math.max(clicks, 1);
+    const topLinks = topLinkRows.map((link) => ({
+      ...link,
+      percentage: roundToOne((link.clicks / totalClicks) * 100),
+    }));
+
+    const devices = { mobile: 0, desktop: 0, tablet: 0 };
+    deviceRows.forEach((row) => {
+      if (row.deviceType && Object.prototype.hasOwnProperty.call(devices, row.deviceType)) {
+        devices[row.deviceType] = row.count;
+      }
+    });
+
+    const referrers = referrerRows.map((row) => ({
+      label: row.referrer || 'direct',
+      count: row.count,
+    }));
+
+    return {
+      period: resolvedPeriod,
+      totals: {
+        views,
+        clicks,
+        ctr: computeCtr(clicks, views),
+        lastActiveAt: lastActiveRow?.lastActiveAt || null,
+        topLinks,
+        devices,
+        referrers,
+      },
+      trend: buildDaySeries(trendRows, days),
+    };
+  }
+
+  static async getProfileLinkStats({ profileId, userId, period = '30d' } = {}) {
+    if (!profileId || !userId) {
+      throw new ApiError('Profile not found', 404);
+    }
+
+    const resolvedPeriod = cleanPeriod(period);
+    const periodFilter = periodWhere(resolvedPeriod);
+
+    const eventJoin = periodFilter
+      ? and(eq(analyticsEvents.linkId, links.id), periodFilter)
+      : eq(analyticsEvents.linkId, links.id);
+
+    const rows = await db
+      .select({
+        id: links.id,
+        title: links.title,
+        url: links.url,
+        icon: links.icon,
+        isActive: links.isActive,
+        position: links.position,
+        clicks: sql`count(${analyticsEvents.id}) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+      })
+      .from(links)
+      .leftJoin(analyticsEvents, eventJoin)
+      .where(eq(links.userId, userId))
+      .groupBy(links.id)
+      .orderBy(asc(links.position), desc(sql`count(${analyticsEvents.id}) filter (where ${analyticsEvents.eventType} = 'link_click')`));
+
+    return rows.map((row) => ({
+      ...row,
+      clicks: row.clicks ?? 0,
+    }));
+  }
+
+  static async getPlatformSummary({ period = '30d' } = {}) {
+    const resolvedPeriod = cleanPeriod(period);
+    const where = periodWhere(resolvedPeriod);
+    const days = PERIOD_DAYS[resolvedPeriod] || ALL_TREND_DAYS;
+
+    const [[totalsRow], engagedRow, trendRows, deviceRows, topLinkRows] = await Promise.all([
+      db
+        .select({
+          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
+          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .where(where),
+      db
+        .select({ count: sql`count(distinct ${analyticsEvents.profileId})::int` })
+        .from(analyticsEvents)
+        .where(where),
+      db
+        .select({
+          day: sql`date_trunc('day', ${analyticsEvents.createdAt})::date`.as('day'),
+          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
+          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .where(where)
+        .groupBy(sql`date_trunc('day', ${analyticsEvents.createdAt})::date`)
+        .orderBy(sql`date_trunc('day', ${analyticsEvents.createdAt})::date`),
+      db
+        .select({
+          deviceType: analyticsEvents.deviceType,
+          count: sql`count(*)::int`.as('count'),
+        })
+        .from(analyticsEvents)
+        .where(and(where, eq(analyticsEvents.eventType, 'page_view')))
+        .groupBy(analyticsEvents.deviceType)
+        .orderBy(desc(sql`count(*)`)),
+      db
+        .select({
+          linkId: links.id,
+          title: links.title,
+          url: links.url,
+          icon: links.icon,
+          clicks: sql`count(*)::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .innerJoin(links, eq(links.id, analyticsEvents.linkId))
+        .where(and(where, eq(analyticsEvents.eventType, 'link_click')))
+        .groupBy(links.id)
+        .orderBy(desc(sql`count(*)`))
+        .limit(10),
+    ]);
+
+    const views = totalsRow.views;
+    const clicks = totalsRow.clicks;
+
+    const totalClicks = Math.max(clicks, 1);
+    const topLinks = topLinkRows.map((link) => ({
+      ...link,
+      percentage: roundToOne((link.clicks / totalClicks) * 100),
+    }));
+
+    const devices = { mobile: 0, desktop: 0, tablet: 0 };
+    deviceRows.forEach((row) => {
+      if (row.deviceType && Object.prototype.hasOwnProperty.call(devices, row.deviceType)) {
+        devices[row.deviceType] = row.count;
+      }
+    });
+
+    return {
+      period: resolvedPeriod,
+      totals: {
+        views,
+        clicks,
+        ctr: computeCtr(clicks, views),
+        engagedProfiles: engagedRow.count,
+        topLinks,
+        devices,
+      },
+      trend: buildDaySeries(trendRows, days),
+    };
+  }
+
+  static async listPageStats({
+    page = 1,
+    limit = 10,
+    search = '',
+    sort = 'views',
+    status = 'all',
+  } = {}) {
+    const offset = (page - 1) * limit;
+    const filters = [];
+
+    if (search) {
+      const pattern = `%${search}%`;
+      filters.push(sql`(${profiles.username} ilike ${pattern} or ${profiles.displayName} ilike ${pattern})`);
+    }
+    if (status === 'live') {
+      filters.push(eq(profiles.isSuspended, false));
+    } else if (status === 'suspended') {
+      filters.push(eq(profiles.isSuspended, true));
+    }
+
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
+
+    const [countRow] = await db
+      .select({ count: sql`count(*)::int` })
+      .from(profiles)
+      .where(whereClause);
+
+    const sortOrders = {
+      username: asc(profiles.username),
+      views: desc(sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')`),
+      clicks: desc(sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')`),
+      lastActiveAt: desc(sql`max(${analyticsEvents.createdAt})`),
+    };
+    const orderBy = sortOrders[sort] || sortOrders.views;
+
+    const rows = await db
+      .select({
+        id: profiles.id,
+        username: profiles.username,
+        displayName: profiles.displayName,
+        isSuspended: profiles.isSuspended,
+        views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
+        clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+        last7: sql`count(*) filter (where ${analyticsEvents.createdAt} >= now() - interval '7 days')::int`.as('last7'),
+        lastActiveAt: sql`max(${analyticsEvents.createdAt})`.as('lastActiveAt'),
+      })
+      .from(profiles)
+      .leftJoin(analyticsEvents, eq(analyticsEvents.profileId, profiles.id))
+      .where(whereClause)
+      .groupBy(profiles.id)
+      .orderBy(orderBy)
+      .limit(limit)
+      .offset(offset);
+
+    const items = rows.map((row) => ({
+      ...row,
+      ctr: computeCtr(row.clicks, row.views),
+    }));
+
+    const totalPages = Math.max(1, Math.ceil(countRow.count / limit));
+    return {
+      items,
+      pagination: {
+        page,
+        limit,
+        total: countRow.count,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    };
+  }
+
+  static async listPageStatsForExport({ search = '', status = 'all' } = {}) {
+    const filters = [];
+
+    if (search) {
+      const pattern = `%${search}%`;
+      filters.push(sql`(${profiles.username} ilike ${pattern} or ${profiles.displayName} ilike ${pattern})`);
+    }
+    if (status === 'live') {
+      filters.push(eq(profiles.isSuspended, false));
+    } else if (status === 'suspended') {
+      filters.push(eq(profiles.isSuspended, true));
+    }
+
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
+
+    const rows = await db
+      .select({
+        username: profiles.username,
+        displayName: profiles.displayName,
+        isSuspended: profiles.isSuspended,
+        views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
+        clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+        last7: sql`count(*) filter (where ${analyticsEvents.createdAt} >= now() - interval '7 days')::int`.as('last7'),
+        lastActiveAt: sql`max(${analyticsEvents.createdAt})`.as('lastActiveAt'),
+      })
+      .from(profiles)
+      .leftJoin(analyticsEvents, eq(analyticsEvents.profileId, profiles.id))
+      .where(whereClause)
+      .groupBy(profiles.id)
+      .orderBy(desc(sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')`));
+
+    return rows.map((row) => ({
+      username: row.username,
+      displayName: row.displayName,
+      status: row.isSuspended ? 'suspended' : 'live',
+      pageViews: row.views,
+      linkClicks: row.clicks,
+      ctr: computeCtr(row.clicks, row.views),
+      last7Days: row.last7,
+      lastActiveAt: formatTimestamp(row.lastActiveAt),
+    }));
+  }
+
+  /** Ensures a query param is a non-negative page integer. */
+  static parseSort(value) {
+    return /^[a-zA-Z_]+$/.test(String(value || '')) ? String(value) : 'views';
+  }
+
+  static assertValidSort(value) {
+    if (!['username', 'views', 'clicks', 'lastActiveAt'].includes(value)) {
+      throw new ApiError('Invalid sort option', 400);
+    }
+  }
+>>>>>>> Stashed changes
 }

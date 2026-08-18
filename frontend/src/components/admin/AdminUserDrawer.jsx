@@ -3,7 +3,18 @@ import { HiEnvelope, HiCheckCircle } from 'react-icons/hi2';
 import ApiService from '../../services/api';
 import { getPublicUserUrl } from '../../config/env';
 import AdminActionModal from './AdminActionModal';
+import AdminNotesPanel from './AdminNotesPanel';
+import AdminStatusPill from './AdminStatusPill';
+import AdminLinkReasonPopover from './AdminLinkReasonPopover';
 import { formatDateTime, truncateText } from './formatters';
+import { formatAuditRow } from './auditFormatters';
+
+const TABS = [
+  { id: 'summary', label: 'Summary' },
+  { id: 'links', label: 'Links' },
+  { id: 'notes', label: 'Notes' },
+  { id: 'timeline', label: 'Timeline' },
+];
 
 export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
   const [detail, setDetail] = useState(null);
@@ -14,6 +25,10 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
   const [modal, setModal] = useState(null);
   const [reminderSending, setReminderSending] = useState(false);
   const [reminderSent, setReminderSent] = useState(false);
+  const [activeTab, setActiveTab] = useState('summary');
+  const [timeline, setTimeline] = useState([]);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [reasonPopoverLink, setReasonPopoverLink] = useState(null);
 
   const loadDetail = useCallback(() => {
     if (!userId) return Promise.resolve();
@@ -23,21 +38,35 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
 
     return ApiService.getAdminUser(userId)
       .then((res) => {
-        if (res.success) {
-          setDetail(res.data);
-        } else {
-          setError(res.message || 'Failed to load user');
-        }
+        if (res.success) setDetail(res.data);
+        else setError(res.message || 'Failed to load user');
       })
-      .catch((err) => {
-        setError(err.message || 'Failed to load user');
-      })
+      .catch((err) => setError(err.message || 'Failed to load user'))
       .finally(() => setLoading(false));
   }, [userId]);
 
+  const loadTimeline = useCallback(() => {
+    if (!detail?.user?.id) return Promise.resolve();
+
+    const targetIds = [detail.user.id];
+    if (detail.profile?.id) targetIds.push(detail.profile.id);
+    detail.links?.forEach((link) => targetIds.push(link.id));
+
+    setTimelineLoading(true);
+    return ApiService.getAdminAuditLogs({
+      page: 1,
+      limit: 30,
+      targetIds,
+    })
+      .then((res) => {
+        if (res.success) setTimeline(res.data.items || []);
+      })
+      .catch(() => setTimeline([]))
+      .finally(() => setTimelineLoading(false));
+  }, [detail]);
+
   useEffect(() => {
     if (!userId) return undefined;
-
     const handler = (event) => {
       if (event.key === 'Escape') onClose();
     };
@@ -50,11 +79,17 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
       setDetail(null);
       setError('');
       setReminderSent(false);
+      setActiveTab('summary');
       return;
     }
     setReminderSent(false);
+    setActiveTab('summary');
     loadDetail();
   }, [userId, loadDetail]);
+
+  useEffect(() => {
+    if (activeTab === 'timeline' && detail) loadTimeline();
+  }, [activeTab, detail, loadTimeline]);
 
   const runAction = async (fn) => {
     setActionLoading(true);
@@ -63,11 +98,13 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
       await fn();
       await loadDetail();
       onUpdated?.();
+      if (activeTab === 'timeline') await loadTimeline();
     } catch (err) {
       setError(err.message || 'Action failed');
     } finally {
       setActionLoading(false);
       setModal(null);
+      setReasonPopoverLink(null);
     }
   };
 
@@ -83,6 +120,10 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
       setReminderSending(false);
     }
   };
+
+  const toggleLink = (link, reason) => runAction(
+    () => ApiService.patchAdminLink(link.id, { isActive: !link.isActive, reason }),
+  );
 
   if (!userId) return null;
 
@@ -100,6 +141,9 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
   const publicUrl = detail?.profile?.username
     ? getPublicUserUrl(detail.profile.username)
     : null;
+
+  const noteTargetType = detail?.profile ? 'profile' : 'user';
+  const noteTargetId = detail?.profile?.id || detail?.user?.id;
 
   return (
     <>
@@ -124,12 +168,29 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
           </button>
         </div>
 
+        <div className="border-b border-border px-2 flex gap-1 overflow-x-auto shrink-0">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-3 py-2.5 text-xs font-semibold whitespace-nowrap border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'border-accent text-fg'
+                  : 'border-transparent text-fg-muted hover:text-fg'
+              }`}
+            >
+              {tab.label}
+              {tab.id === 'links' && detail?.links ? ` (${detail.links.length})` : ''}
+            </button>
+          ))}
+        </div>
+
         <div className="flex-1 overflow-y-auto p-5 space-y-6">
           {loading && (
             <div className="space-y-3 animate-pulse">
               <div className="h-16 rounded-xl bg-surface-alt" />
               <div className="h-24 rounded-xl bg-surface-alt" />
-              <div className="h-32 rounded-xl bg-surface-alt" />
             </div>
           )}
 
@@ -139,7 +200,7 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
             </div>
           )}
 
-          {detail && (
+          {detail && activeTab === 'summary' && (
             <>
               <section className="rounded-2xl border border-border bg-surface-alt/50 p-4">
                 <div className="flex items-start gap-3">
@@ -186,7 +247,7 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
                       ) : (
                         <>
                           <HiEnvelope className="w-3.5 h-3.5 shrink-0" />
-                          <span>Send Setup Reminder Email</span>
+                          <span>Send Setup Reminder</span>
                         </>
                       )}
                     </button>
@@ -207,11 +268,8 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
               <section>
                 <div className="flex items-center justify-between gap-3 mb-3">
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-muted">Profile</h3>
-                  {detail.profile?.isSuspended && (
-                    <span className="inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-600">
-                      Suspended
-                    </span>
-                  )}
+                  {detail.profile?.isSuspended && <AdminStatusPill status="suspended" />}
+                  {!detail.profile && <AdminStatusPill status="awaiting" />}
                 </div>
                 {detail.profile ? (
                   <div className="rounded-2xl border border-border p-4 space-y-3">
@@ -241,6 +299,7 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
                   </div>
                 )}
               </section>
+<<<<<<< Updated upstream
 
               <section>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-fg-muted mb-3">
@@ -292,7 +351,95 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
                   </ul>
                 )}
               </section>
+=======
+>>>>>>> Stashed changes
             </>
+          )}
+
+          {detail && activeTab === 'links' && (
+            <section>
+              {detail.links.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-sm text-fg-muted text-center">
+                  No links yet
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {detail.links.map((link) => (
+                    <li key={link.id} className="rounded-xl border border-border px-4 py-3 space-y-3 relative">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-medium text-fg truncate">{link.title}</p>
+                          <p className="text-xs text-fg-subtle mt-0.5 truncate">{truncateText(link.url, 64)}</p>
+                        </div>
+                        <AdminStatusPill status={link.isActive ? 'active' : 'hidden'} />
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={actionLoading}
+                          onClick={() => setReasonPopoverLink(link)}
+                          className="rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-fg-muted hover:text-fg hover:bg-surface-alt disabled:opacity-50"
+                        >
+                          {link.isActive ? 'Hide' : 'Show'}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={actionLoading}
+                          onClick={() => setModal({ type: 'deleteLink', linkId: link.id, linkTitle: link.title })}
+                          className="rounded-lg border border-red-500/30 px-2.5 py-1 text-[11px] font-semibold text-red-600 hover:bg-red-500/10 disabled:opacity-50"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      {reasonPopoverLink?.id === link.id && (
+                        <AdminLinkReasonPopover
+                          link={link}
+                          loading={actionLoading}
+                          onConfirm={(reason) => toggleLink(link, reason)}
+                          onCancel={() => setReasonPopoverLink(null)}
+                        />
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+
+          {detail && activeTab === 'notes' && noteTargetId && (
+            <AdminNotesPanel targetType={noteTargetType} targetId={noteTargetId} />
+          )}
+
+          {detail && activeTab === 'timeline' && (
+            <section>
+              {timelineLoading ? (
+                <div className="space-y-2 animate-pulse">
+                  <div className="h-12 rounded-xl bg-surface-alt" />
+                  <div className="h-12 rounded-xl bg-surface-alt" />
+                </div>
+              ) : timeline.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-border px-4 py-6 text-sm text-fg-muted text-center">
+                  No moderation history for this account
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {timeline.map((entry) => {
+                    const row = formatAuditRow(entry);
+                    return (
+                      <li key={entry.id} className="rounded-xl border border-border px-4 py-3">
+                        <p className="text-sm font-medium text-fg">{row.summary}</p>
+                        <p className="text-xs text-fg-subtle mt-1">
+                          {row.actor} · {row.time}
+                        </p>
+                        {row.reason !== '—' && (
+                          <p className="text-xs text-fg-muted mt-1">Reason: {row.reason}</p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
           )}
         </div>
       </aside>

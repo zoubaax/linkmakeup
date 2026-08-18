@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import ApiService from '../services/api';
 import { getPublicUserUrl } from '../config/env';
+import { trackPageView, trackLinkClick } from '../utils/analytics';
 import { SkeletonProfile } from './ui/Skeleton';
 import ProfilePageView from './profile/ProfilePageView';
 import SuspendedPublicPage from './SuspendedPublicPage';
@@ -29,6 +30,7 @@ export default function PublicProfile({ usernameOverride } = {}) {
         }
         if (res.success && res.data) {
           setData(res.data);
+          trackPageView(username);
         } else {
           setNotFound(true);
         }
@@ -153,6 +155,10 @@ export default function PublicProfile({ usernameOverride } = {}) {
     if (notFound) document.title = '404 — Page Not Found | Link Make Up';
   }, [notFound, suspended]);
 
+  const handleLinkClick = useCallback((link) => {
+    trackLinkClick(username, link.id);
+  }, [username]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-app flex items-center justify-center">
@@ -194,7 +200,11 @@ export default function PublicProfile({ usernameOverride } = {}) {
       theme={profile.themeConfig}
       showFooter
       className="min-h-screen"
+<<<<<<< Updated upstream
       onLinkClick={(link) => ApiService.trackLinkClick(profile.id, link.id)}
+=======
+      onLinkClick={handleLinkClick}
+>>>>>>> Stashed changes
     />
   );
 }

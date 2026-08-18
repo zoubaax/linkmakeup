@@ -8,10 +8,12 @@ import ThemeToggle from '../ThemeToggle';
 import { useCommandPaletteShortcut } from '../../hooks/useKeyboardShortcut';
 import { useAuth } from '../../contexts/AuthContext';
 import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
+import StudioNav from './StudioNav';
 
 const PAGE_TITLES = {
   '/': 'Sign In',
   '/dashboard': 'Studio Overview',
+  '/dashboard/analytics': 'Analytics',
   '/dashboard/profile': 'Profile Identity',
   '/admin': 'Admin Overview',
   '/admin/users': 'Admin Users',
@@ -202,6 +204,8 @@ export default function AppLayout({ children }) {
             </div>
           </div>
         </header>
+
+        {pathname.startsWith('/dashboard') && <StudioNav />}
 
         <main className="flex-1 min-h-0 animate-page-in">{children}</main>
       </div>

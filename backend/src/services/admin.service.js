@@ -1,7 +1,8 @@
 import { and, asc, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import { db } from '../config/db.js';
-import { links, profiles, users } from '../models/schema.js';
+import { analyticsEvents, links, profiles, users } from '../models/schema.js';
 import { ApiError } from '../utils/apiResponse.js';
+import { buildDayTrend } from '../utils/trend.js';
 import { AdminAuditService } from './adminAudit.service.js';
 import { EmailService } from './email.service.js';
 import {
@@ -12,6 +13,7 @@ import {
 
 const SIGNUP_TREND_DAYS = 14;
 
+<<<<<<< Updated upstream
 function localDayKey(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -46,6 +48,8 @@ function buildDailyTrend(rows) {
   return trend;
 }
 
+=======
+>>>>>>> Stashed changes
 function buildPagination(total, page, limit) {
   const totalPages = Math.max(1, Math.ceil(total / limit));
   return {
@@ -58,7 +62,12 @@ function buildPagination(total, page, limit) {
   };
 }
 
+<<<<<<< Updated upstream
 function buildUserFilters({ search, status }) {
+=======
+/** Shared WHERE builder for the users list (search + onboarding status). */
+function buildUsersWhere({ search, status }) {
+>>>>>>> Stashed changes
   const filters = [];
 
   if (search) {
@@ -67,6 +76,7 @@ function buildUserFilters({ search, status }) {
   }
 
   if (status === 'with_profile') {
+<<<<<<< Updated upstream
     filters.push(sql`${profiles.id} is not null`);
   } else if (status === 'awaiting_profile') {
     filters.push(sql`${profiles.id} is null`);
@@ -76,6 +86,18 @@ function buildUserFilters({ search, status }) {
 }
 
 function buildProfileFilters({ search, status }) {
+=======
+    filters.push(sql`${profiles.id} is not null and ${profiles.username} is not null and ${profiles.username} != ''`);
+  } else if (status === 'awaiting_profile') {
+    filters.push(sql`(${profiles.id} is null or ${profiles.username} is null or ${profiles.username} = '')`);
+  }
+
+  return filters.length > 0 ? and(...filters) : undefined;
+}
+
+/** Shared WHERE builder for the profiles list (search + live/suspended status). */
+function buildProfilesWhere({ search, status }) {
+>>>>>>> Stashed changes
   const filters = [];
 
   if (search) {
@@ -93,10 +115,18 @@ function buildProfileFilters({ search, status }) {
     filters.push(eq(profiles.isSuspended, true));
   }
 
+<<<<<<< Updated upstream
   return filters;
 }
 
 function buildLinkFilters({ search, status }) {
+=======
+  return filters.length > 0 ? and(...filters) : undefined;
+}
+
+/** Shared WHERE builder for the links list (search + active/hidden status). */
+function buildLinksWhere({ search, status }) {
+>>>>>>> Stashed changes
   const filters = [];
 
   if (search) {
@@ -115,6 +145,7 @@ function buildLinkFilters({ search, status }) {
     filters.push(eq(links.isActive, false));
   }
 
+<<<<<<< Updated upstream
   return filters;
 }
 
@@ -136,6 +167,9 @@ function linkStatsTable() {
     .from(links)
     .groupBy(links.userId)
     .as('link_stats');
+=======
+  return filters.length > 0 ? and(...filters) : undefined;
+>>>>>>> Stashed changes
 }
 
 export class AdminService {
@@ -239,9 +273,13 @@ export class AdminService {
     const totalUsers = userCount.count;
     const totalProfiles = profileCount.count;
     const totalLinks = linkCount.count;
+<<<<<<< Updated upstream
     const signupTrend = buildDailyTrend(signupTrendRows);
     const profileTrend = buildDailyTrend(profileTrendRows);
     const linkTrend = buildDailyTrend(linkTrendRows);
+=======
+    const signupTrend = buildDayTrend(signupTrendRows, SIGNUP_TREND_DAYS);
+>>>>>>> Stashed changes
     const signupsLast7Days = signupTrend.slice(-7).reduce((sum, day) => sum + day.count, 0);
     const signupsPrev7Days = signupTrend.slice(-14, -7).reduce((sum, day) => sum + day.count, 0);
     const profileCompletionRate = totalUsers > 0
@@ -250,6 +288,69 @@ export class AdminService {
     const avgLinksPerProfile = totalProfiles > 0
       ? Math.round((totalLinks / totalProfiles) * 10) / 10
       : 0;
+
+    const [
+      [suspendedCount],
+      [hiddenLinksCount],
+      signupsPrior7DaysRows,
+      analyticsCurrent,
+      analyticsPrior,
+    ] = await Promise.all([
+      db.select({ count: sql`count(*)::int` }).from(profiles).where(eq(profiles.isSuspended, true)),
+      db.select({ count: sql`count(*)::int` }).from(links).where(eq(links.isActive, false)),
+      db
+        .select({ count: sql`count(*)::int` })
+        .from(users)
+        .where(sql`${users.createdAt} >= now() - interval '14 days' and ${users.createdAt} < now() - interval '7 days'`),
+      db
+        .select({
+          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
+          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .where(sql`${analyticsEvents.createdAt} >= now() - interval '24 hours'`),
+      db
+        .select({
+          views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`.as('views'),
+          clicks: sql`count(*) filter (where ${analyticsEvents.eventType} = 'link_click')::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .where(sql`${analyticsEvents.createdAt} >= now() - interval '48 hours' and ${analyticsEvents.createdAt} < now() - interval '24 hours'`),
+    ]);
+
+    const signupsPrior7Days = signupsPrior7DaysRows[0]?.count ?? 0;
+    const signupDelta = signupsLast7Days - signupsPrior7Days;
+
+    const currentViews = analyticsCurrent?.views ?? 0;
+    const currentClicks = analyticsCurrent?.clicks ?? 0;
+    const priorViews = analyticsPrior?.views ?? 0;
+    const priorClicks = analyticsPrior?.clicks ?? 0;
+
+    const attentionItems = [];
+    if (usersWithoutProfile.count > 0) {
+      attentionItems.push({
+        type: 'awaiting_setup',
+        label: 'Users awaiting setup',
+        count: usersWithoutProfile.count,
+        href: '/admin/users?status=awaiting_profile',
+      });
+    }
+    if (suspendedCount.count > 0) {
+      attentionItems.push({
+        type: 'suspended_profiles',
+        label: 'Suspended profiles',
+        count: suspendedCount.count,
+        href: '/admin/profiles?status=suspended',
+      });
+    }
+    if (hiddenLinksCount.count > 0) {
+      attentionItems.push({
+        type: 'hidden_links',
+        label: 'Hidden links',
+        count: hiddenLinksCount.count,
+        href: '/admin/links?status=hidden',
+      });
+    }
 
     return {
       totals: {
@@ -265,6 +366,26 @@ export class AdminService {
         profileCompletionRate,
         avgLinksPerProfile,
       },
+      deltas: {
+        signupsLast7Days: {
+          value: signupsLast7Days,
+          prior: signupsPrior7Days,
+          change: signupDelta,
+          direction: signupDelta > 0 ? 'up' : signupDelta < 0 ? 'down' : 'flat',
+          label: 'vs prior 7 days',
+        },
+        profileCompletionRate: {
+          value: profileCompletionRate,
+          label: 'onboarding completion',
+        },
+      },
+      analyticsSnapshot: {
+        views24h: currentViews,
+        clicks24h: currentClicks,
+        viewsDelta: currentViews - priorViews,
+        clicksDelta: currentClicks - priorClicks,
+      },
+      attentionItems,
       signupTrend,
       profileTrend,
       linkTrend,
@@ -272,6 +393,59 @@ export class AdminService {
       recentProfiles,
       recentLinks,
     };
+  }
+
+  static async search({ query, limit = 8 }) {
+    const q = String(query || '').trim();
+    if (q.length < 2) {
+      return { users: [], profiles: [], links: [] };
+    }
+
+    const pattern = `%${q}%`;
+    const perGroup = Math.min(Math.max(limit, 1), 20);
+
+    const [userRows, profileRows, linkRows] = await Promise.all([
+      db
+        .select({
+          id: users.id,
+          email: users.email,
+          name: users.name,
+          username: profiles.username,
+        })
+        .from(users)
+        .leftJoin(profiles, eq(profiles.userId, users.id))
+        .where(or(ilike(users.email, pattern), ilike(users.name, pattern)))
+        .orderBy(desc(users.createdAt))
+        .limit(perGroup),
+      db
+        .select({
+          id: profiles.id,
+          userId: profiles.userId,
+          username: profiles.username,
+          displayName: profiles.displayName,
+          isSuspended: profiles.isSuspended,
+        })
+        .from(profiles)
+        .where(or(ilike(profiles.username, pattern), ilike(profiles.displayName, pattern)))
+        .orderBy(desc(profiles.createdAt))
+        .limit(perGroup),
+      db
+        .select({
+          id: links.id,
+          userId: links.userId,
+          title: links.title,
+          url: links.url,
+          isActive: links.isActive,
+          username: profiles.username,
+        })
+        .from(links)
+        .leftJoin(profiles, eq(profiles.userId, links.userId))
+        .where(or(ilike(links.title, pattern), ilike(links.url, pattern)))
+        .orderBy(desc(links.createdAt))
+        .limit(perGroup),
+    ]);
+
+    return { users: userRows, profiles: profileRows, links: linkRows };
   }
 
   static async getUserDetail(userId) {
@@ -329,6 +503,7 @@ export class AdminService {
   static async listUsers({ page, limit, search, status = 'all' }) {
     const offset = (page - 1) * limit;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     const filters = [];
 
     if (search) {
@@ -346,6 +521,9 @@ export class AdminService {
     const filters = buildUserFilters({ search, status });
 >>>>>>> Stashed changes
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
+=======
+    const whereClause = buildUsersWhere({ search, status });
+>>>>>>> Stashed changes
 
     const [countRow] = await db
       .select({ count: sql`count(*)::int` })
@@ -382,16 +560,22 @@ export class AdminService {
     };
   }
 
+<<<<<<< Updated upstream
   static async exportUsers({ search, status = 'all' }) {
     const filters = buildUserFilters({ search, status });
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
     const linkCounts = linkCountsTable();
+=======
+  static async listUsersForExport({ search, status = 'all' } = {}) {
+    const whereClause = buildUsersWhere({ search, status });
+>>>>>>> Stashed changes
 
     return db
       .select({
         id: users.id,
         email: users.email,
         name: users.name,
+<<<<<<< Updated upstream
         avatarUrl: users.avatarUrl,
         createdAt: users.createdAt,
         username: profiles.username,
@@ -403,14 +587,31 @@ export class AdminService {
       .from(users)
       .leftJoin(profiles, eq(profiles.userId, users.id))
       .leftJoin(linkCounts, eq(linkCounts.userId, users.id))
+=======
+        createdAt: users.createdAt,
+        username: profiles.username,
+        displayName: profiles.displayName,
+        isSuspended: profiles.isSuspended,
+        linkCount: sql`(
+          select count(*)::int from ${links}
+          where ${links.userId} = ${users.id}
+        )`.as('linkCount'),
+      })
+      .from(users)
+      .leftJoin(profiles, eq(profiles.userId, users.id))
+>>>>>>> Stashed changes
       .where(whereClause)
       .orderBy(desc(users.createdAt));
   }
 
   static async listProfiles({ page, limit, search, status = 'all' }) {
     const offset = (page - 1) * limit;
+<<<<<<< Updated upstream
     const filters = buildProfileFilters({ search, status });
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
+=======
+    const whereClause = buildProfilesWhere({ search, status });
+>>>>>>> Stashed changes
 
     const [countRow] = await db
       .select({ count: sql`count(*)::int` })
@@ -448,6 +649,7 @@ export class AdminService {
     };
   }
 
+<<<<<<< Updated upstream
   static async exportProfiles({ search, status = 'all' }) {
     const filters = buildProfileFilters({ search, status });
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
@@ -459,10 +661,21 @@ export class AdminService {
         userId: profiles.userId,
         username: profiles.username,
         displayName: profiles.displayName,
+=======
+  static async listProfilesForExport({ search, status = 'all' } = {}) {
+    const whereClause = buildProfilesWhere({ search, status });
+
+    return db
+      .select({
+        username: profiles.username,
+        displayName: profiles.displayName,
+        email: users.email,
+>>>>>>> Stashed changes
         bio: profiles.bio,
         avatarUrl: profiles.avatarUrl,
         isSuspended: profiles.isSuspended,
         createdAt: profiles.createdAt,
+<<<<<<< Updated upstream
         email: users.email,
         linkCount: sql`coalesce(${linkStats.linkCount}, 0)::int`.as('linkCount'),
         activeLinkCount: sql`coalesce(${linkStats.activeLinkCount}, 0)::int`.as('activeLinkCount'),
@@ -470,14 +683,32 @@ export class AdminService {
       .from(profiles)
       .leftJoin(users, eq(users.id, profiles.userId))
       .leftJoin(linkStats, eq(linkStats.userId, profiles.userId))
+=======
+        linkCount: sql`(
+          select count(*)::int from ${links}
+          where ${links.userId} = ${profiles.userId}
+        )`.as('linkCount'),
+        activeLinkCount: sql`(
+          select count(*)::int from ${links}
+          where ${links.userId} = ${profiles.userId}
+          and ${links.isActive} = true
+        )`.as('activeLinkCount'),
+      })
+      .from(profiles)
+      .leftJoin(users, eq(users.id, profiles.userId))
+>>>>>>> Stashed changes
       .where(whereClause)
       .orderBy(desc(profiles.createdAt));
   }
 
   static async listLinks({ page, limit, search, status = 'all' }) {
     const offset = (page - 1) * limit;
+<<<<<<< Updated upstream
     const filters = buildLinkFilters({ search, status });
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
+=======
+    const whereClause = buildLinksWhere({ search, status });
+>>>>>>> Stashed changes
 
     const [countRow] = await db
       .select({ count: sql`count(*)::int` })
@@ -514,14 +745,22 @@ export class AdminService {
     };
   }
 
+<<<<<<< Updated upstream
   static async exportLinks({ search, status = 'all' }) {
     const filters = buildLinkFilters({ search, status });
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
+=======
+  static async listLinksForExport({ search, status = 'all' } = {}) {
+    const whereClause = buildLinksWhere({ search, status });
+>>>>>>> Stashed changes
 
     return db
       .select({
         id: links.id,
+<<<<<<< Updated upstream
         userId: links.userId,
+=======
+>>>>>>> Stashed changes
         title: links.title,
         subtitle: links.subtitle,
         url: links.url,
@@ -540,6 +779,11 @@ export class AdminService {
   }
 
   static async toggleLink(linkId, isActive, actor, reason) {
+    const trimmedReason = reason != null ? String(reason).trim() : '';
+    if (trimmedReason.length > 0 && trimmedReason.length < 3) {
+      throw new ApiError('Reason must be at least 3 characters when provided', 400);
+    }
+
     const ownerEmail = await resolveUserEmailForLink(linkId);
     if (!ownerEmail) {
       throw new ApiError('Link not found', 404);
@@ -569,7 +813,7 @@ export class AdminService {
       targetType: 'link',
       targetId: linkId,
       metadata: {
-        reason: reason || null,
+        reason: trimmedReason || null,
         previousValue: existing.isActive,
         newValue: isActive,
         targetLabel: existing.title,

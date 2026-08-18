@@ -1,11 +1,19 @@
 import { AdminService } from '../services/admin.service.js';
 import { AdminAuditService } from '../services/adminAudit.service.js';
+import { AdminNotesService } from '../services/adminNotes.service.js';
+import { AnalyticsController } from './analytics.controller.js';
 import { ApiResponse, ApiError } from '../utils/apiResponse.js';
+import { sendCsv } from '../utils/csv.js';
 
 const USER_STATUS_FILTERS = new Set(['all', 'with_profile', 'awaiting_profile']);
+const PROFILE_STATUS_FILTERS = new Set(['all', 'live', 'suspended']);
 const LINK_STATUS_FILTERS = new Set(['all', 'active', 'hidden']);
+<<<<<<< Updated upstream
 const PROFILE_STATUS_FILTERS = new Set(['all', 'live', 'suspended']);
 const AUDIT_ACTION_FILTERS = new Set(['all', 'links', 'profiles']);
+=======
+const AUDIT_ACTION_FILTERS = new Set(['all', 'links', 'profiles', 'user']);
+>>>>>>> Stashed changes
 
 function parsePagination(query) {
   const page = Math.max(1, Number.parseInt(query.page, 10) || 1);
@@ -17,6 +25,11 @@ function parsePagination(query) {
 function parseUserStatus(query) {
   const status = String(query.status || 'all');
   return USER_STATUS_FILTERS.has(status) ? status : 'all';
+}
+
+function parseProfileStatus(query) {
+  const status = String(query.status || 'all');
+  return PROFILE_STATUS_FILTERS.has(status) ? status : 'all';
 }
 
 function parseLinkStatus(query) {
@@ -145,10 +158,22 @@ export class AdminController {
 
   static async listAuditLogs(req, res, next) {
     try {
+      const targetIdsRaw = String(req.query.targetIds || '').trim();
+      const targetIds = targetIdsRaw
+        ? targetIdsRaw.split(',').map((id) => id.trim()).filter(Boolean)
+        : undefined;
+
       const result = await AdminAuditService.listLogs({
         ...parsePagination(req.query),
         actionFilter: parseAuditFilter(req.query),
+<<<<<<< Updated upstream
         actor: parseActorFilter(req.query),
+=======
+        actor: String(req.query.actor || '').trim(),
+        targetId: String(req.query.targetId || '').trim() || undefined,
+        targetType: String(req.query.targetType || '').trim() || undefined,
+        targetIds,
+>>>>>>> Stashed changes
       });
       return ApiResponse.success(res, 'Audit logs retrieved', result);
     } catch (err) {
@@ -156,6 +181,7 @@ export class AdminController {
     }
   }
 
+<<<<<<< Updated upstream
   static async exportAuditLogs(req, res, next) {
     try {
       const items = await AdminAuditService.exportLogs({
@@ -163,6 +189,55 @@ export class AdminController {
         actor: parseActorFilter(req.query),
       });
       return ApiResponse.success(res, 'Audit logs exported', { items });
+=======
+  static async search(req, res, next) {
+    try {
+      const limit = Math.min(20, Math.max(1, Number.parseInt(req.query.limit, 10) || 8));
+      const result = await AdminService.search({
+        query: String(req.query.q || ''),
+        limit,
+      });
+      return ApiResponse.success(res, 'Search results retrieved', result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async listNotes(req, res, next) {
+    try {
+      const notes = await AdminNotesService.listNotes({
+        targetType: req.query.targetType,
+        targetId: req.query.targetId,
+      });
+      return ApiResponse.success(res, 'Notes retrieved', { items: notes });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async createNote(req, res, next) {
+    try {
+      const { targetType, targetId, body } = req.body;
+      const note = await AdminNotesService.createNote({
+        targetType,
+        targetId,
+        body,
+        authorEmail: req.adminActor.email,
+      });
+      return ApiResponse.success(res, 'Note created', note);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async deleteNote(req, res, next) {
+    try {
+      const result = await AdminNotesService.deleteNote(
+        req.params.noteId,
+        req.adminActor.email,
+      );
+      return ApiResponse.success(res, 'Note deleted', result);
+>>>>>>> Stashed changes
     } catch (err) {
       next(err);
     }
@@ -245,6 +320,102 @@ export class AdminController {
         `Sent onboarding reminders to ${result.sentCount} users awaiting setup`,
         result,
       );
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportUsers(req, res, next) {
+    try {
+      const rows = await AdminService.listUsersForExport({
+        search: String(req.query.search || '').trim(),
+        status: parseUserStatus(req.query),
+      });
+
+      const csvRows = rows.map((row) => ({
+        email: row.email,
+        name: row.name || '',
+        username: row.username || '',
+        status: row.isSuspended === true ? 'suspended' : (row.username ? 'active' : 'awaiting_profile'),
+        linkCount: row.linkCount,
+        createdAt: row.createdAt ? row.createdAt.toISOString() : '',
+      }));
+
+      sendCsv(res, 'users.csv', csvRows);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportProfiles(req, res, next) {
+    try {
+      const rows = await AdminService.listProfilesForExport({
+        search: String(req.query.search || '').trim(),
+        status: parseProfileStatus(req.query),
+      });
+
+      const csvRows = rows.map((row) => ({
+        username: row.username,
+        displayName: row.displayName,
+        email: row.email || '',
+        status: row.isSuspended ? 'suspended' : 'live',
+        bio: row.bio || '',
+        linkCount: row.linkCount,
+        activeLinkCount: row.activeLinkCount,
+        avatarUrl: row.avatarUrl || '',
+        createdAt: row.createdAt ? row.createdAt.toISOString() : '',
+      }));
+
+      sendCsv(res, 'profiles.csv', csvRows);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportLinks(req, res, next) {
+    try {
+      const rows = await AdminService.listLinksForExport({
+        search: String(req.query.search || '').trim(),
+        status: parseLinkStatus(req.query),
+      });
+
+      const csvRows = rows.map((row) => ({
+        title: row.title,
+        url: row.url,
+        username: row.username || '',
+        email: row.email || '',
+        status: row.isActive ? 'active' : 'hidden',
+        position: row.position,
+        subtitle: row.subtitle || '',
+        icon: row.icon || '',
+        createdAt: row.createdAt ? row.createdAt.toISOString() : '',
+      }));
+
+      sendCsv(res, 'links.csv', csvRows);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportAuditLogs(req, res, next) {
+    try {
+      const rows = await AdminAuditService.listLogsForExport({
+        actionFilter: parseAuditFilter(req.query),
+        actor: String(req.query.actor || '').trim(),
+      });
+
+      const csvRows = rows.map((row) => ({
+        createdAt: row.createdAt ? row.createdAt.toISOString() : '',
+        actorEmail: row.actorEmail,
+        actorType: row.actorType,
+        action: row.action,
+        targetType: row.targetType,
+        targetId: row.targetId,
+        reason: row.metadata?.reason || '',
+        targetLabel: row.metadata?.targetLabel || '',
+      }));
+
+      sendCsv(res, 'audit-logs.csv', csvRows);
     } catch (err) {
       next(err);
     }

@@ -8,15 +8,23 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { HiArrowRightOnRectangle } from 'react-icons/hi2';
 >>>>>>> Stashed changes
 import { useAuth } from '../../contexts/AuthContext';
-import CommandPalette from '../ui/CommandPalette';
+import { useAdmin } from '../../contexts/AdminContext';
 import ToastContainer from '../ui/ToastContainer';
 import ThemeToggle from '../ThemeToggle';
 import Logo from '../ui/Logo';
 <<<<<<< Updated upstream
 import { useCommandPaletteShortcut } from '../../hooks/useKeyboardShortcut';
+<<<<<<< Updated upstream
 =======
 import ToastContainer from '../ui/ToastContainer';
 import { MobileSidebarToggle } from '../layout/AppSidebar';
+>>>>>>> Stashed changes
+=======
+import useAdminShortcuts from '../../hooks/useAdminShortcuts';
+import AdminCommandPalette from './AdminCommandPalette';
+import AdminAttentionBell from './AdminAttentionBell';
+import AdminShortcutsModal from './AdminShortcutsModal';
+import AdminUserDrawer from './AdminUserDrawer';
 >>>>>>> Stashed changes
 import { ADMIN_NAV } from './adminNav';
 import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
@@ -26,6 +34,8 @@ const ADMIN_PAGE_TITLES = {
   '/admin': 'Admin Overview',
   '/admin/users': 'Admin Users',
   '/admin/profiles': 'Admin Profiles',
+  '/admin/links': 'Admin Links',
+  '/admin/analytics': 'Admin Analytics',
   '/admin/activity': 'Admin Activity',
 =======
 const SECTION_TITLES = {
@@ -57,11 +67,13 @@ export default function AdminShell({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem('admin-sidebar-collapsed') === 'true');
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { profile, user, logout } = useAuth();
+  const { drawerUserId, closeUserDrawer } = useAdmin();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -82,7 +94,9 @@ export default function AdminShell({ children }) {
   }, []);
 
   const openPalette = useCallback(() => setPaletteOpen(true), []);
+  const openShortcuts = useCallback(() => setShortcutsOpen(true), []);
   useCommandPaletteShortcut(openPalette);
+  useAdminShortcuts({ onOpenPalette: openPalette, onOpenShortcuts: openShortcuts });
 
   const handleSignOut = async () => {
     setUserMenuOpen(false);
@@ -396,6 +410,8 @@ export default function AdminShell({ children }) {
 
           {/* Right Header Actions */}
           <div className="flex items-center gap-2.5 shrink-0">
+            <AdminAttentionBell />
+
             {/* Quick Back to Studio Header Button */}
             <button
               type="button"
@@ -534,7 +550,9 @@ export default function AdminShell({ children }) {
         <main className="flex-1 min-h-0 animate-page-in">{children}</main>
       </div>
 
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <AdminCommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <AdminShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <AdminUserDrawer userId={drawerUserId} onClose={closeUserDrawer} />
       <ToastContainer />
     </div>
   );
