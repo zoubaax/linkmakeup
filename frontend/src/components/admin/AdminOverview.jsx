@@ -83,7 +83,7 @@ export default function AdminOverview() {
 
   if (!stats) return null;
 
-  const { totals, signupTrend, recentUsers, recentProfiles, recentLinks, recentActivity = [] } = stats;
+  const { totals, signupTrend, recentUsers, recentProfiles } = stats;
 
   return (
     <div className="space-y-6">
@@ -189,44 +189,6 @@ export default function AdminOverview() {
           )}
         />
       </div>
-
-      <ActivityTable
-        title="Recent links"
-        viewAllTo="/admin/links"
-        columns={['Title', 'Owner', 'Status', 'Created']}
-        rows={recentLinks}
-        emptyMessage="No links created yet."
-        renderRow={(entry) => (
-          <tr key={entry.id} className="border-t border-border/70">
-            <td className="px-5 py-3">
-              <div className="font-medium text-fg">{entry.title}</div>
-              <div className="text-xs text-fg-subtle mt-0.5">{truncateText(entry.url, 56)}</div>
-            </td>
-            <td className="px-5 py-3 text-fg-muted">{entry.username ? `@${entry.username}` : '—'}</td>
-            <td className="px-5 py-3">
-              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-semibold ${entry.isActive ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'border-border bg-surface-alt text-fg-muted'}`}>
-                {entry.isActive ? 'Active' : 'Hidden'}
-              </span>
-            </td>
-            <td className="px-5 py-3 text-fg-muted">{formatDateTime(entry.createdAt)}</td>
-          </tr>
-        )}
-      />
-
-      <ActivityTable
-        title="Recent admin activity"
-        viewAllTo="/admin/activity"
-        columns={['Time', 'Actor', 'Summary']}
-        rows={recentActivity}
-        emptyMessage="No moderation actions recorded yet."
-        renderRow={(entry) => (
-          <tr key={entry.id} className="border-t border-border/70">
-            <td className="px-5 py-3 text-fg-muted whitespace-nowrap">{formatDateTime(entry.createdAt)}</td>
-            <td className="px-5 py-3 text-fg">{entry.actorEmail}</td>
-            <td className="px-5 py-3 text-fg">{formatAuditSummary(entry)}</td>
-          </tr>
-        )}
-      />
     </div>
   );
 }

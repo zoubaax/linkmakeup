@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import useDebouncedValue from '../../hooks/useDebouncedValue';
 import { SkeletonCard } from '../ui/Skeleton';
 
-export function useAdminList(fetcher, { status = 'all' } = {}) {
+export function useAdminList(fetcher, { status = 'all', limit = 10 } = {}) {
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [searchInput, setSearchInput] = useState('');
@@ -20,7 +20,7 @@ export function useAdminList(fetcher, { status = 'all' } = {}) {
     setLoading(true);
     setError('');
 
-    fetcher({ page, limit: 20, search: debouncedSearch, status })
+    fetcher({ page, limit, search: debouncedSearch, status })
       .then((res) => {
         if (cancelled) return;
         if (res.success) {
@@ -40,7 +40,7 @@ export function useAdminList(fetcher, { status = 'all' } = {}) {
     return () => {
       cancelled = true;
     };
-  }, [fetcher, page, debouncedSearch, status]);
+  }, [fetcher, page, limit, debouncedSearch, status]);
 
   const isSearching = searchInput !== debouncedSearch || loading;
 

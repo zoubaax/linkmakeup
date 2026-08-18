@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { HiEnvelope, HiCheckCircle } from 'react-icons/hi2';
 import ApiService from '../../services/api';
 import { getPublicUserUrl } from '../../config/env';
 import AdminActionModal from './AdminActionModal';
@@ -11,6 +12,8 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
   const [copied, setCopied] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [modal, setModal] = useState(null);
+  const [reminderSending, setReminderSending] = useState(false);
+  const [reminderSent, setReminderSent] = useState(false);
 
   const loadDetail = useCallback(() => {
     if (!userId) return Promise.resolve();
@@ -46,8 +49,10 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
     if (!userId) {
       setDetail(null);
       setError('');
+      setReminderSent(false);
       return;
     }
+    setReminderSent(false);
     loadDetail();
   }, [userId, loadDetail]);
 
@@ -63,6 +68,19 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
     } finally {
       setActionLoading(false);
       setModal(null);
+    }
+  };
+
+  const sendReminder = async () => {
+    if (!detail?.user?.id) return;
+    setReminderSending(true);
+    try {
+      await ApiService.sendAdminOnboardingReminder(detail.user.id);
+      setReminderSent(true);
+    } catch (err) {
+      setError(err.message || 'Failed to send reminder email');
+    } finally {
+      setReminderSending(false);
     }
   };
 
@@ -97,8 +115,8 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-nav-hover transition-colors"
             aria-label="Close"
+            className="p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-nav-hover transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -151,6 +169,28 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
                   >
                     {copied ? 'Copied' : 'Copy email'}
                   </button>
+                  {!detail.profile && (
+                    <button
+                      type="button"
+                      disabled={reminderSending || reminderSent}
+                      onClick={sendReminder}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 disabled:opacity-60 transition-colors"
+                    >
+                      {reminderSent ? (
+                        <>
+                          <HiCheckCircle className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                          <span>Reminder Sent</span>
+                        </>
+                      ) : reminderSending ? (
+                        <span>Sending email...</span>
+                      ) : (
+                        <>
+                          <HiEnvelope className="w-3.5 h-3.5 shrink-0" />
+                          <span>Send Setup Reminder Email</span>
+                        </>
+                      )}
+                    </button>
+                  )}
                   {publicUrl && (
                     <a
                       href={publicUrl}

@@ -11,13 +11,12 @@ import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
 
 const PAGE_TITLES = {
   '/': 'Sign In',
-  '/dashboard': 'Studio',
-  '/dashboard/profile': 'Profile Details',
-  '/admin': 'Platform Admin',
-  '/admin/users': 'Platform Admin',
-  '/admin/profiles': 'Platform Admin',
-  '/admin/links': 'Platform Admin',
-  '/admin/activity': 'Platform Admin',
+  '/dashboard': 'Studio Overview',
+  '/dashboard/profile': 'Profile Identity',
+  '/admin': 'Admin Overview',
+  '/admin/users': 'Admin Users',
+  '/admin/profiles': 'Admin Profiles',
+  '/admin/activity': 'Admin Activity',
   '/onboarding': 'Setup',
 };
 

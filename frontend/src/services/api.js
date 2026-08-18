@@ -214,6 +214,18 @@ class ApiService {
     if (action && action !== 'all') params.set('action', action);
     return this.request(`/admin/audit-logs?${params.toString()}`, { cache: 'no-store' });
   }
+
+  static async sendAdminOnboardingReminder(userId) {
+    return this.request(`/admin/users/${encodeURIComponent(userId)}/remind-onboarding`, {
+      method: 'POST',
+    });
+  }
+
+  static async sendAdminBulkOnboardingReminders() {
+    return this.request('/admin/users/remind-all-onboarding', {
+      method: 'POST',
+    });
+  }
 }
 
 export default ApiService;

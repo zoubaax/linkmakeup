@@ -8,7 +8,7 @@ const AUDIT_ACTION_FILTERS = new Set(['all', 'links', 'profiles']);
 
 function parsePagination(query) {
   const page = Math.max(1, Number.parseInt(query.page, 10) || 1);
-  const limit = Math.min(100, Math.max(1, Number.parseInt(query.limit, 10) || 20));
+  const limit = Math.min(100, Math.max(1, Number.parseInt(query.limit, 10) || 10));
   const search = String(query.search || '').trim();
   return { page, limit, search };
 }
@@ -158,6 +158,31 @@ export class AdminController {
         reason,
       );
       return ApiResponse.success(res, suspended ? 'Profile suspended' : 'Profile restored', updated);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async sendOnboardingReminder(req, res, next) {
+    try {
+      const result = await AdminService.sendOnboardingReminder(
+        req.params.userId,
+        req.adminActor,
+      );
+      return ApiResponse.success(res, `Onboarding reminder sent to ${result.email}`, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async sendBulkOnboardingReminders(req, res, next) {
+    try {
+      const result = await AdminService.sendBulkOnboardingReminders(req.adminActor);
+      return ApiResponse.success(
+        res,
+        `Sent onboarding reminders to ${result.sentCount} users awaiting setup`,
+        result,
+      );
     } catch (err) {
       next(err);
     }

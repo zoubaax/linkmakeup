@@ -11,7 +11,6 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminOverview from './components/admin/AdminOverview';
 import AdminUsersPage from './components/admin/AdminUsersPage';
 import AdminProfilesPage from './components/admin/AdminProfilesPage';
-import AdminLinksPage from './components/admin/AdminLinksPage';
 import AdminActivityPage from './components/admin/AdminActivityPage';
 import SuspendedAccountPage from './components/SuspendedAccountPage';
 
@@ -143,7 +142,6 @@ export default function App() {
             <Route index element={<AdminOverview />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="profiles" element={<AdminProfilesPage />} />
-            <Route path="links" element={<AdminLinksPage />} />
             <Route path="activity" element={<AdminActivityPage />} />
           </Route>
 

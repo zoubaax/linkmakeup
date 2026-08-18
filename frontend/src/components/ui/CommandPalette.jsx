@@ -33,7 +33,6 @@ export default function CommandPalette({ open, onClose }) {
           { id: 'admin', label: 'Platform Admin', hint: 'Users, profiles & links', action: () => navigate('/admin') },
           { id: 'admin-users', label: 'Admin · Users', hint: 'Browse all accounts', action: () => navigate('/admin/users') },
           { id: 'admin-profiles', label: 'Admin · Profiles', hint: 'Public pages & usernames', action: () => navigate('/admin/profiles') },
-          { id: 'admin-links', label: 'Admin · Links', hint: 'Platform-wide link inventory', action: () => navigate('/admin/links') },
           { id: 'admin-activity', label: 'Admin · Activity', hint: 'Audit log of moderation actions', action: () => navigate('/admin/activity') },
         ]
         : []),

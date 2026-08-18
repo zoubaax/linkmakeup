@@ -14,5 +14,7 @@ router.get('/admin/links', AdminController.listLinks);
 router.patch('/admin/links/:linkId', AdminController.patchLink);
 router.delete('/admin/links/:linkId', AdminController.deleteLink);
 router.patch('/admin/profiles/:profileId/suspension', AdminController.patchProfileSuspension);
+router.post('/admin/users/:userId/remind-onboarding', AdminController.sendOnboardingReminder);
+router.post('/admin/users/remind-all-onboarding', AdminController.sendBulkOnboardingReminders);
 
 export default router;

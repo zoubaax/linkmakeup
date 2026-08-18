@@ -180,4 +180,90 @@ export class EmailService {
       attachments: [getLogoAttachment()],
     });
   }
+
+  /**
+   * Send Onboarding Setup Reminder Email to Users Awaiting Setup
+   */
+  static async sendOnboardingReminderEmail({ email, name }) {
+    const appDomain = process.env.CLIENT_URL || 'http://localhost:5173';
+    const setupUrl = `${appDomain}/onboarding`;
+
+    const subject = `Complete your Link Make Up profile! ✨`;
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Your Profile</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F8FAFC; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #0F172A;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; padding: 40px 15px;">
+    <tr>
+      <td align="center">
+        <table width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; padding: 44px 32px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);">
+          
+          <!-- Logo Header -->
+          <tr>
+            <td align="center" style="padding-bottom: 24px;">
+              <img src="cid:logo-image" alt="Link Make Up Logo" style="height: 38px; width: auto; max-width: 180px; border: 0; outline: none; text-decoration: none;" />
+            </td>
+          </tr>
+
+          <!-- Headline -->
+          <tr>
+            <td style="font-size: 20px; font-weight: 800; color: #0F172A; padding-bottom: 12px;">
+              Your bio page is almost ready! 🚀
+            </td>
+          </tr>
+
+          <!-- Message -->
+          <tr>
+            <td style="font-size: 14px; color: #475569; line-height: 1.6; padding-bottom: 28px;">
+              Hi <strong>${name || 'there'}</strong>, we noticed you registered for <strong>Link Make Up</strong> but haven't finished setting up your profile yet. Complete your setup now in under 60 seconds to start sharing your custom bio links!
+            </td>
+          </tr>
+
+          <!-- CTA Button -->
+          <tr>
+            <td align="center" style="padding-bottom: 28px;">
+              <a href="${setupUrl}" style="display: inline-block; background-color: #059669; color: #FFFFFF; border-radius: 14px; padding: 14px 32px; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+                Complete My Profile Now →
+              </a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="font-size: 12px; color: #64748B; border-top: 1px solid #F1F5F9; padding-top: 20px;">
+              Need any help setting up? Reply directly to this email and our support team will assist you!
+            </td>
+          </tr>
+
+        </table>
+
+        <!-- Email Footer -->
+        <table width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; padding-top: 24px; text-align: center;">
+          <tr>
+            <td style="font-size: 11px; color: #94A3B8;">
+              © ${new Date().getFullYear()} Link Make Up · Sent from <a href="mailto:support@linkmakeup.com" style="color: #059669; text-decoration: none;">support@linkmakeup.com</a>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+
+    return sendEmail({
+      to: email,
+      subject,
+      html,
+      attachments: [getLogoAttachment()],
+    });
+  }
 }

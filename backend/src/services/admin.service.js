@@ -3,6 +3,7 @@ import { db } from '../config/db.js';
 import { links, profiles, users } from '../models/schema.js';
 import { ApiError } from '../utils/apiResponse.js';
 import { AdminAuditService } from './adminAudit.service.js';
+import { EmailService } from './email.service.js';
 import {
   assertCanModerateTarget,
   resolveUserEmailForLink,
@@ -217,9 +218,9 @@ export class AdminService {
     }
 
     if (status === 'with_profile') {
-      filters.push(sql`${profiles.id} is not null`);
+      filters.push(sql`${profiles.id} is not null and ${profiles.username} is not null and ${profiles.username} != ''`);
     } else if (status === 'awaiting_profile') {
-      filters.push(sql`${profiles.id} is null`);
+      filters.push(sql`(${profiles.id} is null or ${profiles.username} is null or ${profiles.username} = '')`);
     }
 
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
@@ -484,5 +485,63 @@ export class AdminService {
     });
 
     return updated;
+  }
+
+  static async sendOnboardingReminder(userId, actor) {
+    const [user] = await db
+      .select({ id: users.id, email: users.email, name: users.name })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+
+    if (!user) {
+      throw new ApiError('User not found', 404);
+    }
+
+    await EmailService.sendOnboardingReminderEmail({
+      email: user.email,
+      name: user.name,
+    });
+
+    await AdminAuditService.logAction({
+      actor,
+      action: 'user.onboarding_reminded',
+      targetType: 'user',
+      targetId: userId,
+      metadata: { targetLabel: user.email },
+    });
+
+    return { success: true, email: user.email };
+  }
+
+  static async sendBulkOnboardingReminders(actor) {
+    const awaitingUsers = await db
+      .select({ id: users.id, email: users.email, name: users.name })
+      .from(users)
+      .leftJoin(profiles, eq(profiles.userId, users.id))
+      .where(sql`(${profiles.id} is null or ${profiles.username} is null or ${profiles.username} = '')`);
+
+    let sentCount = 0;
+    for (const u of awaitingUsers) {
+      try {
+        await EmailService.sendOnboardingReminderEmail({
+          email: u.email,
+          name: u.name,
+        });
+        sentCount += 1;
+      } catch (err) {
+        console.error(`Failed to send onboarding reminder to ${u.email}:`, err);
+      }
+    }
+
+    await AdminAuditService.logAction({
+      actor,
+      action: 'users.bulk_onboarding_reminded',
+      targetType: 'users',
+      targetId: 'bulk',
+      metadata: { totalTargeted: awaitingUsers.length, sentCount },
+    });
+
+    return { totalTargeted: awaitingUsers.length, sentCount };
   }
 }
