@@ -156,7 +156,6 @@ export default function App() {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="profiles" element={<AdminProfilesPage />} />
             <Route path="links" element={<AdminLinksPage />} />
-            <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="activity" element={<AdminActivityPage />} />
           </Route>
 

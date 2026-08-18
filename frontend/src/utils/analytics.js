@@ -2,7 +2,10 @@ import { env } from '../config/env';
 
 const TRACK_URL = `${env.apiUrl}/analytics/track`;
 const PAGE_VIEW_DEDUPE_MS = 30 * 1000;
+const LINK_CLICK_DEDUPE_MS = 2 * 1000;
+
 const pageViewCache = new Map();
+const linkClickCache = new Map();
 
 export function detectDeviceType() {
   if (typeof navigator === 'undefined') return 'desktop';
@@ -28,19 +31,22 @@ export function getRefReferrer() {
 }
 
 function sendBeacon(payload) {
-  const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+  const body = JSON.stringify(payload);
 
   if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
     try {
-      if (navigator.sendBeacon(TRACK_URL, blob)) return;
+      const blob = new Blob([body], { type: 'text/plain' });
+      navigator.sendBeacon(TRACK_URL, blob);
+      return;
     } catch {
-      // fall through to fetch keep-alive
+      // Fallback to fetch if sendBeacon throws
     }
   }
 
   fetch(TRACK_URL, {
     method: 'POST',
-    body: blob,
+    headers: { 'Content-Type': 'application/json' },
+    body,
     keepalive: true,
     credentials: 'include',
   }).catch(() => {});
@@ -50,9 +56,10 @@ export function trackPageView(username) {
   if (!username) return;
 
   const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+  const dedupeMs = isLocalhost ? 2000 : PAGE_VIEW_DEDUPE_MS;
   const now = Date.now();
   const lastTracked = pageViewCache.get(username) || 0;
-  if (!isLocalhost && now - lastTracked < PAGE_VIEW_DEDUPE_MS) return;
+  if (now - lastTracked < dedupeMs) return;
   pageViewCache.set(username, now);
 
   sendBeacon({
@@ -66,6 +73,12 @@ export function trackPageView(username) {
 export function trackLinkClick(username, linkId) {
   if (!username || !linkId) return;
 
+  const key = `${username}:${linkId}`;
+  const now = Date.now();
+  const lastTracked = linkClickCache.get(key) || 0;
+  if (now - lastTracked < LINK_CLICK_DEDUPE_MS) return;
+  linkClickCache.set(key, now);
+
   sendBeacon({
     username,
     eventType: 'link_click',
@@ -75,10 +88,13 @@ export function trackLinkClick(username, linkId) {
   });
 }
 
-// Trim the page-view dedupe cache so it cannot grow indefinitely.
+// Trim dedupe caches periodically
 setInterval(() => {
-  const cutoff = Date.now() - PAGE_VIEW_DEDUPE_MS;
+  const now = Date.now();
   for (const [username, timestamp] of pageViewCache) {
-    if (timestamp < cutoff) pageViewCache.delete(username);
+    if (now - timestamp > PAGE_VIEW_DEDUPE_MS) pageViewCache.delete(username);
   }
-}, PAGE_VIEW_DEDUPE_MS);
+  for (const [key, timestamp] of linkClickCache) {
+    if (now - timestamp > LINK_CLICK_DEDUPE_MS) linkClickCache.delete(key);
+  }
+}, 10 * 1000);

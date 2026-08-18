@@ -48,11 +48,6 @@ export default function PublicProfile({ usernameOverride } = {}) {
     : `https://${appDomain}/`;
 
   useEffect(() => {
-    if (!profileId || suspended) return;
-    ApiService.trackPageView(profileId);
-  }, [profileId, suspended]);
-
-  useEffect(() => {
     if (!profile || suspended) return;
     const displayTitle = profile.displayName
       ? profile.role
@@ -156,11 +151,8 @@ export default function PublicProfile({ usernameOverride } = {}) {
   }, [notFound, suspended]);
 
   const handleLinkClick = useCallback((link) => {
-    if (profile?.id) {
-      ApiService.trackLinkClick(profile.id, link.id);
-    }
     trackLinkClick(username, link.id);
-  }, [profile, username]);
+  }, [username]);
 
   if (loading) {
     return (
