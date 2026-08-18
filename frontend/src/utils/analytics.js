@@ -49,9 +49,10 @@ function sendBeacon(payload) {
 export function trackPageView(username) {
   if (!username) return;
 
+  const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
   const now = Date.now();
   const lastTracked = pageViewCache.get(username) || 0;
-  if (now - lastTracked < PAGE_VIEW_DEDUPE_MS) return;
+  if (!isLocalhost && now - lastTracked < PAGE_VIEW_DEDUPE_MS) return;
   pageViewCache.set(username, now);
 
   sendBeacon({

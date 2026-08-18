@@ -140,7 +140,7 @@ export class AnalyticsService {
 
     const days = PERIOD_DAYS[resolvedPeriod] || ALL_TREND_DAYS;
 
-    const [[totalsRow], trendRows, deviceRows, referrerRows] = await Promise.all([
+    const [[totalsRow], trendRows, deviceRows, referrerRows, topLinkRows] = await Promise.all([
       db
         .select({
           views: sql`count(*) filter (where ${analyticsEvents.eventType} = 'page_view')::int`,
@@ -176,10 +176,35 @@ export class AnalyticsService {
         .groupBy(analyticsEvents.referrer)
         .orderBy(desc(sql`count(*)`))
         .limit(5),
+      db
+        .select({
+          linkId: links.id,
+          title: links.title,
+          url: links.url,
+          icon: links.icon,
+          clicks: sql`count(*)::int`.as('clicks'),
+        })
+        .from(analyticsEvents)
+        .innerJoin(links, eq(links.id, analyticsEvents.linkId))
+        .where(and(where, eq(analyticsEvents.eventType, 'link_click')))
+        .groupBy(links.id, links.title, links.url, links.icon)
+        .orderBy(desc(sql`count(*)`))
+        .limit(10),
     ]);
 
     const views = totalsRow?.views || 0;
     const clicks = totalsRow?.clicks || 0;
+
+    const totalClicks = Math.max(clicks, 1);
+    const topLinks = topLinkRows.map((link) => ({
+      ...link,
+      percentage: roundToOne((link.clicks / totalClicks) * 100),
+    }));
+
+    const referrers = referrerRows.map((r) => ({
+      label: r.referrer || 'direct',
+      count: r.count,
+    }));
 
     const devices = { mobile: 0, desktop: 0, tablet: 0 };
     deviceRows.forEach((row) => {
@@ -195,7 +220,8 @@ export class AnalyticsService {
         clicks,
         ctr: computeCtr(clicks, views),
         devices,
-        referrers: referrerRows,
+        referrers,
+        topLinks,
       },
       trend: buildDaySeries(trendRows, days),
     };
