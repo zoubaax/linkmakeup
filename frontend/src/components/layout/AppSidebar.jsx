@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { HiCalendarDays, HiBriefcase, HiArrowRightOnRectangle } from 'react-icons/hi2';
 import { useAuth } from '../../contexts/AuthContext';
-import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
+import { PROFILE_DETAILS_PATH, ANALYTICS_PATH, STUDIO_NAV } from '../../config/dashboardNav';
 import ThemeToggle from '../ThemeToggle';
 import Logo from '../ui/Logo';
 
@@ -68,38 +68,32 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse, openPalette }
 
       {/* Cloudflare-style Nav Section */}
       <nav className={`flex-1 py-3 flex flex-col gap-1 overflow-y-auto ${collapsed ? 'px-2' : 'px-3'}`}>
-        <NavLink
-          to="/dashboard"
-          end
-          title={collapsed ? 'Studio' : undefined}
-          className={(state) => navLinkClassName(state, collapsed)}
-          onClick={onNavigate}
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            {!collapsed && <span>Studio Overview</span>}
-          </div>
-          {!collapsed && (
-            <svg className="w-3 h-3 text-fg-subtle shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          )}
-        </NavLink>
-
-        {user && (
+        {user && STUDIO_NAV.map((item) => (
           <NavLink
-            to={PROFILE_DETAILS_PATH}
-            title={collapsed ? 'Profile Identity' : undefined}
+            key={item.to}
+            to={item.to}
+            end={item.end}
+            title={collapsed ? item.shortLabel : undefined}
             className={(state) => navLinkClassName(state, collapsed)}
             onClick={onNavigate}
           >
             <div className="flex items-center gap-2.5 min-w-0">
-              <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              {!collapsed && <span>Profile Identity</span>}
+              {item.to === '/dashboard' && (
+                <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              )}
+              {item.to === ANALYTICS_PATH && (
+                <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              )}
+              {item.to === PROFILE_DETAILS_PATH && (
+                <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              )}
+              {!collapsed && <span>{item.label}</span>}
             </div>
             {!collapsed && (
               <svg className="w-3 h-3 text-fg-subtle shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -107,7 +101,7 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse, openPalette }
               </svg>
             )}
           </NavLink>
-        )}
+        ))}
 
         {user?.isAdmin && (
           <NavLink

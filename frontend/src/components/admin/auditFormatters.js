@@ -5,6 +5,8 @@ const ACTION_LABELS = {
   'link.delete': 'Link deleted',
   'profile.suspend': 'Profile suspended',
   'profile.unsuspend': 'Profile restored',
+  'user.onboarding_reminded': 'Onboarding reminder sent',
+  'users.bulk_onboarding_reminded': 'Bulk onboarding reminders sent',
 };
 
 export function formatAuditAction(action) {

@@ -60,7 +60,7 @@ export class ProfileService {
           avatarSize: avatarSize || 'medium',
           statusBadge: statusBadge || null,
           showStatusBadge: showStatusBadge ?? false,
-          themeConfig: themeConfig ? JSON.stringify(themeConfig) : null,
+          themeConfig: themeConfig || null,
         })
         .returning();
 
@@ -148,6 +148,7 @@ export class ProfileService {
 
       return {
         profile: {
+          id: userProfile.id,
           username: userProfile.username,
           displayName: userProfile.displayName,
           role: userProfile.role,

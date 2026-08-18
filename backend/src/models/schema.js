@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, integer, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, boolean, integer, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
 
 // 1. Users Entity
 export const users = pgTable('users', {
@@ -55,7 +55,46 @@ export const links = pgTable('links', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// 4. Admin audit log
+<<<<<<< Updated upstream
+// 5. Analytics events (public page views + link clicks)
+export const analyticsEvents = pgTable(
+  'analytics_events',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    profileId: uuid('profile_id')
+      .references(() => profiles.id, { onDelete: 'cascade' })
+      .notNull(),
+    linkId: uuid('link_id').references(() => links.id, { onDelete: 'cascade' }),
+    eventType: varchar('event_type', { length: 20 }).notNull(),
+    platform: varchar('platform', { length: 50 }),
+    source: varchar('source', { length: 190 }),
+    userAgent: varchar('user_agent', { length: 255 }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('analytics_events_profile_idx').on(table.profileId),
+    index('analytics_events_type_time_idx').on(table.eventType, table.createdAt),
+  ],
+);
+
+// 6. Admin audit log
+=======
+// 4. Analytics events (first-party page views & link clicks)
+export const analyticsEvents = pgTable('analytics_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  profileId: uuid('profile_id').references(() => profiles.id, { onDelete: 'cascade' }).notNull(),
+  linkId: uuid('link_id').references(() => links.id, { onDelete: 'cascade' }),
+  eventType: varchar('event_type', { length: 20 }).notNull(),
+  referrer: varchar('referrer', { length: 255 }),
+  deviceType: varchar('device_type', { length: 50 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => [
+  index('analytics_events_profile_created_idx').on(table.profileId, table.createdAt),
+  index('analytics_events_created_idx').on(table.createdAt),
+]);
+
+// 5. Admin audit log
+>>>>>>> Stashed changes
 export const adminAuditLogs = pgTable('admin_audit_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
   actorEmail: varchar('actor_email', { length: 255 }).notNull(),
@@ -66,3 +105,16 @@ export const adminAuditLogs = pgTable('admin_audit_logs', {
   metadata: jsonb('metadata').default({}),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+// 6. Internal admin notes on users/profiles
+export const adminNotes = pgTable('admin_notes', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  targetType: varchar('target_type', { length: 20 }).notNull(),
+  targetId: uuid('target_id').notNull(),
+  authorEmail: varchar('author_email', { length: 255 }).notNull(),
+  body: text('body').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => [
+  index('admin_notes_target_idx').on(table.targetType, table.targetId),
+]);

@@ -1,19 +1,23 @@
 import { useEffect, useState } from 'react';
 import useDebouncedValue from '../../hooks/useDebouncedValue';
 import { SkeletonCard } from '../ui/Skeleton';
+import AdminEmptyState from './AdminEmptyState';
 
-export function useAdminList(fetcher, { status = 'all', limit = 10 } = {}) {
+const PAGE_SIZE_OPTIONS = [10, 25, 50];
+
+export function useAdminList(fetcher, { status = 'all', limit: initialLimit = 10 } = {}) {
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [searchInput, setSearchInput] = useState('');
   const debouncedSearch = useDebouncedValue(searchInput);
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(initialLimit);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, status]);
+  }, [debouncedSearch, status, limit]);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +48,11 @@ export function useAdminList(fetcher, { status = 'all', limit = 10 } = {}) {
 
   const isSearching = searchInput !== debouncedSearch || loading;
 
+  const clearFilters = () => {
+    setSearchInput('');
+    setPage(1);
+  };
+
   return {
     items,
     pagination,
@@ -52,8 +61,11 @@ export function useAdminList(fetcher, { status = 'all', limit = 10 } = {}) {
     isSearching,
     page,
     setPage,
+    limit,
+    setLimit,
     loading,
     error,
+    clearFilters,
   };
 }
 
@@ -91,10 +103,14 @@ export default function AdminDataTable({
   error,
   isEmpty,
   emptyMessage,
+  onClearFilters,
   pagination,
   onPageChange,
+  pageSize,
+  onPageSizeChange,
   children,
   showSearch = true,
+  actions,
 }) {
   return (
     <div className="space-y-4">
@@ -103,25 +119,28 @@ export default function AdminDataTable({
           <h2 className="text-lg font-bold text-fg">{title}</h2>
           {description && <p className="text-sm text-fg-muted mt-1">{description}</p>}
         </div>
-        {showSearch && (
-          <div className="relative w-full lg:max-w-sm">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="w-full rounded-xl border border-border bg-surface-alt/70 pl-10 pr-4 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30"
-            />
-            {isSearching && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-fg-subtle">
-                Searching…
-              </span>
-            )}
-          </div>
-        )}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          {actions && <div className="shrink-0">{actions}</div>}
+          {showSearch && (
+            <div className="relative w-full lg:max-w-sm">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full rounded-xl border border-border bg-surface-alt/70 pl-10 pr-4 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30"
+              />
+              {isSearching && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-fg-subtle">
+                  Searching…
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {filters && <div>{filters}</div>}
@@ -139,36 +158,64 @@ export default function AdminDataTable({
             <SkeletonCard />
           </div>
         ) : isEmpty ? (
-          <div className="px-5 py-12 text-center text-sm text-fg-muted">{emptyMessage}</div>
+          <AdminEmptyState
+            title={emptyMessage}
+            description="Try adjusting your search or filters."
+            actionLabel={onClearFilters ? 'Clear filters' : undefined}
+            onAction={onClearFilters}
+            icon={(
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            )}
+          />
         ) : (
           children
         )}
       </div>
 
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between gap-3 text-sm">
-          <p className="text-fg-muted">
-            Page {pagination.page} of {pagination.totalPages}
-            <span className="text-fg-subtle"> · {pagination.total} total</span>
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              disabled={!pagination.hasPrevPage}
-              onClick={() => onPageChange(pagination.page - 1)}
-              className="rounded-lg border border-border px-3 py-1.5 font-medium text-fg-muted hover:text-fg hover:bg-nav-hover disabled:opacity-40 disabled:pointer-events-none"
-            >
-              Previous
-            </button>
-            <button
-              type="button"
-              disabled={!pagination.hasNextPage}
-              onClick={() => onPageChange(pagination.page + 1)}
-              className="rounded-lg border border-border px-3 py-1.5 font-medium text-fg-muted hover:text-fg hover:bg-nav-hover disabled:opacity-40 disabled:pointer-events-none"
-            >
-              Next
-            </button>
+      {pagination && (
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="text-fg-muted">
+              Page {pagination.page} of {pagination.totalPages}
+              <span className="text-fg-subtle"> · {pagination.total} total</span>
+            </p>
+            {onPageSizeChange && (
+              <label className="inline-flex items-center gap-2 text-fg-muted">
+                <span className="text-xs">Rows</span>
+                <select
+                  value={pageSize || 10}
+                  onChange={(e) => onPageSizeChange(Number(e.target.value))}
+                  className="rounded-lg border border-border bg-surface px-2 py-1 text-xs text-fg"
+                >
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+              </label>
+            )}
           </div>
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={!pagination.hasPrevPage}
+                onClick={() => onPageChange(pagination.page - 1)}
+                className="rounded-lg border border-border px-3 py-1.5 font-medium text-fg-muted hover:text-fg hover:bg-nav-hover disabled:opacity-40 disabled:pointer-events-none"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                disabled={!pagination.hasNextPage}
+                onClick={() => onPageChange(pagination.page + 1)}
+                className="rounded-lg border border-border px-3 py-1.5 font-medium text-fg-muted hover:text-fg hover:bg-nav-hover disabled:opacity-40 disabled:pointer-events-none"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

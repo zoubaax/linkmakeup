@@ -43,3 +43,19 @@ Thumbs.db
 .cache/
 .wrangler/
 **/.wrangler/
+
+# Database migrations & SQL (generate/apply locally via db:push; schema.js is source of truth)
+backend/drizzle/
+*.sql
+
+# One-off local migration scripts (connect to DATABASE_URL; not for version control)
+backend/scripts/migrate-*.js
+
+# Agent scratch / recovery artifacts
+.transcript-extract/
+
+# Credentials & keys (never commit)
+*credentials*.json
+*.pem
+*.p12
+*.key

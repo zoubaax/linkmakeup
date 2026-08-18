@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
+import { PROFILE_DETAILS_PATH, ANALYTICS_PATH } from '../../config/dashboardNav';
 export default function CommandPalette({ open, onClose }) {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
@@ -26,7 +26,10 @@ export default function CommandPalette({ open, onClose }) {
         ? { id: 'dashboard', label: 'Go to Studio', hint: 'Manage design & links', action: () => navigate('/dashboard') }
         : { id: 'signin', label: 'Sign In', hint: 'Access your account', action: () => navigate('/login') },
       ...(user
-        ? [{ id: 'profile', label: 'Profile Details', hint: 'Avatar, name & bio', action: () => navigate(PROFILE_DETAILS_PATH) }]
+        ? [
+          { id: 'profile', label: 'Profile Details', hint: 'Avatar, name & bio', action: () => navigate(PROFILE_DETAILS_PATH) },
+          { id: 'analytics', label: 'Analytics', hint: 'Views, clicks & traffic', action: () => navigate(ANALYTICS_PATH) },
+        ]
         : []),
       ...(user?.isAdmin
         ? [

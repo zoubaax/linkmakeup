@@ -42,6 +42,88 @@ class ApiService {
     return this.request('/health');
   }
 
+  // 📊 First-party analytics
+  static async recordAnalytics({ username, eventType, linkId, referrer, deviceType }) {
+    return this.request('/analytics/track', {
+      method: 'POST',
+      body: JSON.stringify({ username, eventType, linkId, referrer, deviceType }),
+      keepalive: true,
+    });
+  }
+
+  static async getMyAnalyticsSummary(period = '30d') {
+    return this.request(`/analytics/me/summary?period=${encodeURIComponent(period)}`, { cache: 'no-store' });
+  }
+
+  static async getMyAnalyticsLinks(period = '30d') {
+    return this.request(`/analytics/me/links?period=${encodeURIComponent(period)}`, { cache: 'no-store' });
+  }
+
+  static async getAdminAnalyticsSummary(period = '30d') {
+    return this.request(`/admin/analytics/summary?period=${encodeURIComponent(period)}`, { cache: 'no-store' });
+  }
+
+  static async getAdminAnalyticsPages({ page = 1, limit = 10, search = '', sort = 'views', status = 'all' } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.set('search', search);
+    if (sort && sort !== 'views') params.set('sort', sort);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/analytics/pages?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  // 📤 CSV export helpers (server-generated .csv downloads)
+  static async requestCsv(endpoint) {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: { Accept: 'text/csv' },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      const message = data.message || `Export failed with status ${response.status}`;
+      throw new Error(message);
+    }
+
+    return response.blob();
+  }
+
+  static async getAdminUsersCsv({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.requestCsv(`/admin/users/export?${params.toString()}`);
+  }
+
+  static async getAdminProfilesCsv({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.requestCsv(`/admin/profiles/export?${params.toString()}`);
+  }
+
+  static async getAdminLinksCsv({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.requestCsv(`/admin/links/export?${params.toString()}`);
+  }
+
+  static async getAdminAuditLogsCsv({ action = 'all', actor = '' } = {}) {
+    const params = new URLSearchParams();
+    if (action && action !== 'all') params.set('action', action);
+    if (actor) params.set('actor', actor);
+    return this.requestCsv(`/admin/audit-logs/export?${params.toString()}`);
+  }
+
+  static async getAdminAnalyticsPagesCsv({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.requestCsv(`/admin/analytics/export?${params.toString()}`);
+  }
+
   // 🔐 Authentication Endpoints
   static async signupWithEmail(data) {
     return this.request('/auth/signup', {
@@ -133,6 +215,30 @@ class ApiService {
     return this.request('/links');
   }
 
+  // 📊 Public analytics tracking (fire-and-forget)
+  static async postAnalytics(endpoint, payload) {
+    try {
+      await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+        cache: 'no-store',
+        keepalive: true,
+      });
+    } catch {
+      // Ignore tracking failures silently
+    }
+  }
+
+  static trackPageView(profileId) {
+    return this.postAnalytics('/analytics/page-view', { profileId });
+  }
+
+  static trackLinkClick(profileId, linkId) {
+    return this.postAnalytics('/analytics/link-click', { profileId, linkId });
+  }
+
   static async createLink(linkData) {
     return this.request('/links', {
       method: 'POST',
@@ -164,6 +270,29 @@ class ApiService {
     return this.request('/admin/stats', { cache: 'no-store' });
   }
 
+  static async adminSearch(q, limit = 8) {
+    const params = new URLSearchParams({ q, limit: String(limit) });
+    return this.request(`/admin/search?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminNotes({ targetType, targetId }) {
+    const params = new URLSearchParams({ targetType, targetId });
+    return this.request(`/admin/notes?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async createAdminNote({ targetType, targetId, body }) {
+    return this.request('/admin/notes', {
+      method: 'POST',
+      body: JSON.stringify({ targetType, targetId, body }),
+    });
+  }
+
+  static async deleteAdminNote(noteId) {
+    return this.request(`/admin/notes/${encodeURIComponent(noteId)}`, {
+      method: 'DELETE',
+    });
+  }
+
   static async getAdminUsers({ page = 1, limit = 20, search = '', status = 'all' } = {}) {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (search) params.set('search', search);
@@ -175,10 +304,32 @@ class ApiService {
     return this.request(`/admin/users/${encodeURIComponent(userId)}`, { cache: 'no-store' });
   }
 
-  static async getAdminProfiles({ page = 1, limit = 20, search = '' } = {}) {
+  static async getAdminProfiles({ page = 1, limit = 20, search = '', status = 'all' } = {}) {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
     return this.request(`/admin/profiles?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminUsersExport({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/users/export?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminProfilesExport({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/profiles/export?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminLinksExport({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/links/export?${params.toString()}`, { cache: 'no-store' });
   }
 
   static async getAdminLinks({ page = 1, limit = 20, search = '', status = 'all' } = {}) {
@@ -209,12 +360,30 @@ class ApiService {
     });
   }
 
-  static async getAdminAuditLogs({ page = 1, limit = 20, action = 'all' } = {}) {
+<<<<<<< Updated upstream
+  static async getAdminAuditLogs({ page = 1, limit = 20, action = 'all', actor = '' } = {}) {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (action && action !== 'all') params.set('action', action);
+    if (actor) params.set('actor', actor);
+=======
+  static async getAdminAuditLogs({
+    page = 1,
+    limit = 20,
+    action = 'all',
+    actor = '',
+    targetId,
+    targetIds,
+  } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (action && action !== 'all') params.set('action', action);
+    if (actor) params.set('actor', actor);
+    if (targetId) params.set('targetId', targetId);
+    if (targetIds?.length) params.set('targetIds', targetIds.join(','));
+>>>>>>> Stashed changes
     return this.request(`/admin/audit-logs?${params.toString()}`, { cache: 'no-store' });
   }
 
+<<<<<<< Updated upstream
   static async sendAdminOnboardingReminder(userId) {
     return this.request(`/admin/users/${encodeURIComponent(userId)}/remind-onboarding`, {
       method: 'POST',
@@ -225,6 +394,30 @@ class ApiService {
     return this.request('/admin/users/remind-all-onboarding', {
       method: 'POST',
     });
+=======
+  static async getAdminAuditLogsExport({ action = 'all', actor = '' } = {}) {
+    const params = new URLSearchParams();
+    if (action && action !== 'all') params.set('action', action);
+    if (actor) params.set('actor', actor);
+    return this.request(`/admin/audit-logs/export?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  // 📈 Admin analytics
+  static async getAdminAnalytics() {
+    return this.request('/admin/analytics', { cache: 'no-store' });
+  }
+
+  static async getAdminAnalyticsPages({ page = 1, limit = 20, search = '' } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.set('search', search);
+    return this.request(`/admin/analytics/pages?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminAnalyticsPagesExport({ search = '' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    return this.request(`/admin/analytics/export?${params.toString()}`, { cache: 'no-store' });
+>>>>>>> Stashed changes
   }
 }
 

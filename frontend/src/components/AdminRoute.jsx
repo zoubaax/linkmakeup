@@ -22,6 +22,10 @@ export default function AdminRoute({ children }) {
     return <Navigate to={loginPathWithReturnTo(returnPath)} replace />;
   }
 
+  if (profile?.isSuspended) {
+    return <Navigate to="/account-suspended" replace />;
+  }
+
   if (!user.isAdmin) {
     return <Navigate to={getAuthenticatedHomePath(profile)} replace />;
   }

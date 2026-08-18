@@ -3,14 +3,18 @@ import LandingPage from './components/LandingPage';
 import AuthPage from './components/AuthPage';
 import Dashboard from './components/Dashboard';
 import ProfileDetailsPage from './components/ProfileDetailsPage';
+import AnalyticsPage from './components/AnalyticsPage';
 import OnboardingPage from './components/OnboardingPage';
 import PublicProfile from './components/PublicProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminOverview from './components/admin/AdminOverview';
+import AdminAnalyticsPage from './components/admin/AdminAnalyticsPage';
 import AdminUsersPage from './components/admin/AdminUsersPage';
 import AdminProfilesPage from './components/admin/AdminProfilesPage';
+import AdminLinksPage from './components/admin/AdminLinksPage';
+import AdminAnalyticsPage from './components/admin/AdminAnalyticsPage';
 import AdminActivityPage from './components/admin/AdminActivityPage';
 import SuspendedAccountPage from './components/SuspendedAccountPage';
 
@@ -123,6 +127,15 @@ export default function App() {
           />
 
           <Route
+            path="/dashboard/analytics"
+            element={
+              <ProtectedRoute requiresProfile>
+                <AnalyticsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/dashboard/profile"
             element={
               <ProtectedRoute requiresProfile>
@@ -140,8 +153,11 @@ export default function App() {
             )}
           >
             <Route index element={<AdminOverview />} />
+            <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="profiles" element={<AdminProfilesPage />} />
+            <Route path="links" element={<AdminLinksPage />} />
+            <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="activity" element={<AdminActivityPage />} />
           </Route>
 
