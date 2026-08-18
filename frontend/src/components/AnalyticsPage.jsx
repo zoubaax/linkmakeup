@@ -67,8 +67,6 @@ export default function AnalyticsPage() {
     { label: 'Desktop', value: devices.desktop, color: DEVICE_COLORS.desktop },
     { label: 'Tablet', value: devices.tablet, color: DEVICE_COLORS.tablet },
   ];
-  const maxTopClicks = Math.max(...topLinks.map((link) => link.clicks), 1);
-  const maxReferrerCount = Math.max(...referrers.map((r) => r.count), 1);
   const publicUrl = profile?.username ? getPublicUserUrl(profile.username) : null;
 
   return (
@@ -169,69 +167,113 @@ export default function AnalyticsPage() {
                 centerValue={formatCompact(deviceData.reduce((sum, d) => sum + d.value, 0))}
               />
 
+              {/* Traffic Sources Card - Vercel / Plausible Style */}
               <div className="rounded-2xl border border-border bg-surface overflow-hidden">
-                <div className="px-5 py-4 border-b border-border">
-                  <h2 className="text-sm font-bold text-fg">Traffic sources</h2>
-                  <p className="text-xs text-fg-muted mt-0.5">Where page views came from</p>
+                <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-bold text-fg">Traffic sources</h2>
+                    <p className="text-xs text-fg-muted mt-0.5">Where page views came from</p>
+                  </div>
+                  <span className="text-[11px] font-semibold text-fg-subtle bg-surface-alt border border-border px-2 py-0.5 rounded-lg">
+                    {referrers.length} sources
+                  </span>
                 </div>
                 {referrers.length === 0 ? (
                   <div className="px-5 py-12 text-center text-sm text-fg-muted">No referrer data yet.</div>
                 ) : (
-                  <ul className="divide-y divide-border/70">
-                    {referrers.map((entry) => (
-                      <li key={entry.label} className="px-5 py-3 flex items-center gap-3">
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-fg capitalize">{entry.label}</p>
-                          <div className="mt-1.5 h-1.5 rounded-full bg-surface-alt overflow-hidden">
-                            <div
-                              className="h-full rounded-full bg-indigo-500"
-                              style={{ width: `${Math.max((entry.count / maxReferrerCount) * 100, 4)}%` }}
-                            />
+                  <ul className="p-3 space-y-2">
+                    {referrers.map((entry) => {
+                      const percentage = Math.round((entry.count / Math.max(totals.views, 1)) * 100);
+                      return (
+                        <li
+                          key={entry.label}
+                          className="relative rounded-xl border border-border/60 bg-surface-alt/40 p-3 flex items-center justify-between gap-3 overflow-hidden group hover:border-accent-border/50 transition-all"
+                        >
+                          {/* Soft background fill bar */}
+                          <div
+                            className="absolute left-0 top-0 bottom-0 bg-indigo-500/10 dark:bg-indigo-500/20 transition-all duration-500"
+                            style={{ width: `${Math.max(percentage, 3)}%` }}
+                          />
+                          <div className="relative flex items-center gap-2.5 min-w-0">
+                            <div className="w-7 h-7 rounded-lg bg-surface border border-border flex items-center justify-center shrink-0 text-xs shadow-xs">
+                              {entry.label?.toLowerCase() === 'direct' ? '🌐' : entry.label?.toLowerCase() === 'nfc' ? '💳' : '🔗'}
+                            </div>
+                            <span className="text-xs font-bold text-fg capitalize truncate">{entry.label}</span>
                           </div>
-                        </div>
-                        <span className="text-sm font-bold text-fg tabular-nums shrink-0">{entry.count}</span>
-                      </li>
-                    ))}
+                          <div className="relative flex items-center gap-2 shrink-0">
+                            <span className="text-xs font-bold text-fg tabular-nums">{entry.count} views</span>
+                            <span className="text-[10px] font-semibold text-fg-subtle bg-surface/80 border border-border/80 px-1.5 py-0.5 rounded-md tabular-nums">
+                              {percentage}%
+                            </span>
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 )}
               </div>
             </div>
 
+            {/* Top Clicked Links Card - Modern Ranked Rows */}
             <div className="rounded-2xl border border-border bg-surface overflow-hidden">
-              <div className="px-5 py-4 border-b border-border">
-                <h2 className="text-sm font-bold text-fg">Top clicked links</h2>
-                <p className="text-xs text-fg-muted mt-0.5">Your most popular destination buttons</p>
+              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-bold text-fg">Top clicked links</h2>
+                  <p className="text-xs text-fg-muted mt-0.5">Your most popular destination buttons</p>
+                </div>
+                <span className="text-[11px] font-semibold text-fg-subtle bg-surface-alt border border-border px-2 py-0.5 rounded-lg">
+                  {topLinks.length} links
+                </span>
               </div>
               {topLinks.length === 0 ? (
                 <div className="px-5 py-12 text-center text-sm text-fg-muted">No link clicks recorded yet.</div>
               ) : (
-                <ol className="divide-y divide-border/70">
-                  {topLinks.map((link, index) => (
-                    <li key={link.linkId} className="px-5 py-3 flex items-center gap-3">
-                      <span className="w-6 shrink-0 text-sm font-black text-fg-muted tabular-nums">{index + 1}</span>
-                      <div className="min-w-0 flex-1">
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-semibold text-fg truncate block hover:text-accent"
-                        >
-                          {link.title || truncateText(link.url, 64)}
-                        </a>
-                        <div className="mt-1.5 h-1.5 rounded-full bg-surface-alt overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500"
-                            style={{ width: `${Math.max((link.clicks / maxTopClicks) * 100, 4)}%` }}
+                <ul className="p-3 space-y-2">
+                  {topLinks.map((link, index) => {
+                    const percentage = link.percentage || Math.round((link.clicks / Math.max(totals.clicks, 1)) * 100);
+                    return (
+                      <li
+                        key={link.linkId || link.url}
+                        className="relative rounded-xl border border-border/60 bg-surface-alt/40 p-3 flex items-center justify-between gap-3 overflow-hidden group hover:border-accent-border/50 transition-all"
+                      >
+                        {/* Soft background fill bar */}
+                        <div
+                          className="absolute left-0 top-0 bottom-0 bg-emerald-500/10 dark:bg-emerald-500/20 transition-all duration-500"
+                          style={{ width: `${Math.max(percentage, 3)}%` }}
+                        />
+                        <div className="relative flex items-center gap-3 min-w-0">
+                          <span className="w-5 h-5 rounded-md bg-surface border border-border text-[10px] font-black text-fg-muted flex items-center justify-center shrink-0 shadow-xs tabular-nums">
+                            #{index + 1}
+                          </span>
+                          <LinkIcon
+                            icon={link.icon}
+                            title={link.title}
+                            url={link.url}
+                            className="w-4 h-4 shrink-0"
+                            imgClassName="w-4 h-4 object-contain"
                           />
+                          <div className="min-w-0">
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-xs font-bold text-fg truncate block hover:text-accent"
+                            >
+                              {link.title || truncateText(link.url, 48)}
+                            </a>
+                            <span className="text-[10px] text-fg-subtle truncate block">{truncateText(link.url, 40)}</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-sm font-bold text-fg tabular-nums">{link.clicks}</p>
-                        <p className="text-[11px] text-fg-muted tabular-nums">{formatPercent(link.percentage)}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
+                        <div className="relative flex items-center gap-2 shrink-0">
+                          <span className="text-xs font-bold text-fg tabular-nums">{link.clicks} clicks</span>
+                          <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md tabular-nums">
+                            {percentage}%
+                          </span>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
             </div>
           </>
