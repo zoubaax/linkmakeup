@@ -1,4 +1,4 @@
-import { useNavigate } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../Header';
 import Footer from '../Footer';
 import LogoTicker from '../LogoTicker';
@@ -11,8 +11,8 @@ export default function LinkInBioLanding() {
   const { user, profile } = useAuth();
 
   const seo = {
-    title: 'Link in Bio Tool: Everything You Are, in One Simple Link | LinkMakeup',
-    description: 'Create your free link in bio with LinkMakeup. Consolidate your GitHub, LinkedIn, portfolio, and social links into one edge-fast custom subdomain.',
+    title: 'Link in Bio Tool: Everything You Are, in One Simple Link | Link Make Up',
+    description: 'Create your free link in bio with Link Make Up. Consolidate your GitHub, LinkedIn, portfolio, and social links into one edge-fast custom subdomain.',
     keywords: 'link in bio tool, linktree alternative, bio link software engineer, free link in bio, custom subdomain link in bio',
   };
 
@@ -58,7 +58,7 @@ export default function LinkInBioLanding() {
             Everything you are, in one simple link
           </h1>
           <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-            Join thousands of software engineers, LinkedIn creators, and tech founders sharing their portfolio, GitHub, and contact info with LinkMakeup.
+            Join thousands of software engineers, creators, and entrepreneurs sharing their portfolio, contact info, and links with Link Make Up.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">

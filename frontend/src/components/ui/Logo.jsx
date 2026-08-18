@@ -15,7 +15,7 @@ export function Logo({ className = '', height, forceDark = false }) {
     >
       <img
         src={src}
-        alt="LinkMakeup"
+        alt="Link Make Up"
         className="h-full w-auto object-contain"
       />
     </div>

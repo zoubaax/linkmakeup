@@ -4,7 +4,7 @@ import mobileImg from '../../../assets/mobile .png';
 
 export default function FoundersLanding() {
   const seo = {
-    title: 'Digital Pitch Deck & NFC Card for Startup Founders | LinkMakeup',
+    title: 'Digital Pitch Deck & NFC Card for Startup Founders | Link Make Up',
     description: 'The smart digital pitch card and NFC card for tech startup founders, indie hackers, and solopreneurs. Share pitch decks, investor calendars, and Product Hunt launches in one tap.',
     keywords: 'digital business card startup founder, nfc pitch card, link in bio for tech founders, indie hacker bio link',
   };
@@ -44,12 +44,12 @@ export default function FoundersLanding() {
 
   const faqs = [
     {
-      question: 'How do I share my pitch deck safely using LinkMakeup?',
+      question: 'How do I share my pitch deck safely using Link Make Up?',
       answer: 'You can link DocSend, Notion, or PDF links directly on your profile. You can also add password protection or track link click metrics.',
     },
     {
       question: 'Can investors save my contact info directly to their phone contacts?',
-      answer: 'Yes! LinkMakeup profiles feature a "Save Contact (vCard)" button that instantly saves your email, phone, and website into the investor phone address book.',
+      answer: 'Yes! Link Make Up profiles feature a "Save Contact (vCard)" button that instantly saves your email, phone, and website into the investor phone address book.',
     },
   ];
 

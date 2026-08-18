@@ -4,7 +4,7 @@ import mobileImg from '../../../assets/mobile .png';
 
 export default function EngineersLanding() {
   const seo = {
-    title: 'Bio Link & NFC Business Card for Software Engineers | LinkMakeup',
+    title: 'Bio Link & NFC Business Card for Software Engineers | Link Make Up',
     description: 'The #1 bio link and NFC smart card built specifically for software engineers, developers, and tech pros. Showcase your GitHub, Tech Stack, LinkedIn, and Topmate calls in one sleek profile.',
     keywords: 'link in bio for software engineers, developer portfolio bio link, nfc card developer, github linkedin bio link',
   };
@@ -44,19 +44,19 @@ export default function EngineersLanding() {
 
   const faqs = [
     {
-      question: 'How do I link my GitHub & tech stack to my LinkMakeup profile?',
+      question: 'How do I link my GitHub & tech stack to my Link Make Up profile?',
       answer: 'Simply sign up, add your GitHub username in the profile editor, and tag your core technologies. You can pin specific repos or show live star counters.',
     },
     {
       question: 'Does the NFC smart card work with all smartphones?',
-      answer: 'Yes! LinkMakeup NFC cards work seamlessly with both iOS (iPhone 7 and newer) and Android devices without requiring any app installation.',
+      answer: 'Yes! Link Make Up NFC cards work seamlessly with both iOS (iPhone 7 and newer) and Android devices without requiring any app installation.',
     },
     {
       question: 'Can I use a custom domain for my developer profile?',
       answer: 'Yes, you get your own custom link (e.g. linkmakeup.com/alex) or custom subdomain (alex.linkmakeup.com).',
     },
     {
-      question: 'Is LinkMakeup free for software engineers?',
+      question: 'Is Link Make Up free for software engineers?',
       answer: 'Yes! The core bio link platform is 100% free forever. You can optional order physical matte NFC smart cards anytime.',
     },
   ];

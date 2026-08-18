@@ -9,9 +9,9 @@ export default function WhyUsPage() {
   const { user, profile } = useAuth();
 
   const seo = {
-    title: 'Why LinkMakeup | The Subdomain Engine & Edge-Fast Bio Link Platform',
-    description: 'Discover why creators, software engineers, and founders choose LinkMakeup over generic bio link tools. Sub-50ms edge latency, custom subdomains, and real-time studio updates.',
-    keywords: 'why linkmakeup, linktree alternative, custom subdomain link in bio, fast bio link platform',
+    title: 'Why Link Make Up | The Digital Identity Engine & Edge-Fast Bio Link Platform',
+    description: 'Discover why creators, software engineers, and entrepreneurs choose Link Make Up. Sub-50ms edge latency, custom subdomains, digital business cards, and smart NFC cards.',
+    keywords: 'why Link Make Up, linktree alternative, custom subdomain link in bio, digital business card platform',
   };
 
   return (

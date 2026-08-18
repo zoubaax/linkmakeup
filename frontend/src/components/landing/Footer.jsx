@@ -18,7 +18,7 @@ export default function Footer() {
             </Link>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              The ultimate 100% free bio link tool and tap-to-share NFC smart business card platform built for software engineers, LinkedIn creators, and tech founders.
+              The professional digital identity platform, link-in-bio builder, and tap-to-share NFC smart business card tool built for software engineers, creators, and entrepreneurs.
             </p>
 
             {/* Social Media Links */}
@@ -72,6 +72,8 @@ export default function Footer() {
               Solutions
             </h4>
             <ul className="space-y-2.5 text-xs">
+              <li><Link to="/features/digital-business-card" className="hover:text-emerald-400 transition-colors">Digital Business Card</Link></li>
+              <li><Link to="/fr/carte-de-visite-digitale-maroc" className="hover:text-emerald-400 transition-colors">Carte NFC Maroc 🇲🇦</Link></li>
               <li><Link to="/for/engineers" className="hover:text-emerald-400 transition-colors">For Software Engineers</Link></li>
               <li><Link to="/for/linkedin-creators" className="hover:text-emerald-400 transition-colors">For LinkedIn Creators</Link></li>
               <li><Link to="/for/founders" className="hover:text-emerald-400 transition-colors">For Startup Founders</Link></li>
@@ -88,7 +90,7 @@ export default function Footer() {
             <ul className="space-y-2.5 text-xs">
               <li><Link to="/link-in-bio" className="hover:text-emerald-400 transition-colors">Link in Bio Tool</Link></li>
               <li><Link to="/pricing" className="hover:text-emerald-400 transition-colors">Pricing & NFC Bundles</Link></li>
-              <li><Link to="/why-us" className="hover:text-emerald-400 transition-colors">Why LinkMakeup</Link></li>
+              <li><Link to="/why-us" className="hover:text-emerald-400 transition-colors">Why Link Make Up</Link></li>
               <li><Link to="/server-specs" className="hover:text-emerald-400 transition-colors">Server & Edge Specs</Link></li>
               <li><Link to="/signup" className="hover:text-emerald-400 transition-colors">Join Free</Link></li>
               <li><Link to="/login" className="hover:text-emerald-400 transition-colors">Sign In</Link></li>
@@ -107,7 +109,7 @@ export default function Footer() {
                 <span>Morocco Express</span>
               </div>
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                Matte black NFC cards shipped directly to your door across Morocco.
+                Matte black NFC cards shipped directly to your door across Casablanca, Rabat, Marrakech, Tangier & Agadir.
               </p>
             </div>
           </div>
@@ -117,7 +119,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
-            © {new Date().getFullYear()} LinkMakeup. All rights reserved.
+            © {new Date().getFullYear()} Link Make Up. All rights reserved.
           </div>
           <div>
             <a href="https://www.instagram.com/linkmake.up" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors font-medium">

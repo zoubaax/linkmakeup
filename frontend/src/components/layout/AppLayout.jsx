@@ -19,7 +19,7 @@ const PAGE_TITLES = {
 function getPageTitle(pathname) {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
   if (pathname !== '/' && !pathname.includes('/')) return 'Profile';
-  return 'LinkMakeup';
+  return 'Link Make Up';
 }
 
 export default function AppLayout({ children }) {

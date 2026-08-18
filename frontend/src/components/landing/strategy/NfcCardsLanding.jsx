@@ -3,7 +3,7 @@ import StrategyPageLayout, { ScrollAndClickNfc3DFlip } from './StrategyPageLayou
 
 export default function NfcCardsLanding() {
   const seo = {
-    title: 'Smart NFC Business Cards for Tech Networking & Conferences | LinkMakeup',
+    title: 'Smart NFC Business Cards for Tech Networking & Conferences | Link Make Up',
     description: 'Upgrade your in-person tech networking with physical matte black NFC smart cards. Tap on any smartphone at conferences to instantly share your LinkedIn, GitHub, and bio link.',
     keywords: 'nfc business card tech, smart nfc card software engineer, carte nfc developpeur maroc, nfc networking card conference',
   };
@@ -52,7 +52,7 @@ export default function NfcCardsLanding() {
     },
     {
       question: 'What happens if I change my LinkedIn or phone number?',
-      answer: 'Your card is connected to your live LinkMakeup profile. Whenever you edit your profile online, your physical NFC card updates automatically!',
+      answer: 'Your card is connected to your live Link Make Up profile. Whenever you edit your profile online, your physical NFC card updates automatically!',
     },
   ];
 

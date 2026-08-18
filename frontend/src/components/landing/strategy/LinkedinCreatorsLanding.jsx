@@ -1,51 +1,51 @@
-import { FiEdit3, FiPhoneCall, FiCreditCard, FiAward, FiZap, FiTrendingUp } from 'react-icons/fi';
+import { FiLinkedin, FiMail, FiCalendar, FiSmartphone, FiTrendingUp, FiAward } from 'react-icons/fi';
 import StrategyPageLayout from './StrategyPageLayout';
 import mobileImg from '../../../assets/mobile .png';
 
 export default function LinkedinCreatorsLanding() {
   const seo = {
-    title: 'Bio Link & NFC Card for LinkedIn Creators | LinkMakeup',
-    description: 'The ultimate link-in-bio and NFC smart business card for LinkedIn content creators, coaches, and thought leaders. Convert readers into subscribers, clients, and 1-on-1 bookings.',
-    keywords: 'link in bio for linkedin creators, linkedin featured link tree, nfc business card for creators, digital business card linkedin',
+    title: 'Bio Link & NFC Card for LinkedIn Creators | Link Make Up',
+    description: 'Turn your LinkedIn impressions into booked calls, newsletter subscribers, and lead conversions with Link Make Up.',
+    keywords: 'linkedin bio link, linkedin custom link button, link in bio for creators, linkedin top voice bio link',
   };
 
   const features = [
     {
-      icon: <FiEdit3 className="w-5 h-5" />,
-      title: 'Featured Posts & Newsletter Capture',
-      description: 'Embed your top viral LinkedIn posts, Substack newsletters, or Beehiiv signup forms right at the top of your profile.',
+      icon: <FiLinkedin className="w-5 h-5" />,
+      title: 'LinkedIn Custom Link Optimized',
+      description: 'Designed specifically to fit your LinkedIn profile headline button for maximum click-through rates.',
     },
     {
-      icon: <FiPhoneCall className="w-5 h-5" />,
-      title: '1-on-1 Consulting & Coaching Calls',
-      description: 'Seamlessly link Calendly, Topmate, or custom payment links to monetize your audience with advisory calls.',
+      icon: <FiMail className="w-5 h-5" />,
+      title: 'Newsletter & Lead Capture',
+      description: 'Capture email subscribers directly on your bio link page with one-click form integration.',
     },
     {
-      icon: <FiCreditCard className="w-5 h-5" />,
-      title: 'Tap-to-Connect NFC Networking Card',
-      description: 'Attend events, mastermind dinners, and conferences. Tap your matte black NFC card to instantly connect on LinkedIn.',
+      icon: <FiCalendar className="w-5 h-5" />,
+      title: 'Booked Calls & Consultations',
+      description: 'Embed Calendly, SavvyCal, or Topmate directly on your page to convert profile visitors into paying clients.',
     },
     {
-      icon: <FiAward className="w-5 h-5" />,
-      title: 'Social Proof & Case Studies',
-      description: 'Highlight client testimonials, stats (e.g. 50k+ Followers), and featured press logos.',
-    },
-    {
-      icon: <FiZap className="w-5 h-5" />,
-      title: 'High-Converting Minimal Aesthetics',
-      description: 'Clean, distraction-free modern layouts designed to maximize CTA conversion rates.',
+      icon: <FiSmartphone className="w-5 h-5" />,
+      title: 'NFC Card for Events & Summits',
+      description: 'Tap your physical matte black NFC card at industry summits to connect on LinkedIn instantly.',
     },
     {
       icon: <FiTrendingUp className="w-5 h-5" />,
-      title: 'Real-Time Engagement Analytics',
-      description: 'Discover which LinkedIn posts bring the most high-value leads and link clicks.',
+      title: 'Conversion Analytics',
+      description: 'See which LinkedIn posts drive the most clicks and track profile traffic sources in real-time.',
+    },
+    {
+      icon: <FiAward className="w-5 h-5" />,
+      title: 'Custom Branding & Subdomain',
+      description: 'Host on your own username.linkmakeup.com subdomain with clean, professional light and dark themes.',
     },
   ];
 
   const faqs = [
     {
-      question: 'How do I add my LinkMakeup bio link to my LinkedIn profile?',
-      answer: 'Go to your LinkedIn profile, click edit intro, and paste your LinkMakeup URL into the "Custom Link" field to show a clean clickable button right under your headline.',
+      question: 'How do I add my Link Make Up bio link to my LinkedIn profile?',
+      answer: 'Go to your LinkedIn profile, click edit intro, and paste your Link Make Up URL into the "Custom Link" field to show a clean clickable button right under your headline.',
     },
     {
       question: 'Can I capture email newsletter subscribers directly?',

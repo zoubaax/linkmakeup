@@ -12,6 +12,8 @@ import EngineersLanding from './components/landing/strategy/EngineersLanding';
 import LinkedinCreatorsLanding from './components/landing/strategy/LinkedinCreatorsLanding';
 import FoundersLanding from './components/landing/strategy/FoundersLanding';
 import NfcCardsLanding from './components/landing/strategy/NfcCardsLanding';
+import MoroccoNfcLanding from './components/landing/strategy/MoroccoNfcLanding';
+import DigitalBusinessCardLanding from './components/landing/strategy/DigitalBusinessCardLanding';
 
 // Core Landing Pillar Pages
 import WhyUsPage from './components/landing/pages/WhyUsPage';
@@ -58,17 +60,28 @@ export default function App() {
           <Route path="/login" element={<AuthPage initialMode="signin" />} />
           <Route path="/signup" element={<AuthPage initialMode="signup" />} />
 
-          {/* Core Pillar Pages */}
+          {/* Core Pillar & Feature Hub Pages */}
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/link-in-bio" element={<LinkInBioLanding />} />
           <Route path="/bio-link" element={<LinkInBioLanding />} />
+          <Route path="/features/link-in-bio" element={<LinkInBioLanding />} />
           <Route path="/linktree-alternative" element={<LinkInBioLanding />} />
           <Route path="/why-us" element={<WhyUsPage />} />
           <Route path="/why" element={<WhyUsPage />} />
           <Route path="/server-specs" element={<ServerSpecsPage />} />
           <Route path="/specs" element={<ServerSpecsPage />} />
 
-          {/* Strategy SEO Pages */}
+          {/* Feature Money Pages */}
+          <Route path="/features/digital-business-card" element={<DigitalBusinessCardLanding />} />
+          <Route path="/digital-business-card" element={<DigitalBusinessCardLanding />} />
+          <Route path="/features/nfc" element={<NfcCardsLanding />} />
+
+          {/* Strategy & Moroccan Geo-Targeted Landing Pages */}
+          <Route path="/fr/carte-de-visite-digitale-maroc" element={<MoroccoNfcLanding />} />
+          <Route path="/fr/carte-nfc-maroc" element={<MoroccoNfcLanding />} />
+          <Route path="/solutions/freelancers-maroc" element={<MoroccoNfcLanding />} />
+          <Route path="/maroc" element={<MoroccoNfcLanding />} />
+
           <Route path="/for/engineers" element={<EngineersLanding />} />
           <Route path="/for/linkedin-creators" element={<LinkedinCreatorsLanding />} />
           <Route path="/for/founders" element={<FoundersLanding />} />
