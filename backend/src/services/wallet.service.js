@@ -20,13 +20,13 @@ function getGoogleServiceAccountKey() {
     console.error('Could not load service account JSON file:', err);
   }
 
-  const rawKey = process.env.GOOGLE_PRIVATE_KEY || '';
-  const privateKey = rawKey.includes('-----BEGIN PRIVATE KEY-----')
-    ? rawKey.replace(/\\n/g, '\n')
-    : rawKey;
+  const rawKey = process.env.GOOGLE_PRIVATE_KEY || process.env.GOOGLE_WALLET_PRIVATE_KEY || '';
+  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || process.env.GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL || '';
+
+  const privateKey = rawKey.replace(/\\n/g, '\n');
 
   return {
-    clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
+    clientEmail,
     privateKey,
   };
 }
