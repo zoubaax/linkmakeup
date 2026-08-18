@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminOverview from './components/admin/AdminOverview';
+import AdminAnalyticsPage from './components/admin/AdminAnalyticsPage';
 import AdminUsersPage from './components/admin/AdminUsersPage';
 import AdminProfilesPage from './components/admin/AdminProfilesPage';
 import AdminActivityPage from './components/admin/AdminActivityPage';
@@ -140,6 +141,7 @@ export default function App() {
             )}
           >
             <Route index element={<AdminOverview />} />
+            <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="profiles" element={<AdminProfilesPage />} />
             <Route path="activity" element={<AdminActivityPage />} />

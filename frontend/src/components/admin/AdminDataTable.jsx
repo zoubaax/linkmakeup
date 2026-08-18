@@ -95,6 +95,7 @@ export default function AdminDataTable({
   onPageChange,
   children,
   showSearch = true,
+  actions,
 }) {
   return (
     <div className="space-y-4">
@@ -103,25 +104,28 @@ export default function AdminDataTable({
           <h2 className="text-lg font-bold text-fg">{title}</h2>
           {description && <p className="text-sm text-fg-muted mt-1">{description}</p>}
         </div>
-        {showSearch && (
-          <div className="relative w-full lg:max-w-sm">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              placeholder={searchPlaceholder}
-              className="w-full rounded-xl border border-border bg-surface-alt/70 pl-10 pr-4 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30"
-            />
-            {isSearching && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-fg-subtle">
-                Searching…
-              </span>
-            )}
-          </div>
-        )}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          {actions && <div className="shrink-0">{actions}</div>}
+          {showSearch && (
+            <div className="relative w-full lg:max-w-sm">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => onSearchChange(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full rounded-xl border border-border bg-surface-alt/70 pl-10 pr-4 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30"
+              />
+              {isSearching && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-fg-subtle">
+                  Searching…
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {filters && <div>{filters}</div>}

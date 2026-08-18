@@ -133,6 +133,30 @@ class ApiService {
     return this.request('/links');
   }
 
+  // 📊 Public analytics tracking (fire-and-forget)
+  static async postAnalytics(endpoint, payload) {
+    try {
+      await fetch(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+        cache: 'no-store',
+        keepalive: true,
+      });
+    } catch {
+      // Ignore tracking failures silently
+    }
+  }
+
+  static trackPageView(profileId) {
+    return this.postAnalytics('/analytics/page-view', { profileId });
+  }
+
+  static trackLinkClick(profileId, linkId) {
+    return this.postAnalytics('/analytics/link-click', { profileId, linkId });
+  }
+
   static async createLink(linkData) {
     return this.request('/links', {
       method: 'POST',
@@ -175,10 +199,32 @@ class ApiService {
     return this.request(`/admin/users/${encodeURIComponent(userId)}`, { cache: 'no-store' });
   }
 
-  static async getAdminProfiles({ page = 1, limit = 20, search = '' } = {}) {
+  static async getAdminProfiles({ page = 1, limit = 20, search = '', status = 'all' } = {}) {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
     return this.request(`/admin/profiles?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminUsersExport({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/users/export?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminProfilesExport({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/profiles/export?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminLinksExport({ search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/links/export?${params.toString()}`, { cache: 'no-store' });
   }
 
   static async getAdminLinks({ page = 1, limit = 20, search = '', status = 'all' } = {}) {
@@ -209,12 +255,14 @@ class ApiService {
     });
   }
 
-  static async getAdminAuditLogs({ page = 1, limit = 20, action = 'all' } = {}) {
+  static async getAdminAuditLogs({ page = 1, limit = 20, action = 'all', actor = '' } = {}) {
     const params = new URLSearchParams({ page: String(page), limit: String(limit) });
     if (action && action !== 'all') params.set('action', action);
+    if (actor) params.set('actor', actor);
     return this.request(`/admin/audit-logs?${params.toString()}`, { cache: 'no-store' });
   }
 
+<<<<<<< Updated upstream
   static async sendAdminOnboardingReminder(userId) {
     return this.request(`/admin/users/${encodeURIComponent(userId)}/remind-onboarding`, {
       method: 'POST',
@@ -225,6 +273,30 @@ class ApiService {
     return this.request('/admin/users/remind-all-onboarding', {
       method: 'POST',
     });
+=======
+  static async getAdminAuditLogsExport({ action = 'all', actor = '' } = {}) {
+    const params = new URLSearchParams();
+    if (action && action !== 'all') params.set('action', action);
+    if (actor) params.set('actor', actor);
+    return this.request(`/admin/audit-logs/export?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  // 📈 Admin analytics
+  static async getAdminAnalytics() {
+    return this.request('/admin/analytics', { cache: 'no-store' });
+  }
+
+  static async getAdminAnalyticsPages({ page = 1, limit = 20, search = '' } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.set('search', search);
+    return this.request(`/admin/analytics/pages?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminAnalyticsPagesExport({ search = '' } = {}) {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    return this.request(`/admin/analytics/export?${params.toString()}`, { cache: 'no-store' });
+>>>>>>> Stashed changes
   }
 }
 

@@ -1,12 +1,23 @@
 import { useCallback, useState } from 'react';
 import ApiService from '../../services/api';
 import AdminDataTable, { AdminFilterPills, AdminTableHead, AdminTableShell, useAdminList } from './AdminDataTable';
+import ExportCsvButton from './ExportCsvButton';
 import { formatAuditRow } from './auditFormatters';
 
 const ACTIVITY_FILTERS = [
   { value: 'all', label: 'All activity' },
   { value: 'links', label: 'Links' },
   { value: 'profiles', label: 'Profiles' },
+];
+
+const EXPORT_COLUMNS = [
+  { key: 'createdAt', label: 'Time' },
+  { key: 'actorEmail', label: 'Actor' },
+  { key: 'actorType', label: 'Actor type' },
+  { key: 'action', label: 'Action' },
+  { key: 'targetType', label: 'Target type' },
+  { key: 'targetId', label: 'Target ID' },
+  { key: 'reason', label: 'Reason' },
 ];
 
 export default function AdminActivityPage() {
@@ -17,6 +28,7 @@ export default function AdminActivityPage() {
       page: params.page,
       limit: params.limit,
       action: params.status,
+      actor: params.search,
     }),
     [],
   );
@@ -24,6 +36,9 @@ export default function AdminActivityPage() {
   const {
     items,
     pagination,
+    search,
+    setSearch,
+    isSearching,
     setPage,
     loading,
     error,
@@ -35,14 +50,26 @@ export default function AdminActivityPage() {
     <AdminDataTable
       title="Activity log"
       description="Immutable record of admin moderation actions across the platform."
-      showSearch={false}
-      search=""
-      onSearchChange={() => {}}
+      searchPlaceholder="Search by actor email..."
+      search={search}
+      onSearchChange={setSearch}
+      isSearching={isSearching}
       filters={(
         <AdminFilterPills
           options={ACTIVITY_FILTERS}
           value={actionFilter}
           onChange={setActionFilter}
+        />
+      )}
+      actions={(
+        <ExportCsvButton
+          filename={`linkmakeup-activity-${new Date().toISOString().slice(0, 10)}.csv`}
+          columns={EXPORT_COLUMNS}
+          fetchRows={() => ApiService.getAdminAuditLogsExport({ action: actionFilter, actor: search })
+            .then((res) => res.data.items.map((entry) => ({
+              ...entry,
+              reason: entry.metadata?.reason || '',
+            })))}
         />
       )}
       loading={loading}

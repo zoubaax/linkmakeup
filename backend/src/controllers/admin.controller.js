@@ -4,6 +4,7 @@ import { ApiResponse, ApiError } from '../utils/apiResponse.js';
 
 const USER_STATUS_FILTERS = new Set(['all', 'with_profile', 'awaiting_profile']);
 const LINK_STATUS_FILTERS = new Set(['all', 'active', 'hidden']);
+const PROFILE_STATUS_FILTERS = new Set(['all', 'live', 'suspended']);
 const AUDIT_ACTION_FILTERS = new Set(['all', 'links', 'profiles']);
 
 function parsePagination(query) {
@@ -23,9 +24,18 @@ function parseLinkStatus(query) {
   return LINK_STATUS_FILTERS.has(status) ? status : 'all';
 }
 
+function parseProfileStatus(query) {
+  const status = String(query.status || 'all');
+  return PROFILE_STATUS_FILTERS.has(status) ? status : 'all';
+}
+
 function parseAuditFilter(query) {
   const action = String(query.action || 'all');
   return AUDIT_ACTION_FILTERS.has(action) ? action : 'all';
+}
+
+function parseActorFilter(query) {
+  return String(query.actor || '').trim();
 }
 
 function requireReason(reason, message = 'A reason is required for this action') {
@@ -75,8 +85,47 @@ export class AdminController {
 
   static async listProfiles(req, res, next) {
     try {
-      const result = await AdminService.listProfiles(parsePagination(req.query));
+      const result = await AdminService.listProfiles({
+        ...parsePagination(req.query),
+        status: parseProfileStatus(req.query),
+      });
       return ApiResponse.success(res, 'Profiles retrieved', result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportUsers(req, res, next) {
+    try {
+      const items = await AdminService.exportUsers({
+        search: parsePagination(req.query).search,
+        status: parseUserStatus(req.query),
+      });
+      return ApiResponse.success(res, 'Users exported', { items });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportProfiles(req, res, next) {
+    try {
+      const items = await AdminService.exportProfiles({
+        search: parsePagination(req.query).search,
+        status: parseProfileStatus(req.query),
+      });
+      return ApiResponse.success(res, 'Profiles exported', { items });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportLinks(req, res, next) {
+    try {
+      const items = await AdminService.exportLinks({
+        search: parsePagination(req.query).search,
+        status: parseLinkStatus(req.query),
+      });
+      return ApiResponse.success(res, 'Links exported', { items });
     } catch (err) {
       next(err);
     }
@@ -99,8 +148,21 @@ export class AdminController {
       const result = await AdminAuditService.listLogs({
         ...parsePagination(req.query),
         actionFilter: parseAuditFilter(req.query),
+        actor: parseActorFilter(req.query),
       });
       return ApiResponse.success(res, 'Audit logs retrieved', result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async exportAuditLogs(req, res, next) {
+    try {
+      const items = await AdminAuditService.exportLogs({
+        actionFilter: parseAuditFilter(req.query),
+        actor: parseActorFilter(req.query),
+      });
+      return ApiResponse.success(res, 'Audit logs exported', { items });
     } catch (err) {
       next(err);
     }

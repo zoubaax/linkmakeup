@@ -27,7 +27,7 @@ function toDayKey(value) {
   return String(value).slice(0, 10);
 }
 
-function buildSignupTrend(rows) {
+function buildDailyTrend(rows) {
   const countsByDay = new Map(
     rows.map((row) => [toDayKey(row.day), row.count]),
   );
@@ -58,6 +58,86 @@ function buildPagination(total, page, limit) {
   };
 }
 
+function buildUserFilters({ search, status }) {
+  const filters = [];
+
+  if (search) {
+    const pattern = `%${search}%`;
+    filters.push(or(ilike(users.email, pattern), ilike(users.name, pattern)));
+  }
+
+  if (status === 'with_profile') {
+    filters.push(sql`${profiles.id} is not null`);
+  } else if (status === 'awaiting_profile') {
+    filters.push(sql`${profiles.id} is null`);
+  }
+
+  return filters;
+}
+
+function buildProfileFilters({ search, status }) {
+  const filters = [];
+
+  if (search) {
+    const pattern = `%${search}%`;
+    filters.push(or(
+      ilike(profiles.username, pattern),
+      ilike(profiles.displayName, pattern),
+      ilike(users.email, pattern),
+    ));
+  }
+
+  if (status === 'live') {
+    filters.push(eq(profiles.isSuspended, false));
+  } else if (status === 'suspended') {
+    filters.push(eq(profiles.isSuspended, true));
+  }
+
+  return filters;
+}
+
+function buildLinkFilters({ search, status }) {
+  const filters = [];
+
+  if (search) {
+    const pattern = `%${search}%`;
+    filters.push(or(
+      ilike(links.title, pattern),
+      ilike(links.url, pattern),
+      ilike(profiles.username, pattern),
+      ilike(users.email, pattern),
+    ));
+  }
+
+  if (status === 'active') {
+    filters.push(eq(links.isActive, true));
+  } else if (status === 'hidden') {
+    filters.push(eq(links.isActive, false));
+  }
+
+  return filters;
+}
+
+function linkCountsTable() {
+  return db
+    .select({ userId: links.userId, count: sql`count(*)::int`.as('count') })
+    .from(links)
+    .groupBy(links.userId)
+    .as('link_counts');
+}
+
+function linkStatsTable() {
+  return db
+    .select({
+      userId: links.userId,
+      linkCount: sql`count(*)::int`.as('linkCount'),
+      activeLinkCount: sql`count(*) filter (where ${links.isActive})::int`.as('activeLinkCount'),
+    })
+    .from(links)
+    .groupBy(links.userId)
+    .as('link_stats');
+}
+
 export class AdminService {
   static async getPlatformStats() {
     const [
@@ -66,7 +146,11 @@ export class AdminService {
       [linkCount],
       [activeLinkCount],
       [usersWithoutProfile],
+      [suspendedProfileCount],
+      [hiddenLinkCount],
       signupTrendRows,
+      profileTrendRows,
+      linkTrendRows,
       recentUsers,
       recentProfiles,
       recentLinks,
@@ -81,6 +165,14 @@ export class AdminService {
         .leftJoin(profiles, eq(profiles.userId, users.id))
         .where(sql`${profiles.id} is null`),
       db
+        .select({ count: sql`count(*)::int` })
+        .from(profiles)
+        .where(eq(profiles.isSuspended, true)),
+      db
+        .select({ count: sql`count(*)::int` })
+        .from(links)
+        .where(eq(links.isActive, false)),
+      db
         .select({
           day: sql`date_trunc('day', ${users.createdAt})::date`.as('day'),
           count: sql`count(*)::int`.as('count'),
@@ -89,6 +181,24 @@ export class AdminService {
         .where(sql`${users.createdAt} >= now() - interval '14 days'`)
         .groupBy(sql`date_trunc('day', ${users.createdAt})::date`)
         .orderBy(sql`date_trunc('day', ${users.createdAt})::date`),
+      db
+        .select({
+          day: sql`date_trunc('day', ${profiles.createdAt})::date`.as('day'),
+          count: sql`count(*)::int`.as('count'),
+        })
+        .from(profiles)
+        .where(sql`${profiles.createdAt} >= now() - interval '14 days'`)
+        .groupBy(sql`date_trunc('day', ${profiles.createdAt})::date`)
+        .orderBy(sql`date_trunc('day', ${profiles.createdAt})::date`),
+      db
+        .select({
+          day: sql`date_trunc('day', ${links.createdAt})::date`.as('day'),
+          count: sql`count(*)::int`.as('count'),
+        })
+        .from(links)
+        .where(sql`${links.createdAt} >= now() - interval '14 days'`)
+        .groupBy(sql`date_trunc('day', ${links.createdAt})::date`)
+        .orderBy(sql`date_trunc('day', ${links.createdAt})::date`),
       db
         .select({
           id: users.id,
@@ -129,8 +239,11 @@ export class AdminService {
     const totalUsers = userCount.count;
     const totalProfiles = profileCount.count;
     const totalLinks = linkCount.count;
-    const signupTrend = buildSignupTrend(signupTrendRows);
+    const signupTrend = buildDailyTrend(signupTrendRows);
+    const profileTrend = buildDailyTrend(profileTrendRows);
+    const linkTrend = buildDailyTrend(linkTrendRows);
     const signupsLast7Days = signupTrend.slice(-7).reduce((sum, day) => sum + day.count, 0);
+    const signupsPrev7Days = signupTrend.slice(-14, -7).reduce((sum, day) => sum + day.count, 0);
     const profileCompletionRate = totalUsers > 0
       ? Math.round((totalProfiles / totalUsers) * 100)
       : 0;
@@ -144,12 +257,17 @@ export class AdminService {
         profiles: totalProfiles,
         links: totalLinks,
         activeLinks: activeLinkCount.count,
+        hiddenLinks: hiddenLinkCount.count,
+        suspendedProfiles: suspendedProfileCount.count,
         usersWithoutProfile: usersWithoutProfile.count,
         signupsLast7Days,
+        signupsPrev7Days,
         profileCompletionRate,
         avgLinksPerProfile,
       },
       signupTrend,
+      profileTrend,
+      linkTrend,
       recentUsers,
       recentProfiles,
       recentLinks,
@@ -210,6 +328,7 @@ export class AdminService {
 
   static async listUsers({ page, limit, search, status = 'all' }) {
     const offset = (page - 1) * limit;
+<<<<<<< Updated upstream
     const filters = [];
 
     if (search) {
@@ -223,6 +342,9 @@ export class AdminService {
       filters.push(sql`(${profiles.id} is null or ${profiles.username} is null or ${profiles.username} = '')`);
     }
 
+=======
+    const filters = buildUserFilters({ search, status });
+>>>>>>> Stashed changes
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
 
     const [countRow] = await db
@@ -230,6 +352,8 @@ export class AdminService {
       .from(users)
       .leftJoin(profiles, eq(profiles.userId, users.id))
       .where(whereClause);
+
+    const linkCounts = linkCountsTable();
 
     const rows = await db
       .select({
@@ -242,13 +366,11 @@ export class AdminService {
         profileId: profiles.id,
         displayName: profiles.displayName,
         isSuspended: profiles.isSuspended,
-        linkCount: sql`(
-          select count(*)::int from ${links}
-          where ${links.userId} = ${users.id}
-        )`.as('linkCount'),
+        linkCount: sql`coalesce(${linkCounts.count}, 0)::int`.as('linkCount'),
       })
       .from(users)
       .leftJoin(profiles, eq(profiles.userId, users.id))
+      .leftJoin(linkCounts, eq(linkCounts.userId, users.id))
       .where(whereClause)
       .orderBy(desc(users.createdAt))
       .limit(limit)
@@ -260,19 +382,34 @@ export class AdminService {
     };
   }
 
-  static async listProfiles({ page, limit, search }) {
+  static async exportUsers({ search, status = 'all' }) {
+    const filters = buildUserFilters({ search, status });
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
+    const linkCounts = linkCountsTable();
+
+    return db
+      .select({
+        id: users.id,
+        email: users.email,
+        name: users.name,
+        avatarUrl: users.avatarUrl,
+        createdAt: users.createdAt,
+        username: profiles.username,
+        profileId: profiles.id,
+        displayName: profiles.displayName,
+        isSuspended: profiles.isSuspended,
+        linkCount: sql`coalesce(${linkCounts.count}, 0)::int`.as('linkCount'),
+      })
+      .from(users)
+      .leftJoin(profiles, eq(profiles.userId, users.id))
+      .leftJoin(linkCounts, eq(linkCounts.userId, users.id))
+      .where(whereClause)
+      .orderBy(desc(users.createdAt));
+  }
+
+  static async listProfiles({ page, limit, search, status = 'all' }) {
     const offset = (page - 1) * limit;
-    const filters = [];
-
-    if (search) {
-      const pattern = `%${search}%`;
-      filters.push(or(
-        ilike(profiles.username, pattern),
-        ilike(profiles.displayName, pattern),
-        ilike(users.email, pattern),
-      ));
-    }
-
+    const filters = buildProfileFilters({ search, status });
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
 
     const [countRow] = await db
@@ -280,6 +417,8 @@ export class AdminService {
       .from(profiles)
       .leftJoin(users, eq(users.id, profiles.userId))
       .where(whereClause);
+
+    const linkStats = linkStatsTable();
 
     const rows = await db
       .select({
@@ -292,18 +431,12 @@ export class AdminService {
         isSuspended: profiles.isSuspended,
         createdAt: profiles.createdAt,
         email: users.email,
-        linkCount: sql`(
-          select count(*)::int from ${links}
-          where ${links.userId} = ${profiles.userId}
-        )`.as('linkCount'),
-        activeLinkCount: sql`(
-          select count(*)::int from ${links}
-          where ${links.userId} = ${profiles.userId}
-          and ${links.isActive} = true
-        )`.as('activeLinkCount'),
+        linkCount: sql`coalesce(${linkStats.linkCount}, 0)::int`.as('linkCount'),
+        activeLinkCount: sql`coalesce(${linkStats.activeLinkCount}, 0)::int`.as('activeLinkCount'),
       })
       .from(profiles)
       .leftJoin(users, eq(users.id, profiles.userId))
+      .leftJoin(linkStats, eq(linkStats.userId, profiles.userId))
       .where(whereClause)
       .orderBy(desc(profiles.createdAt))
       .limit(limit)
@@ -315,26 +448,35 @@ export class AdminService {
     };
   }
 
+  static async exportProfiles({ search, status = 'all' }) {
+    const filters = buildProfileFilters({ search, status });
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
+    const linkStats = linkStatsTable();
+
+    return db
+      .select({
+        id: profiles.id,
+        userId: profiles.userId,
+        username: profiles.username,
+        displayName: profiles.displayName,
+        bio: profiles.bio,
+        avatarUrl: profiles.avatarUrl,
+        isSuspended: profiles.isSuspended,
+        createdAt: profiles.createdAt,
+        email: users.email,
+        linkCount: sql`coalesce(${linkStats.linkCount}, 0)::int`.as('linkCount'),
+        activeLinkCount: sql`coalesce(${linkStats.activeLinkCount}, 0)::int`.as('activeLinkCount'),
+      })
+      .from(profiles)
+      .leftJoin(users, eq(users.id, profiles.userId))
+      .leftJoin(linkStats, eq(linkStats.userId, profiles.userId))
+      .where(whereClause)
+      .orderBy(desc(profiles.createdAt));
+  }
+
   static async listLinks({ page, limit, search, status = 'all' }) {
     const offset = (page - 1) * limit;
-    const filters = [];
-
-    if (search) {
-      const pattern = `%${search}%`;
-      filters.push(or(
-        ilike(links.title, pattern),
-        ilike(links.url, pattern),
-        ilike(profiles.username, pattern),
-        ilike(users.email, pattern),
-      ));
-    }
-
-    if (status === 'active') {
-      filters.push(eq(links.isActive, true));
-    } else if (status === 'hidden') {
-      filters.push(eq(links.isActive, false));
-    }
-
+    const filters = buildLinkFilters({ search, status });
     const whereClause = filters.length > 0 ? and(...filters) : undefined;
 
     const [countRow] = await db
@@ -370,6 +512,31 @@ export class AdminService {
       items: rows,
       pagination: buildPagination(countRow.count, page, limit),
     };
+  }
+
+  static async exportLinks({ search, status = 'all' }) {
+    const filters = buildLinkFilters({ search, status });
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
+
+    return db
+      .select({
+        id: links.id,
+        userId: links.userId,
+        title: links.title,
+        subtitle: links.subtitle,
+        url: links.url,
+        icon: links.icon,
+        isActive: links.isActive,
+        position: links.position,
+        createdAt: links.createdAt,
+        username: profiles.username,
+        email: users.email,
+      })
+      .from(links)
+      .leftJoin(users, eq(users.id, links.userId))
+      .leftJoin(profiles, eq(profiles.userId, links.userId))
+      .where(whereClause)
+      .orderBy(desc(links.createdAt));
   }
 
   static async toggleLink(linkId, isActive, actor, reason) {

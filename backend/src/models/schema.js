@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, integer, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, boolean, integer, timestamp, jsonb, index } from 'drizzle-orm/pg-core';
 
 // 1. Users Entity
 export const users = pgTable('users', {
@@ -55,7 +55,28 @@ export const links = pgTable('links', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-// 4. Admin audit log
+// 5. Analytics events (public page views + link clicks)
+export const analyticsEvents = pgTable(
+  'analytics_events',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    profileId: uuid('profile_id')
+      .references(() => profiles.id, { onDelete: 'cascade' })
+      .notNull(),
+    linkId: uuid('link_id').references(() => links.id, { onDelete: 'cascade' }),
+    eventType: varchar('event_type', { length: 20 }).notNull(),
+    platform: varchar('platform', { length: 50 }),
+    source: varchar('source', { length: 190 }),
+    userAgent: varchar('user_agent', { length: 255 }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('analytics_events_profile_idx').on(table.profileId),
+    index('analytics_events_type_time_idx').on(table.eventType, table.createdAt),
+  ],
+);
+
+// 6. Admin audit log
 export const adminAuditLogs = pgTable('admin_audit_logs', {
   id: uuid('id').defaultRandom().primaryKey(),
   actorEmail: varchar('actor_email', { length: 255 }).notNull(),

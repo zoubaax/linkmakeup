@@ -60,6 +60,7 @@ export default function ProfilePageView({
   compact = false,
   showFooter = false,
   className = '',
+  onLinkClick,
 }) {
   const theme = normalizeThemeConfig(themeInput);
   const visuals = getThemeVisuals(theme, { compact });
@@ -190,6 +191,7 @@ export default function ProfilePageView({
                   href={link.url}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => onLinkClick?.(link)}
                   style={{ ...visuals.link.style, ...fadeUp(300 + idx * 60) }}
                   className={`ppv-link ${visuals.link.className}`}
                 >

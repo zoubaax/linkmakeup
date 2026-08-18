@@ -39,10 +39,16 @@ export default function PublicProfile({ usernameOverride } = {}) {
 
   const profile = data?.profile;
   const links = data?.links || [];
+  const profileId = profile?.id;
   const appDomain = import.meta.env.VITE_APP_DOMAIN || 'linkmakeup.com';
   const landingUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? '/'
     : `https://${appDomain}/`;
+
+  useEffect(() => {
+    if (!profileId || suspended) return;
+    ApiService.trackPageView(profileId);
+  }, [profileId, suspended]);
 
   useEffect(() => {
     if (!profile || suspended) return;
@@ -188,6 +194,7 @@ export default function PublicProfile({ usernameOverride } = {}) {
       theme={profile.themeConfig}
       showFooter
       className="min-h-screen"
+      onLinkClick={(link) => ApiService.trackLinkClick(profile.id, link.id)}
     />
   );
 }

@@ -148,6 +148,7 @@ export class ProfileService {
 
       return {
         profile: {
+          id: userProfile.id,
           username: userProfile.username,
           displayName: userProfile.displayName,
           role: userProfile.role,

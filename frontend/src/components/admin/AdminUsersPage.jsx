@@ -8,12 +8,24 @@ import AdminDataTable, {
   useAdminList,
 } from './AdminDataTable';
 import AdminUserDrawer from './AdminUserDrawer';
+import ExportCsvButton from './ExportCsvButton';
 import { formatDateTime } from './formatters';
 
 const USER_FILTERS = [
   { value: 'all', label: 'All users' },
   { value: 'with_profile', label: 'Has profile' },
   { value: 'awaiting_profile', label: 'Awaiting setup' },
+];
+
+const EXPORT_COLUMNS = [
+  { key: 'id', label: 'ID' },
+  { key: 'email', label: 'Email' },
+  { key: 'name', label: 'Name' },
+  { key: 'username', label: 'Username' },
+  { key: 'displayName', label: 'Display name' },
+  { key: 'isSuspended', label: 'Suspended' },
+  { key: 'linkCount', label: 'Links' },
+  { key: 'createdAt', label: 'Joined' },
 ];
 
 export default function AdminUsersPage() {
@@ -103,6 +115,14 @@ export default function AdminUsersPage() {
               <span>{bulkSending ? 'Sending emails...' : 'Notify All Awaiting Setup'}</span>
             </button>
           </div>
+        )}
+        actions={(
+          <ExportCsvButton
+            filename={`linkmakeup-users-${new Date().toISOString().slice(0, 10)}.csv`}
+            columns={EXPORT_COLUMNS}
+            fetchRows={() => ApiService.getAdminUsersExport({ search, status })
+              .then((res) => res.data.items)}
+          />
         )}
         loading={loading}
         error={error}

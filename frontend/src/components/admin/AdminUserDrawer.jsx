@@ -267,7 +267,13 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
                           <button
                             type="button"
                             disabled={actionLoading}
-                            onClick={() => runAction(() => ApiService.patchAdminLink(link.id, { isActive: !link.isActive }))}
+                            onClick={() => {
+                              if (link.isActive) {
+                                setModal({ type: 'hideLink', linkId: link.id, linkTitle: link.title });
+                                return;
+                              }
+                              runAction(() => ApiService.patchAdminLink(link.id, { isActive: true }));
+                            }}
                             className="rounded-lg border border-border px-2.5 py-1 text-[11px] font-semibold text-fg-muted hover:text-fg hover:bg-surface-alt disabled:opacity-50"
                           >
                             {link.isActive ? 'Hide' : 'Show'}
@@ -290,6 +296,25 @@ export default function AdminUserDrawer({ userId, onClose, onUpdated }) {
           )}
         </div>
       </aside>
+
+      <AdminActionModal
+        open={modal?.type === 'hideLink'}
+        title="Hide link"
+        description={modal?.linkTitle
+          ? `"${modal.linkTitle}" will disappear from the owner's public page until restored.`
+          : 'This link will disappear from the public page until restored.'}
+        confirmLabel="Hide link"
+        confirmTone="danger"
+        requireReason={false}
+        reasonLabel="Note (optional)"
+        reasonPlaceholder="Optional note for the audit log…"
+        loading={actionLoading}
+        onClose={() => setModal(null)}
+        onConfirm={(reason) => runAction(() => ApiService.patchAdminLink(
+          modal.linkId,
+          { isActive: false, reason: reason || undefined },
+        ))}
+      />
 
       <AdminActionModal
         open={modal?.type === 'deleteLink'}

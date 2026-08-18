@@ -2,15 +2,35 @@ import { useCallback, useState } from 'react';
 import ApiService from '../../services/api';
 import { getPublicUserUrl } from '../../config/env';
 import AdminActionModal from './AdminActionModal';
-import AdminDataTable, { AdminTableHead, AdminTableShell, useAdminList } from './AdminDataTable';
+import AdminDataTable, { AdminFilterPills, AdminTableHead, AdminTableShell, useAdminList } from './AdminDataTable';
 import AdminUserDrawer from './AdminUserDrawer';
+import ExportCsvButton from './ExportCsvButton';
 import { formatDateTime, truncateText } from './formatters';
+
+const PROFILE_FILTERS = [
+  { value: 'all', label: 'All profiles' },
+  { value: 'live', label: 'Live' },
+  { value: 'suspended', label: 'Suspended' },
+];
+
+const EXPORT_COLUMNS = [
+  { key: 'id', label: 'ID' },
+  { key: 'username', label: 'Username' },
+  { key: 'displayName', label: 'Display name' },
+  { key: 'email', label: 'Email' },
+  { key: 'isSuspended', label: 'Suspended' },
+  { key: 'linkCount', label: 'Links' },
+  { key: 'activeLinkCount', label: 'Active links' },
+  { key: 'bio', label: 'Bio' },
+  { key: 'createdAt', label: 'Created' },
+];
 
 export default function AdminProfilesPage() {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [reloadKey, setReloadKey] = useState(0);
   const [actionLoading, setActionLoading] = useState(false);
   const [modal, setModal] = useState(null);
+  const [status, setStatus] = useState('all');
 
   const fetchProfiles = useCallback(
     (params) => ApiService.getAdminProfiles(params),
@@ -26,7 +46,7 @@ export default function AdminProfilesPage() {
     setPage,
     loading,
     error,
-  } = useAdminList(fetchProfiles);
+  } = useAdminList(fetchProfiles, { status });
 
   const refresh = () => setReloadKey((value) => value + 1);
 
@@ -53,6 +73,21 @@ export default function AdminProfilesPage() {
         search={search}
         onSearchChange={setSearch}
         isSearching={isSearching}
+        filters={(
+          <AdminFilterPills
+            options={PROFILE_FILTERS}
+            value={status}
+            onChange={setStatus}
+          />
+        )}
+        actions={(
+          <ExportCsvButton
+            filename={`linkmakeup-profiles-${new Date().toISOString().slice(0, 10)}.csv`}
+            columns={EXPORT_COLUMNS}
+            fetchRows={() => ApiService.getAdminProfilesExport({ search, status })
+              .then((res) => res.data.items)}
+          />
+        )}
         loading={loading}
         error={error}
         isEmpty={items.length === 0}
