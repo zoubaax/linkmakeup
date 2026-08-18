@@ -1,15 +1,16 @@
-import { transporter } from '../config/mailer.js';
+import path from 'path';
+import fs from 'fs';
+import { sendEmail } from '../config/mailer.js';
+
+function getLogoAttachment() {
+  return {
+    path: 'https://www.linkmakeup.com/card-logo.png',
+    filename: 'logo.png',
+    contentId: 'logo-image',
+  };
+}
 
 export class EmailService {
-  /**
-   * Helper to format sender header
-   */
-  static get fromHeader() {
-    const name = process.env.EMAIL_FROM_NAME || 'LinkMakeup Support';
-    const address = process.env.EMAIL_FROM_ADDRESS || 'support.linkmakeup@gmail.com';
-    return `"${name}" <${address}>`;
-  }
-
   /**
    * Send 6-Digit Verification OTP Code Email (Email + Password signups)
    */
@@ -28,59 +29,53 @@ export class EmailService {
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F8FAFC; padding: 40px 15px;">
     <tr>
       <td align="center">
-        <table width="540" border="0" cellspacing="0" cellpadding="0" style="max-width: 540px; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; padding: 40px 32px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);">
+        <table width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; padding: 44px 32px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);">
           
-          <!-- Logo Header -->
+          <!-- Logo Header using CID -->
           <tr>
             <td align="center" style="padding-bottom: 24px;">
-              <table border="0" cellspacing="0" cellpadding="0">
-                <tr>
-                  <td style="font-size: 26px; font-weight: 800; color: #0F172A; tracking-tight: -0.5px;">
-                    Link<span style="color: #059669;">Makeup.</span>
-                  </td>
-                </tr>
-              </table>
+              <img src="cid:logo-image" alt="LinkMakeup Logo" style="height: 38px; width: auto; max-width: 180px; border: 0; outline: none; text-decoration: none;" />
             </td>
           </tr>
 
-          <!-- Heading -->
+          <!-- Single Line Headline -->
           <tr>
-            <td style="font-size: 22px; font-weight: 700; color: #0F172A; padding-bottom: 12px;">
-              Verify Your Email Address
+            <td style="font-size: 22px; font-weight: 800; color: #0F172A; padding-bottom: 12px; white-space: nowrap;">
+              Verify Your Email Address 🔒
             </td>
           </tr>
 
-          <!-- Subtitle -->
+          <!-- Greeting & Instructions -->
           <tr>
             <td style="font-size: 14px; color: #475569; line-height: 1.6; padding-bottom: 28px;">
-              Hi @${username || 'creator'}, use the 6-digit verification code below to confirm your email and complete your LinkMakeup registration:
+              Welcome to LinkMakeup, <strong>@${username}</strong>! Enter the 6-digit code below to verify your account:
             </td>
           </tr>
 
-          <!-- OTP Code Box -->
+          <!-- 6-Digit OTP Pill -->
           <tr>
             <td align="center" style="padding-bottom: 28px;">
-              <div style="display: inline-block; background-color: #F1F5F9; border: 1px solid #CBD5E1; border-radius: 16px; padding: 18px 36px; font-size: 38px; font-weight: 800; letter-spacing: 10px; color: #059669; font-family: 'Courier New', Courier, monospace;">
+              <div style="display: inline-block; background-color: #F1F5F9; border: 1px solid #E2E8F0; border-radius: 16px; padding: 18px 36px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #059669;">
                 ${code}
               </div>
             </td>
           </tr>
 
-          <!-- Expiry Notice -->
+          <!-- Security Expiry Note -->
           <tr>
-            <td style="font-size: 12px; color: #64748B; border-top: 1px solid #F1F5F9; padding-top: 20px;">
-              This verification code expires in 15 minutes. If you didn't request this code, you can safely ignore this email.
+            <td style="font-size: 12px; color: #64748B; line-height: 1.5; padding-bottom: 24px;">
+              This code will expire in <strong>15 minutes</strong>. If you did not request this email, please ignore it.
             </td>
           </tr>
 
         </table>
 
         <!-- Email Footer -->
-        <table width="540" border="0" cellspacing="0" cellpadding="0" style="max-width: 540px; padding-top: 24px; text-align: center;">
+        <table width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; padding-top: 24px; text-align: center;">
           <tr>
             <td style="font-size: 11px; color: #94A3B8; line-height: 1.5;">
               © ${new Date().getFullYear()} LinkMakeup · All rights reserved.<br>
-              Sent from <a href="mailto:support.linkmakeup@gmail.com" style="color: #059669; text-decoration: none;">support.linkmakeup@gmail.com</a>
+              Sent from <a href="mailto:support@linkmakeup.com" style="color: #059669; text-decoration: none;">support@linkmakeup.com</a>
             </td>
           </tr>
         </table>
@@ -92,11 +87,11 @@ export class EmailService {
 </html>
     `;
 
-    return transporter.sendMail({
-      from: this.fromHeader,
+    return sendEmail({
       to: email,
       subject,
       html,
+      attachments: [getLogoAttachment()],
     });
   }
 
@@ -123,58 +118,50 @@ export class EmailService {
       <td align="center">
         <table width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; padding: 44px 32px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);">
           
-          <!-- Logo Header -->
+          <!-- Logo Header using CID -->
           <tr>
-            <td align="center" style="padding-bottom: 20px;">
-              <table border="0" cellspacing="0" cellpadding="0" align="center">
-                <tr>
-                  <td align="center" style="font-size: 32px; font-weight: 900; color: #0F172A; letter-spacing: -1px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                    Link<span style="color: #059669;">Makeup</span><span style="color: #059669; font-size: 36px; line-height: 0;">.</span>
-                  </td>
-                </tr>
-              </table>
+            <td align="center" style="padding-bottom: 24px;">
+              <img src="cid:logo-image" alt="LinkMakeup Logo" style="height: 38px; width: auto; max-width: 180px; border: 0; outline: none; text-decoration: none;" />
             </td>
           </tr>
 
-          <!-- Single-Line Welcome Headline (Mobile Optimized) -->
+          <!-- Single Line Headline -->
           <tr>
-            <td align="center" style="font-size: 19px; font-weight: 800; color: #0F172A; white-space: nowrap; padding-bottom: 16px; line-height: 1.2;">
+            <td style="font-size: 19px; font-weight: 800; color: #0F172A; padding-bottom: 12px; white-space: nowrap;">
               Welcome to LinkMakeup! 🎉
             </td>
           </tr>
 
-          <!-- Greeting Body Text -->
+          <!-- Subtitle / Greeting -->
           <tr>
-            <td style="font-size: 15px; color: #475569; line-height: 1.6; padding-bottom: 32px;">
-              Hi <strong>${displayName || username}</strong>,<br><br>
-              We're thrilled to have you onboard! Get started by setting up your bio link profile and claiming your custom subdomain.
+            <td style="font-size: 14px; color: #475569; line-height: 1.6; padding-bottom: 28px;">
+              Hi <strong>${displayName || username}</strong>, your account is verified! You can now build your custom bio link profile and share all your links in one place.
             </td>
           </tr>
 
-          <!-- Primary CTA Button -->
+          <!-- Single Dashboard CTA Button -->
           <tr>
-            <td align="center" style="padding-bottom: 32px;">
-              <a href="${dashboardUrl}" style="display: inline-block; background-color: #059669; color: #FFFFFF; border-radius: 14px; padding: 16px 36px; font-size: 15px; font-weight: 700; text-decoration: none; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
+            <td align="center" style="padding-bottom: 28px;">
+              <a href="${dashboardUrl}" style="display: inline-block; background-color: #059669; color: #FFFFFF; border-radius: 14px; padding: 14px 28px; font-weight: 700; font-size: 14px; text-decoration: none; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);">
                 Set Up Your Page in Dashboard →
               </a>
             </td>
           </tr>
 
-          <!-- Divider & Support Note -->
+          <!-- Help Footer -->
           <tr>
-            <td style="border-top: 1px solid #F1F5F9; padding-top: 24px; font-size: 13px; color: #64748B; line-height: 1.6;">
-              Need help customizing your page or adding social links? Visit your dashboard anytime to update your profile.
+            <td style="font-size: 12px; color: #64748B; border-top: 1px solid #F1F5F9; padding-top: 20px;">
+              Need help? Simply reply to this email and our team will get back to you!
             </td>
           </tr>
 
         </table>
 
-        <!-- Footer -->
+        <!-- Email Footer -->
         <table width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; padding-top: 24px; text-align: center;">
           <tr>
-            <td style="font-size: 11px; color: #94A3B8; line-height: 1.5;">
-              © ${new Date().getFullYear()} LinkMakeup · The link page that works with you.<br>
-              Sent from <a href="mailto:support.linkmakeup@gmail.com" style="color: #059669; text-decoration: none;">support.linkmakeup@gmail.com</a>
+            <td style="font-size: 11px; color: #94A3B8;">
+              © ${new Date().getFullYear()} LinkMakeup · Sent from <a href="mailto:support@linkmakeup.com" style="color: #059669; text-decoration: none;">support@linkmakeup.com</a>
             </td>
           </tr>
         </table>
@@ -186,11 +173,11 @@ export class EmailService {
 </html>
     `;
 
-    return transporter.sendMail({
-      from: this.fromHeader,
+    return sendEmail({
       to: email,
       subject,
       html,
+      attachments: [getLogoAttachment()],
     });
   }
 }

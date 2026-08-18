@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
 import { ZipArchive } from 'archiver';
-import { transporter } from '../config/mailer.js';
+import { sendEmail } from '../config/mailer.js';
 
 // Helper to get Google Service Account Private Key
 function getGoogleServiceAccountKey() {
@@ -278,12 +278,10 @@ export class WalletService {
       <td align="center">
         <table width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 24px; padding: 44px 32px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);">
           
-          <!-- Logo Header -->
+          <!-- Logo Header using CID -->
           <tr>
             <td align="center" style="padding-bottom: 24px;">
-              <span style="font-size: 28px; font-weight: 900; color: #0F172A; letter-spacing: -1px;">
-                Link<span style="color: #059669;">Makeup.</span>
-              </span>
+              <img src="cid:logo-image" alt="LinkMakeup Logo" style="height: 38px; width: auto; max-width: 180px; border: 0; outline: none; text-decoration: none;" />
             </td>
           </tr>
 
@@ -325,7 +323,7 @@ export class WalletService {
         <table width="560" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; padding-top: 24px; text-align: center;">
           <tr>
             <td style="font-size: 11px; color: #94A3B8;">
-              © ${new Date().getFullYear()} LinkMakeup · Sent from <a href="mailto:support.linkmakeup@gmail.com" style="color: #059669; text-decoration: none;">support.linkmakeup@gmail.com</a>
+              © ${new Date().getFullYear()} LinkMakeup · Sent from <a href="mailto:support@linkmakeup.com" style="color: #059669; text-decoration: none;">support@linkmakeup.com</a>
             </td>
           </tr>
         </table>
@@ -337,11 +335,17 @@ export class WalletService {
 </html>
     `;
 
-    return transporter.sendMail({
-      from: `"LinkMakeup Support" <${process.env.EMAIL_FROM_ADDRESS || 'support.linkmakeup@gmail.com'}>`,
+    const logoAttachment = {
+      path: 'https://www.linkmakeup.com/card-logo.png',
+      filename: 'logo.png',
+      contentId: 'logo-image',
+    };
+
+    return sendEmail({
       to: recipientEmail,
       subject,
       html,
+      attachments: [logoAttachment],
     });
   }
 }
