@@ -9,11 +9,17 @@ const PAGE_TITLES = {
   '/': 'Sign In',
   '/dashboard': 'Studio',
   '/dashboard/profile': 'Profile Details',
+  '/admin': 'Platform Admin',
+  '/admin/users': 'Platform Admin',
+  '/admin/profiles': 'Platform Admin',
+  '/admin/links': 'Platform Admin',
+  '/admin/activity': 'Platform Admin',
   '/onboarding': 'Setup',
 };
 
 function getPageTitle(pathname) {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
+  if (pathname.startsWith('/admin')) return 'Platform Admin';
   if (pathname !== '/' && !pathname.includes('/')) return 'Profile';
   return 'LinkMakeup';
 }

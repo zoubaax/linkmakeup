@@ -6,6 +6,14 @@ import ProfileDetailsPage from './components/ProfileDetailsPage';
 import OnboardingPage from './components/OnboardingPage';
 import PublicProfile from './components/PublicProfile';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+import AdminLayout from './components/admin/AdminLayout';
+import AdminOverview from './components/admin/AdminOverview';
+import AdminUsersPage from './components/admin/AdminUsersPage';
+import AdminProfilesPage from './components/admin/AdminProfilesPage';
+import AdminLinksPage from './components/admin/AdminLinksPage';
+import AdminActivityPage from './components/admin/AdminActivityPage';
+import SuspendedAccountPage from './components/SuspendedAccountPage';
 
 /**
  * Detect if the app is being loaded from a user subdomain
@@ -47,6 +55,15 @@ export default function App() {
           <Route path="/signup" element={<AuthPage initialMode="signup" />} />
 
           <Route
+            path="/account-suspended"
+            element={
+              <ProtectedRoute requiresSuspended>
+                <SuspendedAccountPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/onboarding"
             element={
               <ProtectedRoute requiresNoProfile>
@@ -72,6 +89,21 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+            path="/admin"
+            element={(
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            )}
+          >
+            <Route index element={<AdminOverview />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="profiles" element={<AdminProfilesPage />} />
+            <Route path="links" element={<AdminLinksPage />} />
+            <Route path="activity" element={<AdminActivityPage />} />
+          </Route>
 
           <Route path="/:username" element={<PublicProfile />} />
 

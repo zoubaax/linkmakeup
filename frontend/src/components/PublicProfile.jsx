@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import ApiService from '../services/api';
 import { SkeletonProfile } from './ui/Skeleton';
 import ProfilePageView from './profile/ProfilePageView';
+import SuspendedPublicPage from './SuspendedPublicPage';
 
 export default function PublicProfile({ usernameOverride } = {}) {
   const params = useParams();
@@ -10,10 +11,27 @@ export default function PublicProfile({ usernameOverride } = {}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [suspended, setSuspended] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+    setNotFound(false);
+    setSuspended(false);
+    setData(null);
+
     ApiService.getPublicProfile(username)
-      .then((res) => { if (res.success && res.data) setData(res.data); else setNotFound(true); })
+      .then((res) => {
+        if (res.success && res.data?.suspended) {
+          setSuspended(true);
+          setData(res.data);
+          return;
+        }
+        if (res.success && res.data) {
+          setData(res.data);
+        } else {
+          setNotFound(true);
+        }
+      })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [username]);
@@ -26,7 +44,7 @@ export default function PublicProfile({ usernameOverride } = {}) {
     : `https://${appDomain}/`;
 
   useEffect(() => {
-    if (!profile) return;
+    if (!profile || suspended) return;
     const displayTitle = profile.displayName
       ? profile.role
         ? `${profile.displayName} — ${profile.role}`
@@ -71,17 +89,31 @@ export default function PublicProfile({ usernameOverride } = {}) {
     return () => {
       document.title = 'LinkMakeup';
     };
-  }, [profile]);
+  }, [profile, suspended]);
 
   useEffect(() => {
+    if (suspended) {
+      document.title = 'Page Unavailable | LinkMakeup';
+      return;
+    }
     if (notFound) document.title = '404 — Page Not Found | LinkMakeup';
-  }, [notFound]);
+  }, [notFound, suspended]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-app flex items-center justify-center">
         <SkeletonProfile />
       </div>
+    );
+  }
+
+  if (suspended) {
+    return (
+      <SuspendedPublicPage
+        username={profile?.username || username}
+        displayName={profile?.displayName}
+        landingUrl={landingUrl}
+      />
     );
   }
 

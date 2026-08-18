@@ -34,7 +34,7 @@ function ActionButton({ children, onClick, variant = 'secondary', className = ''
   );
 }
 
-export default function LivePageShareBar({ profile, links, publicUrl }) {
+export default function LivePageShareBar({ profile, links, publicUrl, suspended = false }) {
   const { success: toastSuccess, error: toastError } = useToast();
   const [exportOpen, setExportOpen] = useState(false);
   const [embedOpen, setEmbedOpen] = useState(false);
@@ -173,26 +173,48 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
           {/* Left: Live Page Info & Sleek URL Pill */}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-2">
-              {/* Pulsing Live Badge */}
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                Live Bio Page
-              </span>
+              {suspended ? (
+                <>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                  <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                    Public page offline
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                  </span>
+                  <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                    Live Bio Page
+                  </span>
+                </>
+              )}
             </div>
 
-            {/* Sleek URL Pill */}
-            <div className="inline-flex items-center gap-2 max-w-full p-1.5 pl-3.5 pr-2 rounded-xl bg-surface-alt border border-border/80 shadow-2xs group hover:border-accent/40 transition-colors">
-              <a
-                href={publicUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="font-mono text-xs sm:text-sm font-bold text-fg hover:text-accent transition-colors truncate"
+            {suspended && (
+              <p className="text-xs text-fg-muted mb-2 max-w-xl">
+                Visitors see an unavailable notice instead of your page. Studio edits are saved but not public yet.
+              </p>
+            )}
+
+            <div className={`inline-flex items-center gap-2 max-w-full p-1.5 pl-3.5 pr-2 rounded-xl border shadow-2xs group transition-colors ${suspended ? 'bg-amber-500/5 border-amber-500/25' : 'bg-surface-alt border-border/80 hover:border-accent/40'}`}>
+              <span
+                className={`font-mono text-xs sm:text-sm font-bold truncate ${suspended ? 'text-fg-muted line-through decoration-amber-500/50' : 'text-fg hover:text-accent transition-colors'}`}
               >
                 {publicUrl}
-              </a>
+              </span>
+              {!suspended && (
+                <a
+                  href={publicUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="sr-only"
+                >
+                  {publicUrl}
+                </a>
+              )}
               <button
                 type="button"
                 onClick={handleCopyLink}
@@ -206,15 +228,13 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
             </div>
           </div>
 
-          {/* Right Action Buttons */}
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 shrink-0 w-full sm:w-auto">
-            <ActionButton variant="primary" onClick={handleSharePage}>
+            <ActionButton variant="primary" onClick={handleSharePage} disabled={suspended}>
               <HiShare className="w-4 h-4 shrink-0" />
               Share page
             </ActionButton>
 
-            {/* Quick QR Code Button */}
-            <ActionButton onClick={() => setQrOpen(true)}>
+            <ActionButton onClick={() => setQrOpen(true)} disabled={suspended}>
               <HiQrCode className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
               QR Code
             </ActionButton>
@@ -226,11 +246,11 @@ export default function LivePageShareBar({ profile, links, publicUrl }) {
 
             <ActionButton onClick={() => window.open(publicUrl, '_blank', 'noopener,noreferrer')}>
               <HiArrowTopRightOnSquare className="w-4 h-4 shrink-0 text-fg-muted" />
-              Visit page
+              {suspended ? 'Preview offline page' : 'Visit page'}
             </ActionButton>
 
             <div className="relative" ref={menuRef}>
-              <ActionButton onClick={() => setExportOpen((open) => !open)} className="min-w-[7.5rem]" disabled={Boolean(exporting)}>
+              <ActionButton onClick={() => setExportOpen((open) => !open)} className="min-w-[7.5rem]" disabled={Boolean(exporting) || suspended}>
                 <HiArrowDownTray className="w-4 h-4 shrink-0 text-fg-muted" />
                 {exporting ? 'Exporting…' : 'Export'}
                 <HiChevronDown className={`w-3.5 h-3.5 transition-transform shrink-0 ${exportOpen ? 'rotate-180' : ''}`} />

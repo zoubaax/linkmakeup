@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { getAuthenticatedHomePath } from '../utils/authRedirect';
 import Header from './landing/Header';
 import HeroSection from './landing/HeroSection';
 import LogoTicker from './landing/LogoTicker';
@@ -16,7 +17,7 @@ export default function LandingPage() {
     document.title = 'LinkMakeup — 100% Free Link in Bio Tool for Creators & Developers';
 
     if (!loading && user) {
-      navigate(profile ? '/dashboard' : '/onboarding', { replace: true });
+      navigate(getAuthenticatedHomePath(profile), { replace: true });
     }
   }, [loading, user, profile, navigate]);
 

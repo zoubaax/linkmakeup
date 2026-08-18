@@ -3,6 +3,7 @@ import { users, profiles } from '../models/schema.js';
 import { eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { ApiError } from '../utils/apiResponse.js';
+import { toPublicUser } from '../utils/adminAccess.js';
 
 export class AuthService {
   // 1. Email & Password Registration
@@ -36,12 +37,7 @@ export class AuthService {
       .returning();
 
     return {
-      user: {
-        id: newUser.id,
-        email: newUser.email,
-        name: newUser.name,
-        avatarUrl: newUser.avatarUrl,
-      },
+      user: toPublicUser(newUser),
       profile: null,
       isNewUser: true,
     };
@@ -80,12 +76,7 @@ export class AuthService {
       .limit(1);
 
     return {
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        avatarUrl: user.avatarUrl,
-      },
+      user: toPublicUser(user),
       profile: userProfile[0] || null,
       isNewUser: !userProfile[0],
     };
@@ -126,7 +117,10 @@ export class AuthService {
       }
 
       return {
-        user: { id: user.id, email: user.email, name: user.name, avatarUrl: updateData.avatarUrl || user.avatarUrl || avatarUrl },
+        user: toPublicUser({
+          ...user,
+          avatarUrl: updateData.avatarUrl || user.avatarUrl || avatarUrl,
+        }),
         profile: profileData,
         isNewUser: !profileData,
       };
@@ -144,7 +138,7 @@ export class AuthService {
       .returning();
 
     return {
-      user: { id: newUser.id, email: newUser.email, name: newUser.name, avatarUrl: newUser.avatarUrl },
+      user: toPublicUser(newUser),
       profile: null,
       isNewUser: true,
     };

@@ -1,9 +1,9 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { loginPathWithReturnTo } from '../utils/authRedirect';
+import { getAuthenticatedHomePath, loginPathWithReturnTo } from '../utils/authRedirect';
 import { SkeletonCard } from './ui/Skeleton';
 
-export default function ProtectedRoute({ children, requiresProfile, requiresNoProfile }) {
+export default function ProtectedRoute({ children, requiresProfile, requiresNoProfile, requiresSuspended }) {
   const { user, profile, loading } = useAuth();
   const location = useLocation();
 
@@ -29,8 +29,19 @@ export default function ProtectedRoute({ children, requiresProfile, requiresNoPr
     return <Navigate to={loginPathWithReturnTo(returnPath)} replace />;
   }
 
+  if (requiresSuspended) {
+    if (!profile?.isSuspended) {
+      return <Navigate to={getAuthenticatedHomePath(profile)} replace />;
+    }
+    return children;
+  }
+
+  if (profile?.isSuspended) {
+    return <Navigate to="/account-suspended" replace />;
+  }
+
   if (requiresNoProfile && profile) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={getAuthenticatedHomePath(profile)} replace />;
   }
 
   if (requiresProfile && !profile) {

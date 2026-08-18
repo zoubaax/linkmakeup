@@ -7,6 +7,13 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+function parseAdminEmails(raw = '') {
+  return raw
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+}
+
 export const env = {
   port: process.env.PORT || 5000,
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -17,4 +24,6 @@ export const env = {
   sessionSecret: process.env.SESSION_SECRET || 'linkmakeup_secret',
   googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+  adminEmails: parseAdminEmails(process.env.ADMIN_EMAILS),
+  adminApiKey: process.env.ADMIN_API_KEY || '',
 };

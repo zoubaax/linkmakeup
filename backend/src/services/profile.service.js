@@ -130,6 +130,16 @@ export class ProfileService {
 
       const userProfile = profileResult[0];
 
+      if (userProfile.isSuspended) {
+        return {
+          suspended: true,
+          profile: {
+            username: userProfile.username,
+            displayName: userProfile.displayName,
+          },
+        };
+      }
+
       const activeLinks = await db
         .select()
         .from(links)

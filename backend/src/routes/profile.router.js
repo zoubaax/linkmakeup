@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { ProfileController } from '../controllers/profile.controller.js';
 import { requireAuth } from '../middlewares/auth.middleware.js';
+import { rejectSuspendedAccount } from '../middlewares/suspended.middleware.js';
 
 const router = Router();
 
@@ -13,8 +14,8 @@ router.get('/profiles/:username', ProfileController.getPublicProfile);
 router.get('/profiles/:username/og', ProfileController.getPublicProfileOgHtml);
 
 // Protected routes
-router.post('/profiles', requireAuth, ProfileController.createProfile);
-router.patch('/profiles/me', requireAuth, ProfileController.updateProfile);
-router.post('/profiles/avatar-upload-signature', requireAuth, ProfileController.getAvatarUploadSignature);
+router.post('/profiles', requireAuth, rejectSuspendedAccount, ProfileController.createProfile);
+router.patch('/profiles/me', requireAuth, rejectSuspendedAccount, ProfileController.updateProfile);
+router.post('/profiles/avatar-upload-signature', requireAuth, rejectSuspendedAccount, ProfileController.getAvatarUploadSignature);
 
 export default router;

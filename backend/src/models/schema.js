@@ -25,6 +25,7 @@ export const profiles = pgTable('profiles', {
   avatarSize: varchar('avatar_size', { length: 20 }).default('medium').notNull(),
   statusBadge: varchar('status_badge', { length: 150 }),
   showStatusBadge: boolean('show_status_badge').default(true).notNull(),
+  isSuspended: boolean('is_suspended').default(false).notNull(),
   themeConfig: jsonb('theme_config').default({
     preset: 'minimal-mono',
     layoutStyle: 'minimal',
@@ -49,4 +50,16 @@ export const links = pgTable('links', {
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+// 4. Admin audit log
+export const adminAuditLogs = pgTable('admin_audit_logs', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  actorEmail: varchar('actor_email', { length: 255 }).notNull(),
+  actorType: varchar('actor_type', { length: 20 }).notNull(),
+  action: varchar('action', { length: 80 }).notNull(),
+  targetType: varchar('target_type', { length: 40 }).notNull(),
+  targetId: uuid('target_id').notNull(),
+  metadata: jsonb('metadata').default({}),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });

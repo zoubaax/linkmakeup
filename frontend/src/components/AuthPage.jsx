@@ -97,7 +97,7 @@ export default function AuthPage({ initialMode }) {
 
   useEffect(() => {
     if (!loading && user) {
-      const destination = resolvePostLoginPath(returnTo, Boolean(profile));
+      const destination = resolvePostLoginPath(returnTo, profile, user);
       clearReturnTo();
       navigate(destination, { replace: true });
     }
@@ -142,7 +142,7 @@ export default function AuthPage({ initialMode }) {
 
         setUser(userObj);
         setProfile(profileObj);
-        const destination = resolvePostLoginPath(returnTo, Boolean(profileObj));
+        const destination = resolvePostLoginPath(returnTo, profileObj, userObj);
         clearReturnTo();
         navigate(destination, { replace: true });
       } else {

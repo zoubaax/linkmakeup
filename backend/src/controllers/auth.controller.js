@@ -6,6 +6,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { db } from '../config/db.js';
 import { profiles } from '../models/schema.js';
 import { eq } from 'drizzle-orm';
+import { toPublicUser } from '../utils/adminAccess.js';
 
 const googleClient = new OAuth2Client(
   env.googleClientId,
@@ -161,12 +162,7 @@ export class AuthController {
       const profile = profileResult[0] || null;
 
       return ApiResponse.success(res, 'Current authenticated user retrieved', {
-        user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          avatarUrl: user.avatarUrl,
-        },
+        user: toPublicUser(user),
         profile,
       });
     } catch (err) {

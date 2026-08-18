@@ -138,6 +138,61 @@ class ApiService {
       body: JSON.stringify({ linkIds }),
     });
   }
+
+  static async getAdminStats() {
+    return this.request('/admin/stats', { cache: 'no-store' });
+  }
+
+  static async getAdminUsers({ page = 1, limit = 20, search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/users?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminUser(userId) {
+    return this.request(`/admin/users/${encodeURIComponent(userId)}`, { cache: 'no-store' });
+  }
+
+  static async getAdminProfiles({ page = 1, limit = 20, search = '' } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.set('search', search);
+    return this.request(`/admin/profiles?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async getAdminLinks({ page = 1, limit = 20, search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/links?${params.toString()}`, { cache: 'no-store' });
+  }
+
+  static async patchAdminLink(linkId, { isActive, reason }) {
+    return this.request(`/admin/links/${encodeURIComponent(linkId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ isActive, reason }),
+    });
+  }
+
+  static async deleteAdminLink(linkId, { reason }) {
+    return this.request(`/admin/links/${encodeURIComponent(linkId)}`, {
+      method: 'DELETE',
+      body: JSON.stringify({ reason }),
+    });
+  }
+
+  static async patchAdminProfileSuspension(profileId, { suspended, reason }) {
+    return this.request(`/admin/profiles/${encodeURIComponent(profileId)}/suspension`, {
+      method: 'PATCH',
+      body: JSON.stringify({ suspended, reason }),
+    });
+  }
+
+  static async getAdminAuditLogs({ page = 1, limit = 20, action = 'all' } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (action && action !== 'all') params.set('action', action);
+    return this.request(`/admin/audit-logs?${params.toString()}`, { cache: 'no-store' });
+  }
 }
 
 export default ApiService;

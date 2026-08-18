@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
-
 export default function CommandPalette({ open, onClose }) {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
@@ -28,6 +27,15 @@ export default function CommandPalette({ open, onClose }) {
         : { id: 'signin', label: 'Sign In', hint: 'Access your account', action: () => navigate('/login') },
       ...(user
         ? [{ id: 'profile', label: 'Profile Details', hint: 'Avatar, name & bio', action: () => navigate(PROFILE_DETAILS_PATH) }]
+        : []),
+      ...(user?.isAdmin
+        ? [
+          { id: 'admin', label: 'Platform Admin', hint: 'Users, profiles & links', action: () => navigate('/admin') },
+          { id: 'admin-users', label: 'Admin · Users', hint: 'Browse all accounts', action: () => navigate('/admin/users') },
+          { id: 'admin-profiles', label: 'Admin · Profiles', hint: 'Public pages & usernames', action: () => navigate('/admin/profiles') },
+          { id: 'admin-links', label: 'Admin · Links', hint: 'Platform-wide link inventory', action: () => navigate('/admin/links') },
+          { id: 'admin-activity', label: 'Admin · Activity', hint: 'Audit log of moderation actions', action: () => navigate('/admin/activity') },
+        ]
         : []),
       { id: 'theme', label: 'Toggle theme', hint: 'Light / dark mode', action: toggleTheme },
     ];

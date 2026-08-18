@@ -19,8 +19,8 @@ export default function ProfileDetailsPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <PageHeader
             title="Profile Identity"
             description="Manage your avatar photo, shape, display name, job title, bio, and status pill."

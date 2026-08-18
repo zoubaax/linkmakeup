@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../ui/Logo';
 import { useTheme } from '../../contexts/ThemeContext';
+import { getAuthenticatedHomePath } from '../../utils/authRedirect';
 
 export default function Header({ user, profile }) {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ export default function Header({ user, profile }) {
         {user ? (
           <button
             type="button"
-            onClick={() => navigate(profile ? '/dashboard' : '/onboarding')}
+            onClick={() => navigate(getAuthenticatedHomePath(profile))}
             className="px-3.5 sm:px-5 py-2 rounded-xl bg-[var(--lm-inverted)] text-[var(--lm-inverted-fg)] font-bold text-xs hover:opacity-90 transition-all shadow-xs shrink-0"
           >
             Studio →

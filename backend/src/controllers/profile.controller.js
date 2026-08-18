@@ -145,6 +145,10 @@ export class ProfileController {
         throw new ApiError(`Profile for username '${username}' was not found`, 404);
       }
 
+      if (profileData.suspended) {
+        return ApiResponse.success(res, 'Profile is temporarily unavailable', profileData, 200);
+      }
+
       return ApiResponse.success(res, 'Profile retrieved successfully', profileData);
     } catch (err) {
       next(err);
@@ -195,7 +199,32 @@ export class ProfileController {
       const { username } = req.params;
       const profileData = await ProfileService.getPublicProfileByUsername(username);
 
-      if (!profileData || !profileData.profile) {
+      if (!profileData) {
+        return res.status(404).send('<!DOCTYPE html><html><head><title>Profile Not Found | LinkMakeup</title></head><body>Profile Not Found</body></html>');
+      }
+
+      if (profileData.suspended) {
+        const displayName = profileData.profile?.displayName || username;
+        const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Unavailable | LinkMakeup</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta property="og:title" content="Page temporarily unavailable">
+  <meta property="og:description" content="This LinkMakeup page is currently unavailable.">
+</head>
+<body style="font-family:system-ui,sans-serif;padding:2rem;text-align:center;background:#0f172a;color:#fff;">
+  <h1 style="margin:0 0 0.5rem;font-size:1.5rem;">Page temporarily unavailable</h1>
+  <p style="color:#94a3b8;max-width:420px;margin:0 auto;">${displayName} (@${username}) is not publicly accessible right now.</p>
+</body>
+</html>`;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        return res.status(403).send(html);
+      }
+
+      if (!profileData.profile) {
         return res.status(404).send('<!DOCTYPE html><html><head><title>Profile Not Found | LinkMakeup</title></head><body>Profile Not Found</body></html>');
       }
 
