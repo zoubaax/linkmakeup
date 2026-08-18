@@ -8,6 +8,8 @@ import apiRouter from './routes/api.router.js';
 
 const app = express();
 
+app.set('trust proxy', 1);
+
 // Security and utility middlewares
 app.use(helmet({
   contentSecurityPolicy: false,
@@ -15,7 +17,7 @@ app.use(helmet({
 }));
 app.use(morgan('dev'));
 app.use(corsMiddleware);
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '5mb', type: ['application/json', 'text/plain', 'text/plain;charset=UTF-8'] }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cookieParser());
 

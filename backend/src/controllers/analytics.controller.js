@@ -57,7 +57,14 @@ function extractSource(req) {
 export class AnalyticsController {
   static async track(req, res, next) {
     try {
-      const validation = trackSchema.safeParse(req.body);
+      let rawBody = req.body;
+      if (typeof rawBody === 'string') {
+        try { rawBody = JSON.parse(rawBody); } catch { /* ignore */ }
+      } else if (Buffer.isBuffer(rawBody)) {
+        try { rawBody = JSON.parse(rawBody.toString('utf-8')); } catch { /* ignore */ }
+      }
+
+      const validation = trackSchema.safeParse(rawBody);
       if (!validation.success) {
         return ApiResponse.success(res, 'Analytics event skipped', { recorded: false });
       }
