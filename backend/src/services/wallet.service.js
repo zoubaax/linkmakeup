@@ -196,10 +196,15 @@ export class WalletService {
                 uri: logoUrl,
               },
             },
+            heroImage: {
+              sourceUri: {
+                uri: 'https://www.linkmakeup.com/walletcard.png',
+              },
+            },
             cardTitle: {
               defaultValue: {
                 language: 'en',
-                value: 'LinkMakeup Pass',
+                value: 'Link Make Up',
               },
             },
             header: {
@@ -214,7 +219,7 @@ export class WalletService {
                 value: `@${rawUsername}`,
               },
             },
-            hexBackgroundColor: '#0f172a',
+            hexBackgroundColor: '#080e14',
             barcode: {
               type: 'QR_CODE',
               value: targetUrl,
