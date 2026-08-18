@@ -13,16 +13,21 @@ function getGoogleServiceAccountKey() {
       const parsed = JSON.parse(fileData);
       return {
         clientEmail: parsed.client_email,
-        privateKey: parsed.private_key,
+        privateKey: (parsed.private_key || '').replace(/\\n/g, '\n'),
       };
     }
   } catch (err) {
     console.error('Could not load service account JSON file:', err);
   }
 
+  const rawKey = process.env.GOOGLE_PRIVATE_KEY || '';
+  const privateKey = rawKey.includes('-----BEGIN PRIVATE KEY-----')
+    ? rawKey.replace(/\\n/g, '\n')
+    : rawKey;
+
   return {
     clientEmail: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '',
-    privateKey: (process.env.GOOGLE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+    privateKey,
   };
 }
 
@@ -64,32 +69,17 @@ export class WalletService {
         ],
         auxiliaryFields: [
           {
-            key: 'link',
-            label: 'SUBDOMAIN',
-            value: targetUrl.replace(/^https?:\/\//, ''),
-          },
-        ],
-        backFields: [
-          {
-            key: 'bio',
-            label: 'ABOUT',
-            value: profile?.bio || 'Digital business card powered by LinkMakeup.',
-          },
-          {
-            key: 'website',
-            label: 'FULL PROFILE',
-            value: targetUrl,
+            key: 'username',
+            label: 'PROFILE',
+            value: `@${username}`,
           },
         ],
       },
-      barcodes: [
-        {
-          format: 'PKBarcodeFormatQR',
-          message: targetUrl,
-          messageEncoding: 'iso-8859-1',
-          altText: targetUrl,
-        },
-      ],
+      barcode: {
+        message: targetUrl,
+        format: 'PKBarcodeFormatQR',
+        messageEncoding: 'iso-8859-1',
+      },
     };
   }
 
@@ -122,47 +112,31 @@ export class WalletService {
   }
 
   /**
-   * Generates vCard (.vcf) format for mobile contacts with Base64 embedded photo
+   * Generates vCard (.vcf) format with Base64 Profile Picture for iPhone & Android Contacts
    */
   static async generateVCard(profile, publicUrl) {
     const displayName = profile?.displayName || 'LinkMakeup Creator';
-    const role = profile?.role || '';
-    const bio = profile?.bio || 'Digital business card powered by LinkMakeup.';
+    const role = profile?.role || 'Digital Business Card';
     const username = profile?.username || 'card';
-    const rawAvatarUrl = profile?.avatarUrl || profile?.avatar || '';
+    const bio = profile?.bio || 'Connect with me on LinkMakeup';
     const targetUrl = publicUrl || `https://linkmakeup.com/${username}`;
+    const avatarUrl = profile?.avatar;
 
-    const names = displayName.trim().split(' ');
-    const firstName = names[0] || displayName;
-    const lastName = names.slice(1).join(' ') || '';
+    const nameParts = displayName.trim().split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
 
     let photoField = '';
-
-    if (rawAvatarUrl) {
+    if (avatarUrl) {
       try {
-        let fullAvatarUrl = rawAvatarUrl;
-        if (rawAvatarUrl.startsWith('/')) {
-          const appDomain = process.env.CLIENT_URL || 'https://www.linkmakeup.com';
-          fullAvatarUrl = `${appDomain.replace(/\/+$/, '')}${rawAvatarUrl}`;
-        }
-
-        const response = await fetch(fullAvatarUrl, { signal: AbortSignal.timeout(3000) });
+        const response = await fetch(avatarUrl);
         if (response.ok) {
           const arrayBuffer = await response.arrayBuffer();
-          const base64Photo = Buffer.from(arrayBuffer).toString('base64');
-          const contentType = response.headers.get('content-type') || 'image/jpeg';
-          const imageType = contentType.includes('png') ? 'PNG' : 'JPEG';
-          photoField = `PHOTO;TYPE=${imageType};ENCODING=b:${base64Photo}`;
-        } else {
-          photoField = `PHOTO;VALUE=URL:${fullAvatarUrl}`;
+          const base64 = Buffer.from(arrayBuffer).toString('base64');
+          photoField = `PHOTO;TYPE=JPEG;ENCODING=b:${base64}`;
         }
-      } catch {
-        let fullAvatarUrl = rawAvatarUrl;
-        if (rawAvatarUrl.startsWith('/')) {
-          const appDomain = process.env.CLIENT_URL || 'https://www.linkmakeup.com';
-          fullAvatarUrl = `${appDomain.replace(/\/+$/, '')}${rawAvatarUrl}`;
-        }
-        photoField = `PHOTO;VALUE=URL:${fullAvatarUrl}`;
+      } catch (err) {
+        console.warn('Could not fetch avatar for vCard embedding:', err.message);
       }
     }
 
@@ -194,8 +168,7 @@ export class WalletService {
     const displayName = typeof profile === 'string' ? 'LinkMakeup Creator' : (profile?.displayName || 'LinkMakeup Creator');
     const cleanUsername = String(rawUsername).replace(/[^a-zA-Z0-9_-]/g, '_');
     const targetUrl = publicUrl || `https://linkmakeup.com/${rawUsername}`;
-    const appDomain = process.env.CLIENT_URL || 'https://www.linkmakeup.com';
-    const logoUrl = `${appDomain.replace(/\/+$/, '')}/card-logo.png`;
+    const logoUrl = 'https://www.linkmakeup.com/card-logo.png';
 
     if (!credentials.privateKey || !credentials.clientEmail) {
       return `https://pay.google.com/gp/v/save/${encodeURIComponent(targetUrl)}`;
@@ -209,7 +182,7 @@ export class WalletService {
       payload: {
         genericObjects: [
           {
-            id: `${issuerId}.${cleanUsername}_${Date.now()}`,
+            id: `${issuerId}.${cleanUsername}_pass`,
             classId: classId,
             logo: {
               sourceUri: {
