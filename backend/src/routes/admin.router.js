@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { AdminController } from '../controllers/admin.controller.js';
 import { AnalyticsController } from '../controllers/analytics.controller.js';
+import { OrderController } from '../controllers/order.controller.js';
 import { requireAdminAccess } from '../middlewares/admin.middleware.js';
 
 const router = Router();
@@ -43,5 +44,9 @@ router.get('/admin/links/export', AdminController.exportLinks);
 router.get('/admin/links', AdminController.listLinks);
 router.patch('/admin/links/:linkId', AdminController.patchLink);
 router.delete('/admin/links/:linkId', AdminController.deleteLink);
+
+// Orders (NFC Smart Cards)
+router.get('/admin/orders', OrderController.getAdminOrders);
+router.patch('/admin/orders/:id/status', OrderController.updateOrderStatus);
 
 export default router;

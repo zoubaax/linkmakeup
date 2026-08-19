@@ -107,3 +107,24 @@ export const adminNotes = pgTable(
     index('admin_notes_target_idx').on(table.targetType, table.targetId),
   ]
 );
+
+// 7. Card Orders Entity (NFC Smart Card orders)
+export const orders = pgTable(
+  'orders',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    fullName: varchar('full_name', { length: 255 }).notNull(),
+    phone: varchar('phone', { length: 50 }).notNull(),
+    city: varchar('city', { length: 100 }).notNull(),
+    address: text('address').notNull(),
+    status: varchar('status', { length: 50 }).default('pending').notNull(),
+    notes: text('notes'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (table) => [
+    index('orders_status_idx').on(table.status),
+    index('orders_created_idx').on(table.createdAt),
+  ]
+);
+

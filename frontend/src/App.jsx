@@ -14,8 +14,10 @@ import AdminAnalyticsPage from './components/admin/AdminAnalyticsPage';
 import AdminUsersPage from './components/admin/AdminUsersPage';
 import AdminProfilesPage from './components/admin/AdminProfilesPage';
 import AdminLinksPage from './components/admin/AdminLinksPage';
+import AdminOrdersPage from './components/admin/AdminOrdersPage';
 import AdminActivityPage from './components/admin/AdminActivityPage';
 import SuspendedAccountPage from './components/SuspendedAccountPage';
+import OrderNfcPage from './components/OrderNfcPage';
 
 // SEO Strategy Pages
 import EngineersLanding from './components/landing/strategy/EngineersLanding';
@@ -143,6 +145,9 @@ export default function App() {
             }
           />
 
+          <Route path="/order-nfc" element={<OrderNfcPage />} />
+          <Route path="/order" element={<OrderNfcPage />} />
+
           <Route
             path="/admin"
             element={(
@@ -156,6 +161,7 @@ export default function App() {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="profiles" element={<AdminProfilesPage />} />
             <Route path="links" element={<AdminLinksPage />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="activity" element={<AdminActivityPage />} />
           </Route>
 

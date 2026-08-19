@@ -66,7 +66,7 @@ export default function HeroSection() {
 
               <button
                 type="button"
-                onClick={() => navigate('/signup?type=nfc')}
+                onClick={() => navigate('/order-nfc')}
                 className="px-5 py-3 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/60 text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-sm hover:border-emerald-500 transition-all shadow-xs cursor-pointer"
               >
                 Order NFC Smart Card
@@ -97,7 +97,7 @@ export default function HeroSection() {
 
             <button
               type="button"
-              onClick={() => navigate('/signup?type=nfc')}
+              onClick={() => navigate('/order-nfc')}
               className="px-5 py-3 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/60 text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-sm hover:border-emerald-500 transition-all shadow-xs w-full sm:w-auto text-center cursor-pointer"
             >
               Order NFC Smart Card

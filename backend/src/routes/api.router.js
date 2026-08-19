@@ -7,6 +7,7 @@ import faviconRouter from './favicon.router.js';
 import analyticsRouter from './analytics.router.js';
 import adminRouter from './admin.router.js';
 import walletRouter from './wallet.router.js';
+import orderRouter from './order.router.js';
 
 const apiRouter = Router();
 
@@ -17,6 +18,7 @@ apiRouter.use(profileRouter);
 apiRouter.use(linkRouter);
 apiRouter.use(analyticsRouter);
 apiRouter.use(walletRouter);
+apiRouter.use(orderRouter);
 apiRouter.use(adminRouter);
 
 export default apiRouter;

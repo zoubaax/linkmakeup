@@ -449,6 +449,30 @@ class ApiService {
     if (status && status !== 'all') params.set('status', status);
     return this.request(`/admin/analytics/export?${params.toString()}`, { cache: 'no-store' });
   }
+
+  // 💳 NFC Orders API
+  static async createNfcOrder(orderData) {
+    this.invalidateCache('/admin/orders');
+    return this.request('/orders', {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    });
+  }
+
+  static async getAdminOrders({ page = 1, limit = 10, search = '', status = 'all' } = {}) {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (search) params.set('search', search);
+    if (status && status !== 'all') params.set('status', status);
+    return this.request(`/admin/orders?${params.toString()}`, { useMemoryCache: true });
+  }
+
+  static async updateAdminOrderStatus(orderId, status) {
+    this.invalidateCache('/admin/orders');
+    return this.request(`/admin/orders/${orderId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    });
+  }
 }
 
 export default ApiService;
