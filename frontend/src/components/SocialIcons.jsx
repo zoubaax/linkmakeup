@@ -5,7 +5,20 @@ export const PLATFORM_PRESETS = [
   { id: 'twitter', name: 'X (Twitter)', baseUrl: 'https://x.com/', color: 'from-slate-800 to-slate-950', icon: 'twitter' },
   { id: 'youtube', name: 'YouTube', baseUrl: 'https://youtube.com/@', color: 'from-red-600 to-rose-700', icon: 'youtube' },
   { id: 'tiktok', name: 'TikTok', baseUrl: 'https://tiktok.com/@', color: 'from-cyan-500 to-pink-500', icon: 'tiktok' },
+  { id: 'snapchat', name: 'Snapchat', baseUrl: 'https://snapchat.com/add/', color: 'from-yellow-400 to-amber-500', icon: 'snapchat' },
+  { id: 'discord', name: 'Discord', baseUrl: 'https://discord.gg/', color: 'from-indigo-500 to-blue-600', icon: 'discord' },
   { id: 'whatsapp', name: 'WhatsApp', baseUrl: 'https://wa.me/', color: 'from-emerald-500 to-teal-600', icon: 'whatsapp' },
+  { id: 'telegram', name: 'Telegram', baseUrl: 'https://t.me/', color: 'from-sky-400 to-blue-500', icon: 'telegram' },
+  { id: 'reddit', name: 'Reddit', baseUrl: 'https://reddit.com/user/', color: 'from-orange-600 to-red-600', icon: 'reddit' },
+  { id: 'threads', name: 'Threads', baseUrl: 'https://threads.net/@', color: 'from-slate-800 to-zinc-950', icon: 'threads' },
+  { id: 'twitch', name: 'Twitch', baseUrl: 'https://twitch.tv/', color: 'from-purple-600 to-violet-700', icon: 'twitch' },
+  { id: 'kick', name: 'Kick', baseUrl: 'https://kick.com/', color: 'from-emerald-500 to-green-600', icon: 'kick' },
+  { id: 'wattpad', name: 'Wattpad', baseUrl: 'https://wattpad.com/user/', color: 'from-orange-500 to-amber-600', icon: 'wattpad' },
+  { id: 'substack', name: 'Substack', baseUrl: 'https://substack.com/@', color: 'from-amber-600 to-orange-700', icon: 'substack' },
+  { id: 'medium', name: 'Medium', baseUrl: 'https://medium.com/@', color: 'from-slate-800 to-emerald-900', icon: 'medium' },
+  { id: 'patreon', name: 'Patreon', baseUrl: 'https://patreon.com/', color: 'from-rose-500 to-red-600', icon: 'patreon' },
+  { id: 'steam', name: 'Steam', baseUrl: 'https://steamcommunity.com/id/', color: 'from-slate-700 to-blue-950', icon: 'steam' },
+  { id: 'bluesky', name: 'Bluesky', baseUrl: 'https://bsky.app/profile/', color: 'from-sky-400 to-blue-500', icon: 'bluesky' },
   { id: 'pinterest', name: 'Pinterest', baseUrl: 'https://pinterest.com/', color: 'from-red-600 to-red-700', icon: 'pinterest' },
   { id: 'spotify', name: 'Spotify', baseUrl: 'https://open.spotify.com/', color: 'from-emerald-500 to-emerald-700', icon: 'spotify' },
   { id: 'behance', name: 'Behance', baseUrl: 'https://www.behance.net/', color: 'from-blue-600 to-indigo-700', icon: 'behance' },
@@ -27,14 +40,24 @@ export const DEFAULT_SUBTITLES = {
   twitter: 'Follow on X',
   youtube: 'Watch my videos',
   tiktok: 'Watch my TikToks',
+  snapchat: 'Add me on Snapchat',
+  discord: 'Join my Discord server',
   whatsapp: 'Send me a message',
+  telegram: 'Chat on Telegram',
+  reddit: 'Join the discussion on Reddit',
+  threads: 'Follow on Threads',
+  twitch: 'Watch me live on Twitch',
+  kick: 'Watch my Kick stream',
+  wattpad: 'Read my stories on Wattpad',
+  substack: 'Read my newsletter on Substack',
+  medium: 'Read my articles on Medium',
+  patreon: 'Support me on Patreon',
+  steam: 'Add me on Steam',
+  bluesky: 'Follow me on Bluesky',
   website: 'Visit my website',
   portfolio: 'View my work',
-  email: 'Send me a message',
-  snapchat: 'Add me on Snapchat',
+  email: 'Send me an email',
   pinterest: 'See my boards',
-  discord: 'Join my server',
-  twitch: 'Watch me live',
   spotify: 'Listen with me',
   behance: 'See my designs',
   dribbble: 'See my shots',
@@ -51,23 +74,7 @@ export function getDefaultSubtitle(iconName, title) {
 }
 
 export function getPlatformContainerStyle(iconName) {
-  const name = (iconName || '').toLowerCase();
-  if (name.includes('portfolio') || name.includes('work') || name.includes('projects')) return 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400';
-  if (name.includes('email') || name.includes('mail') || name.includes('contact')) return 'bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400';
-  if (name.includes('linkedin')) return 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400';
-  if (name.includes('github')) return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200';
-  if (name.includes('instagram')) return 'bg-pink-50 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400';
-  if (name.includes('youtube')) return 'bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400';
-  if (name.includes('whatsapp')) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
-  if (name.includes('twitter') || name.includes('x')) return 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-slate-100';
-  if (name.includes('tiktok')) return 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400';
-  if (name.includes('pinterest')) return 'bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400';
-  if (name.includes('spotify')) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
-  if (name.includes('behance')) return 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400';
-  if (name.includes('dribbble')) return 'bg-pink-50 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400';
-  if (name.includes('figma')) return 'bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400';
-  if (name.includes('phone')) return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
-  return 'bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400';
+  return 'bg-surface-muted text-fg border border-border';
 }
 
 export function getPlatformIcon(iconName, className = "w-4 h-4") {
@@ -171,6 +178,102 @@ export function getPlatformIcon(iconName, className = "w-4 h-4") {
 
   if (name.includes('figma')) {
     return <span className={`${className} inline-flex items-center justify-center font-black leading-none`}>F</span>;
+  }
+
+  if (name.includes('snapchat')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12.012 2c-3.52 0-5.748 2.518-5.748 5.27 0 1.637.766 2.977 1.328 3.844.225.348.33.568.225.877-.165.488-.997.877-1.657 1.102-.45.157-.772.487-.66.93.127.51.78.84 1.56.975 1.23.21 2.07 1.24 1.86 2.43-.18.99-1.44 1.62-2.43 1.29-.54-.18-1.08.03-1.32.48-.27.51.06 1.38.75 1.74 1.89.99 3.93 1.41 6.12 1.41s4.23-.42 6.12-1.41c.69-.36 1.02-1.23.75-1.74-.24-.45-.78-.66-1.32-.48-.99.33-2.25-.3-2.43-1.29-.21-1.19.63-2.22 1.86-2.43.78-.135 1.433-.465 1.56-.975.112-.443-.21-.773-.66-.93-.66-.225-1.492-.614-1.657-1.102-.105-.309 0-.529.225-.877.562-.867 1.328-2.207 1.328-3.844 0-2.752-2.228-5.27-5.748-5.27z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('discord')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('telegram')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.128.832.941z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('reddit')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.11 3.11 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.687-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.562-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.197-2.512-.73a.326.326 0 0 0-.232-.094z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('threads')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12.186 24.004c-3.16 0-5.835-1.037-7.737-3.08-1.854-1.993-2.793-4.738-2.793-8.16 0-3.473.955-6.262 2.84-8.29C6.375 2.392 9.07 1.34 12.247 1.34c3.21 0 5.86 1.05 7.662 3.037 1.637 1.8 2.457 4.28 2.457 7.37 0 .42-.036.85-.107 1.28-.27 1.62-.977 2.94-2.099 3.93-1.08 1.003-2.52 1.545-4.285 1.61-1.574.06-2.905-.33-3.957-1.16-.766-.607-1.293-1.44-1.57-2.48l-.05-.18a3.78 3.78 0 0 1-1.41 1.23c-.63.34-1.35.52-2.14.52-1.3 0-2.38-.43-3.21-1.28-.83-.85-1.25-1.98-1.25-3.37 0-1.46.47-2.65 1.4-3.55.93-.9 2.18-1.36 3.72-1.36 1.13 0 2.12.24 2.95.71l.03.02v-.4c0-1.12-.29-1.96-.86-2.5-.57-.54-1.44-.81-2.61-.81-1.28 0-2.49.33-3.6.99-.27.16-.6.07-.76-.2-.16-.27-.07-.6.2-.76 1.3-.78 2.73-1.17 4.25-1.17 1.55 0 2.76.38 3.6 1.14.84.76 1.26 1.93 1.26 3.51v4.75c0 .91.31 1.62.92 2.1.61.48 1.45.71 2.5.67 1.26-.05 2.27-.45 3.01-1.19.74-.74 1.21-1.74 1.4-2.98.05-.32.08-.65.08-.98 0-2.61-.69-4.66-2.05-6.1-1.42-1.5-3.56-2.29-6.37-2.29-2.66 0-4.9.87-6.47 2.58-1.54 1.68-2.32 3.99-2.32 6.87 0 2.9.77 5.23 2.29 6.94 1.53 1.7 3.7 2.57 6.27 2.57 1.83 0 3.47-.44 4.88-1.31.28-.17.64-.08.81.2.17.28.08.64-.2.81-1.63 1.01-3.51 1.52-5.6 1.52zm-1.85-11.4c-1.07 0-1.9.3-2.47.89-.57.59-.85 1.37-.85 2.32 0 .9.27 1.62.81 2.16.54.54 1.24.81 2.1.81.65 0 1.23-.17 1.73-.5.5-.33.87-.8 1.1-1.4.08-.22.12-.46.12-.72v-.65c-.68-.61-1.54-.91-2.59-.91z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('twitch')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M11.571 1.429L1.429 4.143v15.714h5v3.571l3.571-3.571h3.571L21.429 12V1.429H11.571zm8.429 9.857l-2.857 2.857h-3.571l-2.5 2.5v-2.5h-3.571V2.857h12.5v8.429zM15.714 6.429h-1.429v4.286h1.429V6.429zm-4.286 0h-1.429v4.286h1.429V6.429z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('kick')) {
+    return <span className={`${className} inline-flex items-center justify-center font-black text-[11px] leading-none tracking-tighter text-current`}>KICK</span>;
+  }
+
+  if (name.includes('wattpad')) {
+    return <span className={`${className} inline-flex items-center justify-center font-black text-sm leading-none text-current`}>W</span>;
+  }
+
+  if (name.includes('substack')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.539 0H1.46v2.836h21.08V0z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('medium')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M13.54 12a6.8 6.8 0 0 1-6.77 6.82A6.8 6.8 0 0 1 0 12a6.8 6.8 0 0 1 6.77-6.82A6.8 6.8 0 0 1 13.54 12zm7.42 0c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42c1.87 0 3.38 2.88 3.38 6.42zm2.99 0c0 3.06-.44 5.54-.99 5.54-.55 0-1-.2.48-1-5.54s.45-5.54.99-5.54c.55 0 1 2.48 1 5.54z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('patreon')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M15.386.002c-4.764 0-8.64 3.876-8.64 8.64 0 4.75 3.876 8.613 8.64 8.613 4.75 0 8.614-3.864 8.614-8.613C24 3.878 20.136 0 15.386 0zm-15.386.002h3.877v23.998H0V.002z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('steam')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.03 4.524 4.524s-2.03 4.524-4.524 4.524c-.104 0-.205-.008-.308-.016l-4.086 2.923c.005.066.012.13.012.197 0 1.954-1.587 3.541-3.541 3.541-1.637 0-3.023-1.115-3.431-2.633L.367 15.938C1.884 20.615 6.27 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('bluesky')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566 1.01 0 1.87 0 5.2c0 3.329 1.488 12.016 2.222 13.9 1.34 3.447 4.148 4.288 6.556 2.113 2.164-1.956 2.766-3.784 3.222-5.113.456 1.329 1.058 3.157 3.222 5.113 2.408 2.175 5.216 1.334 6.556-2.113C22.512 17.216 24 8.529 24 5.2c0-3.33-2.566-4.19-5.202-2.395C16.046 4.747 13.087 8.686 12 10.8z"/>
+      </svg>
+    );
   }
 
   if (name.includes('pinterest')) {

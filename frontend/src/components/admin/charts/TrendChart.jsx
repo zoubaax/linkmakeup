@@ -34,13 +34,13 @@ export default function TrendChart({
         </div>
       </div>
 
-      <div className="px-5 py-5">
+      <div className="px-5 py-5 overflow-x-auto custom-scrollbar">
         {trend.length === 0 ? (
           <p className="text-sm text-fg-muted text-center py-8">No data yet</p>
         ) : (
-          <div className="flex items-end gap-1.5 h-40">
+          <div className="flex items-end gap-1.5 h-40 min-w-[340px]">
             {trend.map((point, index) => (
-              <div key={point.date} className="flex-1 min-w-0 flex flex-col items-center gap-2">
+              <div key={point.date} className="flex-1 min-w-[12px] sm:min-w-0 flex flex-col items-center gap-2">
                 <div className="w-full flex flex-col items-center justify-end h-32 gap-0.5">
                   {series.map((s) => {
                     const value = point[s.key] ?? 0;
