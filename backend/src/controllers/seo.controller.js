@@ -7,8 +7,8 @@ export class SeoController {
    */
   static async getSitemapXml(req, res, next) {
     try {
-      const host = req.headers.host || 'linkmakeup.com';
-      const baseUrl = host.includes('localhost') ? `http://${host}` : `https://${host.replace(/^api\./, '')}`;
+      const host = req.headers.host || 'www.linkmakeup.com';
+      const baseUrl = host.includes('localhost') ? `http://${host}` : 'https://www.linkmakeup.com';
 
       // Fetch all public user profiles
       const userProfiles = await db
@@ -17,16 +17,20 @@ export class SeoController {
 
       const staticPages = [
         { url: `${baseUrl}/`, priority: '1.0', changefreq: 'daily' },
+        { url: `${baseUrl}/pricing`, priority: '0.95', changefreq: 'weekly' },
+        { url: `${baseUrl}/login`, priority: '0.9', changefreq: 'monthly' },
+        { url: `${baseUrl}/signup`, priority: '0.9', changefreq: 'monthly' },
         { url: `${baseUrl}/link-in-bio`, priority: '0.9', changefreq: 'weekly' },
-        { url: `${baseUrl}/pricing`, priority: '0.9', changefreq: 'weekly' },
-        { url: `${baseUrl}/why-us`, priority: '0.9', changefreq: 'weekly' },
-        { url: `${baseUrl}/server-specs`, priority: '0.9', changefreq: 'weekly' },
-        { url: `${baseUrl}/for/engineers`, priority: '0.9', changefreq: 'weekly' },
-        { url: `${baseUrl}/for/linkedin-creators`, priority: '0.9', changefreq: 'weekly' },
-        { url: `${baseUrl}/for/founders`, priority: '0.9', changefreq: 'weekly' },
-        { url: `${baseUrl}/for/nfc-business-cards`, priority: '0.9', changefreq: 'weekly' },
-        { url: `${baseUrl}/signup`, priority: '0.8', changefreq: 'monthly' },
-        { url: `${baseUrl}/login`, priority: '0.5', changefreq: 'monthly' },
+        { url: `${baseUrl}/why-us`, priority: '0.85', changefreq: 'weekly' },
+        { url: `${baseUrl}/server-specs`, priority: '0.7', changefreq: 'monthly' },
+        { url: `${baseUrl}/features/digital-business-card`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/features/nfc`, priority: '0.9', changefreq: 'weekly' },
+        { url: `${baseUrl}/for/engineers`, priority: '0.85', changefreq: 'weekly' },
+        { url: `${baseUrl}/for/linkedin-creators`, priority: '0.85', changefreq: 'weekly' },
+        { url: `${baseUrl}/for/founders`, priority: '0.85', changefreq: 'weekly' },
+        { url: `${baseUrl}/for/nfc-business-cards`, priority: '0.85', changefreq: 'weekly' },
+        { url: `${baseUrl}/fr/carte-de-visite-digitale-maroc`, priority: '0.95', changefreq: 'weekly' },
+        { url: `${baseUrl}/fr/carte-nfc-maroc`, priority: '0.9', changefreq: 'weekly' },
       ];
 
       const profilePages = userProfiles.map((p) => ({
@@ -63,14 +67,15 @@ ${allPages
    * Dynamic robots.txt search engine directive
    */
   static async getRobotsTxt(req, res) {
-    const host = req.headers.host || 'linkmakeup.com';
-    const baseUrl = host.includes('localhost') ? `http://${host}` : `https://${host.replace(/^api\./, '')}`;
+    const host = req.headers.host || 'www.linkmakeup.com';
+    const baseUrl = host.includes('localhost') ? `http://${host}` : 'https://www.linkmakeup.com';
 
     const txt = `User-agent: *
 Allow: /
 Disallow: /dashboard
 Disallow: /settings
 Disallow: /onboarding
+Disallow: /admin
 Disallow: /api/
 
 Sitemap: ${baseUrl}/sitemap.xml
