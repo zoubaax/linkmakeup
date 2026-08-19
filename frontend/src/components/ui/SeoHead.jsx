@@ -45,7 +45,8 @@ export default function SeoHead({
 
     // 5. Canonical Link
     let canonical = document.querySelector('link[rel="canonical"]');
-    const href = canonicalUrl || window.location.href;
+    const currentPath = window.location.pathname;
+    const href = canonicalUrl || `https://www.linkmakeup.com${currentPath === '/' ? '' : currentPath}`;
     if (!canonical) {
       canonical = document.createElement('link');
       canonical.setAttribute('rel', 'canonical');

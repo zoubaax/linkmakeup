@@ -3,6 +3,8 @@ Allow: /
 Disallow: /dashboard
 Disallow: /settings
 Disallow: /onboarding
+Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://linkmakeup.com/sitemap.xml
+Sitemap: https://www.linkmakeup.com/sitemap.xml
+

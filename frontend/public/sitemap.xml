@@ -2,81 +2,125 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <!-- Main Homepage -->
   <url>
-    <loc>https://linkmakeup.com/</loc>
+    <loc>https://www.linkmakeup.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://linkmakeup.com/" />
-    <xhtml:link rel="alternate" hreflang="fr-MA" href="https://linkmakeup.com/fr/carte-de-visite-digitale-maroc" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://linkmakeup.com/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.linkmakeup.com/" />
+    <xhtml:link rel="alternate" hreflang="fr-MA" href="https://www.linkmakeup.com/fr/carte-de-visite-digitale-maroc" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.linkmakeup.com/" />
+  </url>
+
+  <!-- High-Priority Auth & Sitelinks Target Pages -->
+  <url>
+    <loc>https://www.linkmakeup.com/pricing</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://www.linkmakeup.com/login</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.linkmakeup.com/signup</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
   </url>
 
   <!-- Core Features Hubs -->
   <url>
-    <loc>https://linkmakeup.com/features/digital-business-card</loc>
+    <loc>https://www.linkmakeup.com/link-in-bio</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://linkmakeup.com/features/nfc</loc>
+    <loc>https://www.linkmakeup.com/features/digital-business-card</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://linkmakeup.com/features/link-in-bio</loc>
+    <loc>https://www.linkmakeup.com/features/nfc</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://linkmakeup.com/features/subdomains</loc>
+    <loc>https://www.linkmakeup.com/features/link-in-bio</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.linkmakeup.com/order-nfc</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Landing & Pillar Pages -->
+  <url>
+    <loc>https://www.linkmakeup.com/why-us</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.linkmakeup.com/server-specs</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Audience & Persona Landing Pages -->
+  <url>
+    <loc>https://www.linkmakeup.com/for/nfc-business-cards</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.linkmakeup.com/for/linkedin-creators</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.linkmakeup.com/for/engineers</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.linkmakeup.com/for/founders</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
 
   <!-- Moroccan Geo-Targeted Landing Pages -->
   <url>
-    <loc>https://linkmakeup.com/fr/carte-de-visite-digitale-maroc</loc>
+    <loc>https://www.linkmakeup.com/fr/carte-de-visite-digitale-maroc</loc>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
-    <xhtml:link rel="alternate" hreflang="fr-MA" href="https://linkmakeup.com/fr/carte-de-visite-digitale-maroc" />
+    <xhtml:link rel="alternate" hreflang="fr-MA" href="https://www.linkmakeup.com/fr/carte-de-visite-digitale-maroc" />
   </url>
   <url>
-    <loc>https://linkmakeup.com/fr/carte-nfc-maroc</loc>
+    <loc>https://www.linkmakeup.com/fr/carte-nfc-maroc</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="fr-MA" href="https://linkmakeup.com/fr/carte-nfc-maroc" />
+    <xhtml:link rel="alternate" hreflang="fr-MA" href="https://www.linkmakeup.com/fr/carte-nfc-maroc" />
   </url>
   <url>
-    <loc>https://linkmakeup.com/solutions/freelancers-maroc</loc>
+    <loc>https://www.linkmakeup.com/solutions/freelancers-maroc</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
 
   <!-- Solutions & Persona Hubs -->
   <url>
-    <loc>https://linkmakeup.com/solutions/developers</loc>
+    <loc>https://www.linkmakeup.com/solutions/developers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://linkmakeup.com/solutions/freelancers</loc>
+    <loc>https://www.linkmakeup.com/solutions/freelancers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://linkmakeup.com/solutions/creators</loc>
+    <loc>https://www.linkmakeup.com/solutions/creators</loc>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
-  </url>
-
-  <!-- Commercial & Product Pages -->
-  <url>
-    <loc>https://linkmakeup.com/pricing</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://linkmakeup.com/about</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
   </url>
 </urlset>
