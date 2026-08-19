@@ -178,7 +178,7 @@ export default function StrategyPageLayout({
 
                   <button
                     type="button"
-                    onClick={() => navigate('/signup?type=nfc')}
+                    onClick={() => navigate('/order-nfc')}
                     className="px-5 py-3 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/60 text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-sm hover:border-emerald-500 transition-all shadow-xs"
                   >
                     {ctaSecondaryText}
@@ -209,7 +209,7 @@ export default function StrategyPageLayout({
 
                 <button
                   type="button"
-                  onClick={() => navigate('/signup?type=nfc')}
+                  onClick={() => navigate('/order-nfc')}
                   className="px-5 py-3 rounded-2xl bg-white dark:bg-zinc-800 border border-slate-200/80 dark:border-zinc-700/60 text-slate-800 dark:text-slate-200 font-semibold text-xs sm:text-sm hover:border-emerald-500 transition-all shadow-xs w-full sm:w-auto text-center"
                 >
                   {ctaSecondaryText}
@@ -286,7 +286,7 @@ export default function StrategyPageLayout({
               <div>
                 <button
                   type="button"
-                  onClick={() => navigate('/signup?type=nfc')}
+                  onClick={() => navigate('/order-nfc')}
                   className="group inline-flex items-center justify-center gap-2 text-emerald-700 dark:text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 font-semibold text-xs sm:text-sm"
                 >
                   <span>Order Custom Matte NFC Card</span>

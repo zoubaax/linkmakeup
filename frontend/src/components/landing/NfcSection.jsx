@@ -21,7 +21,7 @@ export default function NfcSection() {
           <div>
             <button
               type="button"
-              onClick={() => navigate('/signup?type=nfc')}
+              onClick={() => navigate('/order-nfc')}
               className="group inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-semibold text-xs sm:text-sm shadow-md hover:opacity-90 transition-all cursor-pointer"
             >
               <span>Order Custom Matte NFC Card</span>

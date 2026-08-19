@@ -153,7 +153,7 @@ export default function ReactBitsPricingCards({ onSelectPlan }) {
             {/* Official Card Logo Image Showcase */}
             <div className="py-2 flex items-center justify-center">
               <img
-                src="/card-logo.png"
+                src="/walletcard.png"
                 alt="Link Make Up Custom NFC Card"
                 className="max-h-40 sm:max-h-48 w-auto object-contain rounded-2xl shadow-lg transition-transform duration-300 hover:scale-[1.03]"
               />

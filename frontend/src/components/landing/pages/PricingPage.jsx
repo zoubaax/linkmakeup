@@ -80,7 +80,7 @@ export default function PricingPage() {
         <ReactBitsPricingCards
           onSelectPlan={(planType) => {
             if (planType === 'nfc') {
-              navigate('/signup?type=nfc');
+              navigate('/order-nfc');
             } else {
               navigate('/signup');
             }

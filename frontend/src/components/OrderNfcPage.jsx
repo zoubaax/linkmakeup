@@ -173,11 +173,17 @@ export default function OrderNfcPage() {
             {/* Right Column (Mobile Order 1, Desktop Order 2): 4-Field Checkout Form */}
             <div className="order-1 lg:order-2 lg:col-span-6">
               <div className="bg-[var(--lm-surface)] border border-[var(--lm-border)] rounded-3xl p-6 sm:p-8 shadow-xl">
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-[var(--lm-fg)]">Delivery Information</h2>
-                  <p className="text-xs text-[var(--lm-fg-subtle)] mt-1">
-                    Fill in your details below to place your NFC Smart Card order.
-                  </p>
+                <div className="flex items-start justify-between mb-6 pb-4 border-b border-[var(--lm-border)]">
+                  <div>
+                    <h2 className="text-xl font-bold text-[var(--lm-fg)]">Delivery Information</h2>
+                    <p className="text-xs text-[var(--lm-fg-subtle)] mt-1">
+                      Fill in your details below to place your NFC Smart Card order.
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-2xl font-black font-serif text-emerald-600 dark:text-emerald-400">200 DH</span>
+                    <p className="text-[10px] text-[var(--lm-fg-subtle)] font-medium">Pay on Delivery</p>
+                  </div>
                 </div>
 
                 {errorMsg && (
@@ -276,13 +282,13 @@ export default function OrderNfcPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3.5 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-all shadow-md hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-2 cursor-pointer mt-2"
+                    className="w-full py-3.5 px-3 sm:px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition-all shadow-md hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer mt-2"
                   >
                     {loading ? (
-                      <span>Submitting Order...</span>
+                      <span className="whitespace-nowrap">Submitting Order...</span>
                     ) : (
                       <>
-                        <span>Confirm & Place Order</span>
+                        <span className="whitespace-nowrap">Confirm & Place Order — 200 DH</span>
                         <HiArrowRight className="w-4 h-4 shrink-0" />
                       </>
                     )}

@@ -7,6 +7,8 @@ import HeroSection from './landing/HeroSection';
 import LogoTicker from './landing/LogoTicker';
 import QuoteSection from './landing/QuoteSection';
 import WhySection from './landing/WhySection';
+import ReactBitsPricingCards from './ui/ReactBitsPricingCards';
+import FaqSection from './landing/FaqSection';
 import Footer from './landing/Footer';
 
 export default function LandingPage() {
@@ -27,7 +29,7 @@ export default function LandingPage() {
       <Header user={user} profile={profile} />
 
       {/* Main Landmark for SEO accessibility */}
-      <main id="main-content" className="flex-1 flex flex-col justify-between">
+      <main id="main-content" className="flex-1 flex flex-col justify-between space-y-16 py-6">
         {/* 2. Floating Hero Section (With 3D NFC Card Showcase) */}
         <HeroSection />
 
@@ -39,9 +41,39 @@ export default function LandingPage() {
 
         {/* 5. Why LinkMakeup Section (Glassy Stacking Cards) */}
         <WhySection />
+
+        {/* 6. Transparent Pricing Section */}
+        <section id="pricing" className="py-8 space-y-8">
+          <div className="text-center max-w-3xl mx-auto space-y-3 px-4">
+            <span className="text-xs font-bold uppercase tracking-widest text-emerald-600">
+              TRANSPARENT PRICING
+            </span>
+            <h2 className="font-serif text-3xl sm:text-5xl font-normal text-slate-900 dark:text-white leading-tight">
+              One link for everything you build. Zero hidden fees.
+            </h2>
+            <p className="text-slate-600 dark:text-slate-300 text-sm sm:text-base max-w-xl mx-auto">
+              Get started for free or upgrade to a custom matte black NFC card with lifetime access.
+            </p>
+          </div>
+
+          <ReactBitsPricingCards
+            onSelectPlan={(planType) => {
+              if (planType === 'nfc') {
+                navigate('/order-nfc');
+              } else {
+                navigate('/signup');
+              }
+            }}
+          />
+        </section>
+
+        {/* 7. FAQ Section */}
+        <section id="faq">
+          <FaqSection />
+        </section>
       </main>
 
-      {/* 6. Trust Bar & Footer */}
+      {/* 8. Trust Bar & Footer */}
       <Footer />
     </div>
   );
