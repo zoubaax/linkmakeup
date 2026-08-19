@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { HiGlobeAlt, HiComputerDesktop } from 'react-icons/hi2';
 import ApiService from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import { PLATFORM_PRESETS, getDefaultSubtitle, getPlatformIcon } from './SocialIcons';
@@ -19,8 +20,10 @@ export default function LinkManager({ links, onLinksUpdated }) {
   const [newTitle, setNewTitle] = useState('');
   const [newUrl, setNewUrl] = useState('');
   const [newIcon, setNewIcon] = useState('website');
+  const [portfolioIconType, setPortfolioIconType] = useState('favicon'); // 'favicon' | 'portfolio'
   const [editTitle, setEditTitle] = useState('');
   const [editUrl, setEditUrl] = useState('');
+  const [editIcon, setEditIcon] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -41,6 +44,7 @@ export default function LinkManager({ links, onLinksUpdated }) {
     setNewTitle('');
     setNewUrl('');
     setNewIcon('website');
+    setPortfolioIconType('favicon');
     setErrorMsg('');
     setIsModalOpen(true);
   };
@@ -57,6 +61,7 @@ export default function LinkManager({ links, onLinksUpdated }) {
     setNewTitle(preset.name);
     setNewUrl(preset.baseUrl);
     setNewIcon(preset.id);
+    setPortfolioIconType('favicon');
   };
 
   const handleNewUrlChange = (value) => {
@@ -79,12 +84,16 @@ export default function LinkManager({ links, onLinksUpdated }) {
     setLoading(true);
     setErrorMsg('');
     const url = getLinkUrl(newUrl, newIcon);
-    const icon = iconForLinkUrl(url, newIcon);
+    let icon = iconForLinkUrl(url, newIcon);
+
+    if (selectedPreset?.id === 'portfolio') {
+      icon = portfolioIconType === 'favicon' ? getFaviconIconValue(url) : 'portfolio';
+    }
 
     try {
       const response = await ApiService.createLink({
         title: newTitle.trim(),
-        subtitle: getDefaultSubtitle(newIcon, newTitle),
+        subtitle: getDefaultSubtitle(selectedPreset?.id || newIcon, newTitle),
         url,
         icon,
         isActive: true,
@@ -117,14 +126,15 @@ export default function LinkManager({ links, onLinksUpdated }) {
   const startEdit = (link) => {
     setEditingId(link.id);
     setEditTitle(link.title);
+    setEditIcon(link.icon);
     setEditUrl(link.icon === 'email' ? link.url.replace(/^mailto:/i, '') : link.icon === 'phone' ? link.url.replace(/^tel:/i, '') : link.url);
   };
 
   const handleSaveEdit = async (id) => {
     if (!editTitle.trim() || !editUrl.trim()) return;
     const link = links.find((l) => l.id === id);
-    const url = getLinkUrl(editUrl, link?.icon);
-    const icon = iconForLinkUrl(url, link?.icon);
+    const url = getLinkUrl(editUrl, editIcon || link?.icon);
+    const icon = editIcon || iconForLinkUrl(url, link?.icon);
 
     onLinksUpdated(
       links.map((l) =>
@@ -132,7 +142,7 @@ export default function LinkManager({ links, onLinksUpdated }) {
           ? {
               ...l,
               title: editTitle.trim(),
-              subtitle: getDefaultSubtitle(link?.icon, editTitle),
+              subtitle: getDefaultSubtitle(icon, editTitle),
               url,
               icon,
             }
@@ -144,7 +154,7 @@ export default function LinkManager({ links, onLinksUpdated }) {
     try {
       await ApiService.updateLink(id, {
         title: editTitle.trim(),
-        subtitle: getDefaultSubtitle(link?.icon, editTitle),
+        subtitle: getDefaultSubtitle(icon, editTitle),
         url,
         icon,
       });
@@ -450,6 +460,40 @@ export default function LinkManager({ links, onLinksUpdated }) {
                         className={inputClass}
                       />
                     </div>
+
+                    {selectedPreset.id === 'portfolio' && (
+                      <div className="flex flex-col gap-2 p-3.5 rounded-2xl bg-surface-alt border border-border mt-1">
+                        <label className="block text-[11px] font-bold text-fg-subtle uppercase tracking-wider">
+                          Choose Icon Display
+                        </label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setPortfolioIconType('favicon')}
+                            className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                              portfolioIconType === 'favicon'
+                                ? 'bg-primary/10 border-primary text-primary shadow-xs'
+                                : 'bg-surface border-border text-fg-muted hover:text-fg hover:bg-surface-muted'
+                            }`}
+                          >
+                            <HiGlobeAlt className="w-4 h-4 shrink-0" />
+                            <span>Real Favicon</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPortfolioIconType('portfolio')}
+                            className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
+                              portfolioIconType === 'portfolio'
+                                ? 'bg-primary/10 border-primary text-primary shadow-xs'
+                                : 'bg-surface border-border text-fg-muted hover:text-fg hover:bg-surface-muted'
+                            }`}
+                          >
+                            <HiComputerDesktop className="w-4 h-4 shrink-0" />
+                            <span>Portfolio Icon</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3 pt-2">

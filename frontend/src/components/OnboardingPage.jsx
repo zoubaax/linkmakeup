@@ -44,11 +44,8 @@ export default function OnboardingPage() {
   });
   const [showCustomColors, setShowCustomColors] = useState(false);
 
-  // Links State (Default: LinkedIn & GitHub)
-  const [initialLinks, setInitialLinks] = useState([
-    { title: 'LinkedIn', url: 'https://linkedin.com/in/', icon: 'linkedin' },
-    { title: 'GitHub', url: 'https://github.com/', icon: 'github' },
-  ]);
+  // Links State (Default empty)
+  const [initialLinks, setInitialLinks] = useState([]);
 
   // Modal State
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -298,19 +295,17 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        {/* Floating Mobile Preview Toggle Button (Shown ONLY on Step 4) */}
-        {activeStep === 4 && (
-          <div className="lg:hidden flex justify-center mb-4 animate-fade-in">
-            <button
-              type="button"
-              onClick={() => setPreviewModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 text-xs font-extrabold shadow-sm hover:scale-105 active:scale-95 transition-all"
-            >
-              <HiEye className="w-4 h-4" />
-              <span>View Live Page Preview</span>
-            </button>
-          </div>
-        )}
+        {/* Floating Mobile Preview Toggle Button (Shown on mobile for all steps) */}
+        <div className="lg:hidden flex justify-center mb-4 animate-fade-in">
+          <button
+            type="button"
+            onClick={() => setPreviewModalOpen(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-surface border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 text-xs font-extrabold shadow-sm hover:scale-105 active:scale-95 transition-all"
+          >
+            <HiEye className="w-4 h-4" />
+            <span>View Live Page Preview</span>
+          </button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start max-w-5xl mx-auto">
           
@@ -472,16 +467,16 @@ export default function OnboardingPage() {
                       Subdomain URL
                     </label>
                     <div className="flex items-center border border-border rounded-xl bg-surface-alt focus-within:border-emerald-500 transition-colors overflow-hidden">
-                      <span className="hidden sm:block px-3 text-fg-subtle text-xs font-mono select-none shrink-0">https://</span>
+                      <span className="hidden sm:inline-block px-2.5 sm:px-3 text-fg-subtle text-xs font-mono select-none shrink-0">https://</span>
                       <input
                         type="text"
                         value={username}
                         onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
                         placeholder="yourname"
                         required
-                        className="flex-1 min-w-0 py-2.5 px-3 sm:px-0 bg-transparent text-fg font-bold text-sm focus:outline-none placeholder:text-fg-subtle font-mono"
+                        className="flex-1 min-w-0 py-2.5 px-3 sm:px-1 bg-transparent text-fg font-bold text-sm focus:outline-none placeholder:text-fg-subtle font-mono"
                       />
-                      <span className="px-3 text-emerald-600 dark:text-emerald-400 font-bold text-xs font-mono select-none shrink-0">.{env.appDomain}</span>
+                      <span className="px-2 sm:px-3 text-emerald-600 dark:text-emerald-400 font-bold text-xs font-mono select-none shrink-0">.{env.appDomain}</span>
                     </div>
 
                     {username && (

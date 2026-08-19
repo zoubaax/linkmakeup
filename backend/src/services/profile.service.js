@@ -154,6 +154,8 @@ export class ProfileService {
           role: userProfile.role,
           bio: userProfile.bio,
           avatarUrl: userProfile.avatarUrl,
+          avatarShape: userProfile.avatarShape || 'circle',
+          avatarSize: userProfile.avatarSize || 'medium',
           statusBadge: userProfile.statusBadge,
           showStatusBadge: userProfile.showStatusBadge !== false,
           themeConfig: userProfile.themeConfig || null,

@@ -79,12 +79,12 @@ export function getFaviconUrl(iconOrDomain) {
 }
 
 export function resolveLinkIcon(icon, url) {
-  if (isPlatformIcon(icon)) {
-    return { type: 'platform', icon };
-  }
-
   if (isFaviconIcon(icon)) {
     return { type: 'favicon', src: getFaviconUrl(icon) };
+  }
+
+  if (isPlatformIcon(icon) && icon.toLowerCase() !== 'portfolio' && icon.toLowerCase() !== 'website') {
+    return { type: 'platform', icon };
   }
 
   const domain = getDomainFromUrl(url);
