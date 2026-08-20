@@ -68,7 +68,11 @@ export default function MobileStudioHeader({ profile, links = [], publicUrl, tit
               onClick={() => navigate('/dashboard/profile')}
               className="text-xs text-fg-subtle hover:text-accent font-medium text-left truncate cursor-pointer transition-colors"
             >
-              {profile?.bio || 'Add bio'}
+              {profile?.role ? (
+                profile?.bio ? `${profile.role} · ${profile.bio}` : profile.role
+              ) : (
+                profile?.bio || 'Add bio / role'
+              )}
             </button>
 
             {/* Dynamic Social Icons Row (Respecting User Configured Links + Design System Colors) */}
