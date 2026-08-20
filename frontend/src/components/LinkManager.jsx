@@ -216,8 +216,9 @@ export default function LinkManager({ links, onLinksUpdated }) {
         </div>
         <button
           type="button"
+          id="add-link-btn"
           onClick={openAddModal}
-          className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+          className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-fg hover:bg-primary-hover font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm cursor-pointer"
         >
           <span className="text-lg leading-none">+</span>
           Add Link
@@ -247,32 +248,32 @@ export default function LinkManager({ links, onLinksUpdated }) {
           links.map((link, idx) => (
             <div
               key={link.id}
-              className={`flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 p-3 sm:p-3.5 rounded-xl border transition-all ${
-                link.isActive ? 'bg-surface-alt border-border hover:border-border/80' : 'bg-surface-alt/40 border-border/60 opacity-60'
+              className={`flex items-center justify-between gap-2 sm:gap-3 p-3 rounded-2xl border transition-all ${
+                link.isActive ? 'bg-surface-alt border-border/80 hover:border-border' : 'bg-surface-alt/40 border-border/60 opacity-60'
               }`}
             >
-              <div className="flex items-center gap-2.5 sm:gap-3 flex-1 min-w-0">
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                 {/* Order Handles */}
                 <div className="flex flex-col gap-0.5 shrink-0">
-                  <button type="button" onClick={() => moveUp(idx)} disabled={idx === 0} className="p-1 rounded text-fg-subtle hover:text-fg disabled:opacity-20 transition-colors">
+                  <button type="button" onClick={() => moveUp(idx)} disabled={idx === 0} className="p-0.5 rounded text-fg-subtle hover:text-fg disabled:opacity-20 transition-colors">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" /></svg>
                   </button>
-                  <button type="button" onClick={() => moveDown(idx)} disabled={idx === links.length - 1} className="p-1 rounded text-fg-subtle hover:text-fg disabled:opacity-20 transition-colors">
+                  <button type="button" onClick={() => moveDown(idx)} disabled={idx === links.length - 1} className="p-0.5 rounded text-fg-subtle hover:text-fg disabled:opacity-20 transition-colors">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
                   </button>
                 </div>
 
                 {/* Platform Icon Badge */}
-                <div className="w-10 h-10 rounded-xl bg-surface border border-border flex items-center justify-center text-accent shrink-0 overflow-hidden p-2 shadow-sm">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-surface border border-border flex items-center justify-center text-accent shrink-0 overflow-hidden p-1.5 shadow-2xs">
                   <LinkIcon icon={link.icon} title={link.title} url={link.url} className="w-5 h-5" imgClassName="w-full h-full object-contain" />
                 </div>
 
                 {/* Content / Edit View */}
                 {editingId === link.id ? (
-                  <div className="flex-1 flex flex-col gap-2 my-1">
+                  <div className="flex-1 flex flex-col gap-2 my-1 min-w-0">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <input type="text" placeholder="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className={`${inputClass} py-2`} />
-                      <p className="px-3.5 py-2 bg-surface border border-border rounded-xl text-xs text-fg-muted flex items-center font-medium">
+                      <input type="text" placeholder="Title" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className={`${inputClass} py-2 text-xs`} />
+                      <p className="px-3 py-2 bg-surface border border-border rounded-xl text-xs text-fg-muted flex items-center font-medium truncate">
                         {getDefaultSubtitle(link.icon, editTitle)}
                       </p>
                     </div>
@@ -281,27 +282,32 @@ export default function LinkManager({ links, onLinksUpdated }) {
                       placeholder={link.icon === 'email' ? 'Email address' : link.icon === 'phone' ? 'Phone number' : 'URL'}
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
-                      className={`${inputClass} py-2`}
+                      className={`${inputClass} py-2 text-xs`}
                     />
                     <div className="flex gap-2 mt-1">
-                      <button type="button" onClick={() => handleSaveEdit(link.id)} className="px-3.5 py-1.5 bg-primary text-primary-fg rounded-lg text-xs font-bold hover:bg-primary-hover transition-colors">Save</button>
-                      <button type="button" onClick={() => setEditingId(null)} className="px-3.5 py-1.5 bg-surface-muted text-fg-muted rounded-lg text-xs font-semibold hover:bg-surface-muted/80 transition-colors">Cancel</button>
+                      <button type="button" onClick={() => handleSaveEdit(link.id)} className="px-3 py-1.5 bg-primary text-primary-fg rounded-lg text-xs font-bold hover:bg-primary-hover transition-colors">Save</button>
+                      <button type="button" onClick={() => setEditingId(null)} className="px-3 py-1.5 bg-surface-muted text-fg-muted rounded-lg text-xs font-semibold hover:bg-surface-muted/80 transition-colors">Cancel</button>
                     </div>
                   </div>
                 ) : (
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-fg truncate">{link.title}</p>
-                    <p className="text-xs text-fg-muted font-medium truncate">{getDefaultSubtitle(link.icon, link.title)}</p>
-                    <a href={link.url} target="_blank" rel="noreferrer" className="text-[11px] text-fg-subtle hover:text-accent truncate block transition-colors mt-0.5">{link.url}</a>
+                    <p className="font-extrabold text-xs sm:text-sm text-fg truncate">{link.title}</p>
+                    <p className="text-[11px] text-fg-subtle truncate">{getDefaultSubtitle(link.icon, link.title)}</p>
+                    <a href={link.url} target="_blank" rel="noreferrer" className="text-[10px] text-fg-muted hover:text-accent truncate block transition-colors mt-0.5">{link.url}</a>
                   </div>
                 )}
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center justify-end sm:justify-end gap-1.5 sm:gap-2 shrink-0 self-end sm:self-auto w-full sm:w-auto">
+              {/* Actions (Always on the same line) */}
+              <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                 {editingId !== link.id && (
-                  <button type="button" onClick={() => startEdit(link)} className="p-2 rounded-lg hover:bg-surface-muted text-fg-subtle hover:text-fg transition-colors" title="Edit link">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <button
+                    type="button"
+                    onClick={() => startEdit(link)}
+                    className="p-1.5 sm:p-2 rounded-xl bg-surface border border-border text-fg-muted hover:text-fg hover:bg-surface-alt transition-colors shadow-2xs"
+                    title="Edit link"
+                  >
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                   </button>
@@ -311,13 +317,18 @@ export default function LinkManager({ links, onLinksUpdated }) {
                   type="button"
                   onClick={() => handleToggle(link)}
                   title="Toggle visibility"
-                  className={`relative inline-flex w-11 h-6 rounded-full transition-colors shrink-0 ${link.isActive ? 'bg-primary' : 'bg-surface-muted'}`}
+                  className={`relative inline-flex w-10 h-5.5 sm:w-11 sm:h-6 rounded-full transition-colors shrink-0 ${link.isActive ? 'bg-emerald-500' : 'bg-surface-muted'}`}
                 >
-                  <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${link.isActive ? 'left-6' : 'left-1'}`} />
+                  <span className={`absolute top-0.5 sm:top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${link.isActive ? 'left-5 sm:left-6' : 'left-0.5 sm:left-1'}`} />
                 </button>
 
-                <button type="button" onClick={() => handleDelete(link.id)} className="p-2 rounded-lg border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors" title="Delete link">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                <button
+                  type="button"
+                  onClick={() => handleDelete(link.id)}
+                  className="p-1.5 sm:p-2 rounded-xl bg-surface border border-border text-rose-500 hover:bg-rose-500/10 transition-colors shadow-2xs"
+                  title="Delete link"
+                >
+                  <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>

@@ -122,7 +122,16 @@ export default function App() {
             path="/dashboard"
             element={
               <ProtectedRoute requiresProfile>
-                <Dashboard />
+                <Dashboard defaultTab="links" />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/theme"
+            element={
+              <ProtectedRoute requiresProfile>
+                <Dashboard defaultTab="appearance" />
               </ProtectedRoute>
             }
           />

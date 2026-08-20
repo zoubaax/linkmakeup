@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { HiCalendarDays, HiBriefcase, HiArrowRightOnRectangle } from 'react-icons/hi2';
 import { useAuth } from '../../contexts/AuthContext';
-import { PROFILE_DETAILS_PATH, ANALYTICS_PATH, STUDIO_NAV } from '../../config/dashboardNav';
+import { PROFILE_DETAILS_PATH, ANALYTICS_PATH, THEME_PATH, STUDIO_NAV } from '../../config/dashboardNav';
 import ThemeToggle from '../ThemeToggle';
 import Logo from '../ui/Logo';
 
@@ -32,6 +33,7 @@ function navLinkClassName({ isActive }, collapsed) {
 function SidebarContent({ onNavigate, collapsed, onToggleCollapse, openPalette }) {
   const { user, profile, logout } = useAuth();
   const navigate = useNavigate();
+  const [studioOpen, setStudioOpen] = useState(true);
 
   const handleSignOut = async () => {
     onNavigate?.();
@@ -66,42 +68,117 @@ function SidebarContent({ onNavigate, collapsed, onToggleCollapse, openPalette }
         )}
       </div>
 
-      {/* Cloudflare-style Nav Section */}
+      {/* Nav Section */}
       <nav className={`flex-1 py-3 flex flex-col gap-1 overflow-y-auto ${collapsed ? 'px-2' : 'px-3'}`}>
-        {user && STUDIO_NAV.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            title={collapsed ? item.shortLabel : undefined}
-            className={(state) => navLinkClassName(state, collapsed)}
-            onClick={onNavigate}
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              {item.to === '/dashboard' && (
+        {/* Collapsible Studio Group */}
+        {user && (
+          <div className="flex flex-col gap-0.5">
+            <button
+              type="button"
+              onClick={() => setStudioOpen(!studioOpen)}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold text-fg-muted hover:text-fg hover:bg-surface-alt/60 cursor-pointer ${
+                collapsed ? 'justify-center' : ''
+              }`}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
                 <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                </svg>
+                {!collapsed && <span>My Studio</span>}
+              </div>
+              {!collapsed && (
+                <svg
+                  className={`w-3.5 h-3.5 text-fg-subtle transition-transform duration-200 ${studioOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
               )}
-              {item.to === ANALYTICS_PATH && (
+            </button>
+
+            {/* Indented Tree Items */}
+            {studioOpen && (
+              <div className={`${collapsed ? '' : 'ml-4 pl-2.5 border-l border-border/70'} flex flex-col gap-1 my-0.5`}>
+                {STUDIO_NAV.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    end={item.end}
+                    title={collapsed ? item.shortLabel : undefined}
+                    className={({ isActive }) => [
+                      'flex items-center justify-between rounded-lg text-xs font-semibold transition-all duration-150',
+                      collapsed ? 'justify-center px-2 py-2' : 'px-3 py-2',
+                      isActive
+                        ? 'bg-surface-alt text-fg font-bold border border-border/70 shadow-2xs'
+                        : 'text-fg-muted hover:text-fg hover:bg-surface-alt/60',
+                    ].join(' ')}
+                    onClick={onNavigate}
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      {item.to === '/dashboard' && (
+                        <svg className="w-3.5 h-3.5 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                      )}
+                      {item.to === THEME_PATH && (
+                        <svg className="w-3.5 h-3.5 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                        </svg>
+                      )}
+                      {!collapsed && <span>{item.label}</span>}
+                    </div>
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Analytics & Profile Navigation (Standalone below Studio) */}
+        {user && (
+          <>
+            <NavLink
+              to={ANALYTICS_PATH}
+              title={collapsed ? 'Analytics' : undefined}
+              className={(state) => navLinkClassName(state, collapsed)}
+              onClick={onNavigate}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
                 <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
+                {!collapsed && <span>Analytics</span>}
+              </div>
+              {!collapsed && (
+                <svg className="w-3 h-3 text-fg-subtle shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
               )}
-              {item.to === PROFILE_DETAILS_PATH && (
+            </NavLink>
+
+            <NavLink
+              to={PROFILE_DETAILS_PATH}
+              title={collapsed ? 'Profile Identity' : undefined}
+              className={(state) => navLinkClassName(state, collapsed)}
+              onClick={onNavigate}
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
                 <svg className="w-4 h-4 shrink-0 text-fg-muted" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
+                {!collapsed && <span>Profile Identity</span>}
+              </div>
+              {!collapsed && (
+                <svg className="w-3 h-3 text-fg-subtle shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
               )}
-              {!collapsed && <span>{item.label}</span>}
-            </div>
-            {!collapsed && (
-              <svg className="w-3 h-3 text-fg-subtle shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            )}
-          </NavLink>
-        ))}
+            </NavLink>
+          </>
+        )}
 
         {user?.isAdmin && (
           <NavLink

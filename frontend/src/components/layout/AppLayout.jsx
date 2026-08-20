@@ -12,7 +12,8 @@ import StudioNav from './StudioNav';
 
 const PAGE_TITLES = {
   '/': 'Sign In',
-  '/dashboard': 'Studio Overview',
+  '/dashboard': 'Links & Content',
+  '/dashboard/theme': 'Appearance & Theme',
   '/dashboard/analytics': 'Analytics',
   '/dashboard/profile': 'Profile Identity',
   '/admin': 'Admin Overview',
@@ -204,8 +205,6 @@ export default function AppLayout({ children }) {
             </div>
           </div>
         </header>
-
-        {pathname.startsWith('/dashboard') && <StudioNav />}
 
         <main className="flex-1 min-h-0 animate-page-in">{children}</main>
       </div>

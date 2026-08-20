@@ -29,7 +29,7 @@ function ActionButton({ children, onClick, variant = 'secondary', className = ''
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex w-full sm:w-auto items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 ${styles} ${className}`}
+      className={`inline-flex items-center justify-center gap-1.5 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-xl text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 ${styles} ${className}`}
     >
       {children}
     </button>
@@ -258,7 +258,7 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2 shrink-0 w-full sm:w-auto">
+          <div className="flex flex-row flex-wrap items-center gap-2 shrink-0 w-full sm:w-auto">
             <ActionButton variant="primary" onClick={handleSharePage} disabled={suspended}>
               <HiShare className="w-4 h-4 shrink-0" />
               Share page
