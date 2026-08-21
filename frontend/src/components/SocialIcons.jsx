@@ -24,6 +24,21 @@ export const PLATFORM_PRESETS = [
   { id: 'behance', name: 'Behance', baseUrl: 'https://www.behance.net/', color: 'from-blue-600 to-indigo-700', icon: 'behance' },
   { id: 'dribbble', name: 'Dribbble', baseUrl: 'https://dribbble.com/', color: 'from-pink-500 to-rose-600', icon: 'dribbble' },
   { id: 'figma', name: 'Figma', baseUrl: 'https://www.figma.com/', color: 'from-violet-600 to-purple-700', icon: 'figma' },
+  { id: 'gitlab', name: 'GitLab', baseUrl: 'https://gitlab.com/', color: 'from-orange-600 to-red-600', icon: 'gitlab' },
+  { id: 'stackoverflow', name: 'Stack Overflow', baseUrl: 'https://stackoverflow.com/users/', color: 'from-amber-600 to-orange-600', icon: 'stackoverflow' },
+  { id: 'producthunt', name: 'Product Hunt', baseUrl: 'https://www.producthunt.com/@', color: 'from-orange-500 to-amber-600', icon: 'producthunt' },
+  { id: 'devto', name: 'Dev.to', baseUrl: 'https://dev.to/', color: 'from-slate-900 to-zinc-900', icon: 'devto' },
+  { id: 'hashnode', name: 'Hashnode', baseUrl: 'https://hashnode.com/@', color: 'from-blue-600 to-indigo-600', icon: 'hashnode' },
+  { id: 'codepen', name: 'CodePen', baseUrl: 'https://codepen.io/', color: 'from-slate-800 to-zinc-950', icon: 'codepen' },
+  { id: 'kaggle', name: 'Kaggle', baseUrl: 'https://www.kaggle.com/', color: 'from-sky-500 to-cyan-600', icon: 'kaggle' },
+  { id: 'buymeacoffee', name: 'Buy Me a Coffee', baseUrl: 'https://buymeacoffee.com/', color: 'from-amber-400 to-yellow-500', icon: 'buymeacoffee' },
+  { id: 'kofi', name: 'Ko-fi', baseUrl: 'https://ko-fi.com/', color: 'from-sky-500 to-blue-600', icon: 'kofi' },
+  { id: 'soundcloud', name: 'SoundCloud', baseUrl: 'https://soundcloud.com/', color: 'from-orange-500 to-amber-600', icon: 'soundcloud' },
+  { id: 'applemusic', name: 'Apple Music', baseUrl: 'https://music.apple.com/', color: 'from-rose-500 to-pink-600', icon: 'applemusic' },
+  { id: 'gumroad', name: 'Gumroad', baseUrl: 'https://gumroad.com/', color: 'from-pink-500 to-rose-500', icon: 'gumroad' },
+  { id: 'appstore', name: 'App Store', baseUrl: 'https://apps.apple.com/', color: 'from-blue-500 to-sky-600', icon: 'appstore' },
+  { id: 'googleplay', name: 'Google Play', baseUrl: 'https://play.google.com/store/apps/', color: 'from-emerald-500 to-teal-600', icon: 'googleplay' },
+  { id: 'notion', name: 'Notion', baseUrl: 'https://notion.so/', color: 'from-slate-800 to-zinc-900', icon: 'notion' },
   { id: 'phone', name: 'Phone', baseUrl: '', color: 'from-emerald-500 to-teal-600', icon: 'phone' },
   { id: 'email', name: 'Email', baseUrl: '', color: 'from-amber-500 to-orange-600', icon: 'email' },
   { id: 'portfolio', name: 'Portfolio', baseUrl: 'https://', color: 'from-violet-600 to-fuchsia-600', icon: 'portfolio' },
@@ -54,6 +69,21 @@ export const DEFAULT_SUBTITLES = {
   patreon: 'Support me on Patreon',
   steam: 'Add me on Steam',
   bluesky: 'Follow me on Bluesky',
+  gitlab: 'Explore my repositories on GitLab',
+  stackoverflow: 'Check my answers on Stack Overflow',
+  producthunt: 'Check out my launches on Product Hunt',
+  devto: 'Read my articles on Dev.to',
+  hashnode: 'Read my tech blog on Hashnode',
+  codepen: 'See my code demos on CodePen',
+  kaggle: 'View my datasets & models on Kaggle',
+  buymeacoffee: 'Support my work on Buy Me a Coffee',
+  kofi: 'Support me on Ko-fi',
+  soundcloud: 'Listen to my tracks on SoundCloud',
+  applemusic: 'Listen on Apple Music',
+  gumroad: 'Get my digital products on Gumroad',
+  appstore: 'Download on the App Store',
+  googleplay: 'Get it on Google Play',
+  notion: 'View my Notion workspace',
   website: 'Visit my website',
   portfolio: 'View my work',
   email: 'Send me an email',
@@ -280,6 +310,114 @@ export function getPlatformIcon(iconName, className = "w-4 h-4") {
     return (
       <svg className={className} fill="currentColor" viewBox="0 0 24 24">
         <path d="M12 0C5.373 0 0 5.373 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 01.083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('gitlab')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M23.6 9.584L22.25 5.43c-.16-.49-.78-.71-1.22-.44l-3.32 2.06L14.7 2.39c-.27-.47-1.13-.47-1.4 0l-3.01 4.66L6.97 4.99c-.44-.27-1.06-.05-1.22.44L4.4 9.584c-.09.28.01.59.24.77l10.86 8.15a.96.96 0 001.16 0l10.86-8.15c.23-.18.33-.49.24-.77z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('stackoverflow') || name.includes('stack-overflow')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M18.986 21.865v-6.404h2.134V24H1.844v-8.539h2.13v6.404h15.012zM6.111 19.731h10.67v-2.134H6.111v2.134zm.272-5.719l10.457 2.179.436-2.093-10.457-2.18-.436 2.094zm1.71-5.408l9.467 4.946.994-1.905-9.467-4.947-.994 1.906zm3.435-5.07l7.733 7.426 1.488-1.55-7.733-7.427-1.488 1.551zM15.748 0l-1.91 1.05 5.257 9.537 1.91-1.051L15.748 0z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('producthunt') || name.includes('product-hunt')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M13.604 8.4h-3.406v3.6h3.406c.994 0 1.8-.806 1.8-1.8s-.806-1.8-1.8-1.8zM12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm1.604 14.4h-3.406v3.6H7.8V6h5.804c2.32 0 4.2 1.88 4.2 4.2s-1.88 4.2-4.2 4.2z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('devto') || name.includes('dev.to')) {
+    return <span className={`${className} inline-flex items-center justify-center font-black text-xs leading-none tracking-tighter text-current`}>DEV</span>;
+  }
+
+  if (name.includes('hashnode')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M22.351 8.019l-6.37-6.37a5.63 5.63 0 00-7.962 0l-6.37 6.37a5.63 5.63 0 000 7.962l6.37 6.37a5.63 5.63 0 007.962 0l6.37-6.37a5.63 5.63 0 000-7.962z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('codepen')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M24 7.6v8.8c0 .5-.3.9-.7 1.1l-10.7 7.1c-.2.1-.4.2-.6.2s-.4-.1-.6-.2L.7 17.5c-.4-.2-.7-.6-.7-1.1V7.6c0-.5.3-.9.7-1.1L11.4.2c.4-.2.8-.2 1.2 0l10.7 6.3c.4.2.7.6.7 1.1zM13 3.6l8.1 4.8-3.6 2.4-4.5-3v-4.2zm-2 0v4.2l-4.5 3-3.6-2.4L11 3.6zM3.4 10.4l2.4 1.6-2.4 1.6V10.4zm7.6 10l-8.1-4.8 3.6-2.4 4.5 3v4.2zm2 0v-4.2l4.5-3 3.6 2.4-8.1 4.8zm7.6-6.8l-2.4-1.6 2.4-1.6v3.2zM12 13.6l-3.6-2.4 3.6-2.4 3.6 2.4-3.6 2.4z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('kaggle')) {
+    return <span className={`${className} inline-flex items-center justify-center font-black text-sm leading-none text-current`}>K</span>;
+  }
+
+  if (name.includes('buymeacoffee') || name.includes('buy-me-a-coffee')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20.216 6.415l-.132-.666c-.209-1.052-1.139-1.822-2.211-1.822h-12.7c-1.072 0-2.002.77-2.211 1.822l-.132.666a1.996 1.996 0 00-.03.351v2.184c0 3.238 2.378 5.922 5.503 6.368 1.127 1.196 2.684 1.954 4.417 1.954s3.29-.758 4.417-1.954c3.125-.446 5.503-3.13 5.503-6.368v-2.184c0-.12-.01-.237-.03-.351zm-2.03 2.535c0 2.219-1.624 4.053-3.753 4.364v-6.899h3.753v2.535z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('kofi') || name.includes('ko-fi')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 12.25 15.488 12.002 16.544 2.122 3.327 0 7.472-1.74 7.315-10.149zm-6.28 7.321c-2.453 1.822-9.61 1.636-10.457-1.428-.485-1.758.118-8.21.118-8.21h10.963s2.213 7.424-.624 9.638z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('soundcloud')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M1.175 12.225c-.053 0-.098.043-.105.097l-.42 3.782.42 3.737c.007.056.052.098.105.098h.01c.057 0 .102-.043.109-.098l.46-3.737-.46-3.782a.108.108 0 00-.109-.097h-.01zM23.05 13.91c-.49-.46-1.12-.72-1.8-.72-.37 0-.73.08-1.06.23-.27-1.92-1.92-3.42-3.94-3.42-.51 0-1.02.1-1.49.29-.68-.83-1.71-1.34-2.83-1.34-1.99 0-3.64 1.51-3.87 3.47-.21-.04-.42-.06-.64-.06-1.98 0-3.59 1.61-3.59 3.59 0 1.98 1.61 3.59 3.59 3.59h15.63c1.55 0 2.81-1.26 2.81-2.81 0-1.24-.81-2.31-2.01-2.68z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('applemusic') || name.includes('apple-music')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.996 7.643v5.679c0 1.838-1.385 3.036-3.09 3.036-1.637 0-2.846-1.189-2.846-2.808 0-1.64 1.258-2.81 2.946-2.81.396 0 .762.062 1.096.184V9.066L9.62 10.37v5.525c0 1.838-1.385 3.036-3.09 3.036-1.637 0-2.846-1.189-2.846-2.808 0-1.64 1.258-2.81 2.946-2.81.396 0 .762.062 1.096.184V7.5l9.27-2.143v2.286z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('gumroad')) {
+    return <span className={`${className} inline-flex items-center justify-center font-black text-xs leading-none text-current`}>G</span>;
+  }
+
+  if (name.includes('appstore') || name.includes('app-store')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.45c.67-.82 1.13-1.96.99-3.1-.98.04-2.16.66-2.85 1.47-.6.7-.13 1.86.01 3 .1.01 2.23-.39 1.85-1.37z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('googleplay') || name.includes('google-play')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M3.609 1.814L15.793 12 3.61 22.186A2.37 2.37 0 013 20.485V3.515c0-.683.226-1.312.609-1.701zm13.67 11.39l2.766-2.316a1.5 1.5 0 000-2.376l-2.766-2.316-2.563 2.563 2.563 2.563zM4.71 1.053l10.375 8.683-2.28 2.28L4.71 1.053zM4.71 22.947l8.095-10.963 2.28 2.28L4.71 22.947z"/>
+      </svg>
+    );
+  }
+
+  if (name.includes('notion')) {
+    return (
+      <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.047-.326L17.86 1.83c-.42-.326-.98-.56-1.774-.513L3.106 2.344c-.42.047-.56.28-.373.466l1.726 1.398zm.28 2.334v14.417c0 .746.42 1.073 1.166 1.026l14.464-.84c.746-.046.887-.606.887-1.305V5.42c0-.56-.374-.793-.84-.746l-14.79.84c-.607.046-.887.42-.887 1.028zm13.355 1.493c.093.42.047.84-.374.887l-.933.14c-.373.047-.56.233-.56.56v8.444c0 .326.14.513.513.513l1.166-.093c.374-.047.467.373.374.793l-3.36.187c-.093-.374-.047-.746.326-.793l1.027-.093c.373-.047.466-.28.466-.56V9.456l-4.526 8.584c-.14.28-.374.42-.654.42-.233 0-.467-.093-.56-.326L6.56 9.456v7.325c0 .327.234.514.607.56l1.26.14c.373.047.466.42.373.793l-3.453.187c-.093-.373-.047-.793.327-.84l.98-.14c.373-.047.513-.233.513-.56V8.989c0-.326-.14-.513-.467-.56l-1.026-.14c-.374-.047-.467-.42-.374-.84l3.173-.186 4.34 8.21 4.2-8.21 3.08-.187z"/>
       </svg>
     );
   }
