@@ -65,6 +65,16 @@ export default function ShareModal({
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(displayUrl)}`, '_blank', 'noopener,noreferrer');
   };
 
+  const handleInstagramShare = async () => {
+    await handleCopy();
+    window.open('https://instagram.com/direct/inbox/', '_blank', 'noopener,noreferrer');
+  };
+
+  const handleTiktokShare = async () => {
+    await handleCopy();
+    window.open('https://www.tiktok.com/messages', '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex flex-col justify-end sm:justify-center items-center p-0 sm:p-4 animate-in fade-in duration-200">
       {/* Backdrop click to close */}
@@ -212,7 +222,7 @@ export default function ShareModal({
           {/* Option 7: Instagram */}
           <button
             type="button"
-            onClick={handleNativeShare}
+            onClick={handleInstagramShare}
             className="flex flex-col items-center gap-2 group min-w-[4.25rem] cursor-pointer"
           >
             <div className="w-14 h-14 rounded-2xl bg-surface-alt border border-border/80 group-hover:border-accent/40 group-hover:bg-surface group-hover:scale-105 transition-all shadow-2xs flex items-center justify-center text-fg">
@@ -224,7 +234,7 @@ export default function ShareModal({
           {/* Option 8: TikTok */}
           <button
             type="button"
-            onClick={handleNativeShare}
+            onClick={handleTiktokShare}
             className="flex flex-col items-center gap-2 group min-w-[4.25rem] cursor-pointer"
           >
             <div className="w-14 h-14 rounded-2xl bg-surface-alt border border-border/80 group-hover:border-accent/40 group-hover:bg-surface group-hover:scale-105 transition-all shadow-2xs flex items-center justify-center text-fg">
