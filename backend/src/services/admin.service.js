@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import { db } from '../config/db.js';
-import { analyticsEvents, links, profiles, users } from '../models/schema.js';
+import { adminAuditLogs, analyticsEvents, links, profiles, users } from '../models/schema.js';
 import { ApiError } from '../utils/apiResponse.js';
 import { buildDayTrend } from '../utils/trend.js';
 import { AdminAuditService } from './adminAudit.service.js';
