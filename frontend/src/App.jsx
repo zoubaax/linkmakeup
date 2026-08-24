@@ -90,9 +90,9 @@ export default function App() {
 
           {/* Strategy & Moroccan Geo-Targeted Landing Pages */}
           <Route path="/fr/carte-de-visite-digitale-maroc" element={<MoroccoNfcLanding />} />
-          <Route path="/fr/carte-nfc-maroc" element={<MoroccoNfcLanding />} />
-          <Route path="/solutions/freelancers-maroc" element={<MoroccoNfcLanding />} />
-          <Route path="/maroc" element={<MoroccoNfcLanding />} />
+          <Route path="/fr/carte-nfc-maroc" element={<Navigate to="/fr/carte-de-visite-digitale-maroc" replace />} />
+          <Route path="/solutions/freelancers-maroc" element={<Navigate to="/fr/carte-de-visite-digitale-maroc" replace />} />
+          <Route path="/maroc" element={<Navigate to="/fr/carte-de-visite-digitale-maroc" replace />} />
 
           {/* Audience, Persona & Solutions Landing Pages */}
           <Route path="/for/engineers" element={<EngineersLanding />} />

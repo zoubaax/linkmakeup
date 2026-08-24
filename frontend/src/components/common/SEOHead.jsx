@@ -11,9 +11,9 @@ export default function SEOHead({
   title = "Link Make Up — Digital Identity Platform | Link in Bio, Digital Business Card & NFC",
   description = "Link Make Up is the professional digital identity platform. Build your link in bio, personal subdomain, digital business card, CV portfolio, and smart NFC cards.",
   keywords = "Link Make Up, link in bio, digital business card, NFC business card, carte de visite digitale Maroc, carte NFC Maroc, personal subdomain, online CV, portfolio builder",
-  canonicalUrl = "https://linkmakeup.com/",
+  canonicalUrl = "https://www.linkmakeup.com/",
   ogType = "website",
-  ogImage = "https://linkmakeup.com/logo-d.png",
+  ogImage = "https://www.linkmakeup.com/card-logo.png",
   noindex = false,
   jsonLd = null
 }) {

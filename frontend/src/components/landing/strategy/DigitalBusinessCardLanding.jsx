@@ -8,7 +8,7 @@ export default function DigitalBusinessCardLanding() {
     title: 'Digital Business Card Builder & Personal Subdomain | Link Make Up',
     description: 'Build your modern digital business card, personal subdomain, and contact card with Link Make Up. Easily share your contact info, portfolio, and social links instantly.',
     keywords: 'digital business card, online business card builder, electronic business card, virtual contact card, personal subdomain, link in bio platform, Link Make Up',
-    canonicalUrl: 'https://linkmakeup.com/features/digital-business-card',
+    canonicalUrl: 'https://www.linkmakeup.com/features/digital-business-card',
   };
 
   const jsonLd = {
@@ -19,7 +19,7 @@ export default function DigitalBusinessCardLanding() {
     'publisher': {
       '@type': 'Organization',
       'name': 'Link Make Up',
-      'url': 'https://linkmakeup.com'
+      'url': 'https://www.linkmakeup.com'
     }
   };
 

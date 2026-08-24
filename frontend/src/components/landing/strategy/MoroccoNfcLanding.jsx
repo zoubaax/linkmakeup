@@ -8,14 +8,14 @@ export default function MoroccoNfcLanding() {
     title: 'Carte de Visite Digitale & NFC au Maroc | Link Make Up',
     description: 'La plateforme de référence au Maroc pour cartes de visite digitales, NFC et sous-domaines professionnels. Partagez votre profil, portfolio et coordonnées en un tap.',
     keywords: 'carte de visite digitale maroc, carte nfc maroc, link in bio maroc, carte de visite sans contact casablanca, carte nfc rabat marrakech, link make up maroc',
-    canonicalUrl: 'https://linkmakeup.com/fr/carte-de-visite-digitale-maroc',
+    canonicalUrl: 'https://www.linkmakeup.com/fr/carte-de-visite-digitale-maroc',
   };
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     'name': 'Carte de Visite NFC & Digitale Maroc — Link Make Up',
-    'image': 'https://linkmakeup.com/logo-d.png',
+    'image': 'https://www.linkmakeup.com/card-logo.png',
     'description': 'Carte de visite sans contact NFC et profil digital professionnel pour entrepreneurs, freelancers, et entreprises au Maroc.',
     'brand': {
       '@type': 'Brand',
