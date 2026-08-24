@@ -94,9 +94,15 @@ export default function App() {
           <Route path="/solutions/freelancers-maroc" element={<MoroccoNfcLanding />} />
           <Route path="/maroc" element={<MoroccoNfcLanding />} />
 
+          {/* Audience, Persona & Solutions Landing Pages */}
           <Route path="/for/engineers" element={<EngineersLanding />} />
+          <Route path="/solutions/developers" element={<EngineersLanding />} />
+          <Route path="/solutions/engineers" element={<EngineersLanding />} />
           <Route path="/for/linkedin-creators" element={<LinkedinCreatorsLanding />} />
+          <Route path="/solutions/creators" element={<LinkedinCreatorsLanding />} />
           <Route path="/for/founders" element={<FoundersLanding />} />
+          <Route path="/solutions/founders" element={<FoundersLanding />} />
+          <Route path="/solutions/freelancers" element={<MoroccoNfcLanding />} />
           <Route path="/for/nfc-business-cards" element={<NfcCardsLanding />} />
           <Route path="/for/nfc-cards" element={<NfcCardsLanding />} />
 
