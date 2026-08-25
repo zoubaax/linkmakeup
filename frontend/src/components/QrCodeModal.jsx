@@ -105,7 +105,8 @@ export default function QrCodeModal({ profile, publicUrl, onClose }) {
         {/* QR Code Card Frame */}
         <div
           ref={qrSvgRef}
-          className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col items-center justify-center mb-5"
+          style={{ colorScheme: 'light' }}
+          className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-2xs flex flex-col items-center justify-center mb-5 select-none"
         >
           {profile?.avatarUrl && (
             <img
@@ -120,8 +121,13 @@ export default function QrCodeModal({ profile, publicUrl, onClose }) {
             size={200}
             level="H"
             marginSize={1}
-            fgColor="#0F172A"
+            fgColor="#000000"
             bgColor="#FFFFFF"
+            shapeRendering="crispEdges"
+            style={{
+              shapeRendering: 'crispEdges',
+              imageRendering: 'pixelated',
+            }}
             imageSettings={{
               src: '/favicon.svg',
               height: 38,

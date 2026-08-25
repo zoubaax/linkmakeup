@@ -367,7 +367,11 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
               </div>
 
               {/* QR Code Card Frame */}
-              <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col items-center justify-center mb-5" ref={qrSvgRef}>
+              <div
+                ref={qrSvgRef}
+                style={{ colorScheme: 'light' }}
+                className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col items-center justify-center mb-5 select-none"
+              >
                 {profile?.avatarUrl && (
                   <img
                     src={profile.avatarUrl}
@@ -381,8 +385,13 @@ export default function LivePageShareBar({ profile, links, publicUrl, suspended 
                   size={200}
                   level="H"
                   marginSize={1}
-                  fgColor="#0F172A"
+                  fgColor="#000000"
                   bgColor="#FFFFFF"
+                  shapeRendering="crispEdges"
+                  style={{
+                    shapeRendering: 'crispEdges',
+                    imageRendering: 'pixelated',
+                  }}
                   imageSettings={{
                     src: '/favicon.svg',
                     height: 38,

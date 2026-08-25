@@ -1,14 +1,17 @@
 export const PLATFORM_PRESETS = [
-  { id: 'instagram', name: 'Instagram', baseUrl: 'https://instagram.com/', color: 'from-pink-500 to-purple-600', icon: 'instagram' },
-  { id: 'linkedin', name: 'LinkedIn', baseUrl: 'https://linkedin.com/in/', color: 'from-blue-600 to-cyan-600', icon: 'linkedin' },
   { id: 'github', name: 'GitHub', baseUrl: 'https://github.com/', color: 'from-slate-700 to-slate-900', icon: 'github' },
+  { id: 'portfolio', name: 'Portfolio', baseUrl: 'https://', color: 'from-violet-600 to-fuchsia-600', icon: 'portfolio' },
+  { id: 'email', name: 'Email', baseUrl: '', color: 'from-amber-500 to-orange-600', icon: 'email' },
+  { id: 'linkedin', name: 'LinkedIn', baseUrl: 'https://linkedin.com/in/', color: 'from-blue-600 to-cyan-600', icon: 'linkedin' },
+  { id: 'instagram', name: 'Instagram', baseUrl: 'https://instagram.com/', color: 'from-pink-500 to-purple-600', icon: 'instagram' },
   { id: 'twitter', name: 'X (Twitter)', baseUrl: 'https://x.com/', color: 'from-slate-800 to-slate-950', icon: 'twitter' },
+  { id: 'whatsapp', name: 'WhatsApp', baseUrl: 'https://wa.me/', color: 'from-emerald-500 to-teal-600', icon: 'whatsapp' },
   { id: 'youtube', name: 'YouTube', baseUrl: 'https://youtube.com/@', color: 'from-red-600 to-rose-700', icon: 'youtube' },
   { id: 'tiktok', name: 'TikTok', baseUrl: 'https://tiktok.com/@', color: 'from-cyan-500 to-pink-500', icon: 'tiktok' },
+  { id: 'telegram', name: 'Telegram', baseUrl: 'https://t.me/', color: 'from-sky-400 to-blue-500', icon: 'telegram' },
   { id: 'snapchat', name: 'Snapchat', baseUrl: 'https://snapchat.com/add/', color: 'from-yellow-400 to-amber-500', icon: 'snapchat' },
   { id: 'discord', name: 'Discord', baseUrl: 'https://discord.gg/', color: 'from-indigo-500 to-blue-600', icon: 'discord' },
-  { id: 'whatsapp', name: 'WhatsApp', baseUrl: 'https://wa.me/', color: 'from-emerald-500 to-teal-600', icon: 'whatsapp' },
-  { id: 'telegram', name: 'Telegram', baseUrl: 'https://t.me/', color: 'from-sky-400 to-blue-500', icon: 'telegram' },
+  { id: 'phone', name: 'Phone', baseUrl: '', color: 'from-emerald-500 to-teal-600', icon: 'phone' },
   { id: 'reddit', name: 'Reddit', baseUrl: 'https://reddit.com/user/', color: 'from-orange-600 to-red-600', icon: 'reddit' },
   { id: 'threads', name: 'Threads', baseUrl: 'https://threads.net/@', color: 'from-slate-800 to-zinc-950', icon: 'threads' },
   { id: 'twitch', name: 'Twitch', baseUrl: 'https://twitch.tv/', color: 'from-purple-600 to-violet-700', icon: 'twitch' },
@@ -39,9 +42,6 @@ export const PLATFORM_PRESETS = [
   { id: 'appstore', name: 'App Store', baseUrl: 'https://apps.apple.com/', color: 'from-blue-500 to-sky-600', icon: 'appstore' },
   { id: 'googleplay', name: 'Google Play', baseUrl: 'https://play.google.com/store/apps/', color: 'from-emerald-500 to-teal-600', icon: 'googleplay' },
   { id: 'notion', name: 'Notion', baseUrl: 'https://notion.so/', color: 'from-slate-800 to-zinc-900', icon: 'notion' },
-  { id: 'phone', name: 'Phone', baseUrl: '', color: 'from-emerald-500 to-teal-600', icon: 'phone' },
-  { id: 'email', name: 'Email', baseUrl: '', color: 'from-amber-500 to-orange-600', icon: 'email' },
-  { id: 'portfolio', name: 'Portfolio', baseUrl: 'https://', color: 'from-violet-600 to-fuchsia-600', icon: 'portfolio' },
 ];
 
 export function getPlatformPreset(id) {

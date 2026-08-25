@@ -11,6 +11,12 @@ import {
 import { useToast } from '../../contexts/ToastContext';
 import { getPlatformIcon } from '../SocialIcons';
 
+function getAvatarShapeClass(shape) {
+  if (shape === 'square') return 'rounded-lg';
+  if (shape === 'rounded' || shape === 'squircle') return 'rounded-2xl';
+  return 'rounded-full';
+}
+
 export default function MobileStudioHeader({ profile, links = [], publicUrl, title = 'Links', onOpenPreview, onAddLink, onOpenShare }) {
   const navigate = useNavigate();
 
@@ -43,12 +49,12 @@ export default function MobileStudioHeader({ profile, links = [], publicUrl, tit
   return (
     <div className="md:hidden flex flex-col gap-3 bg-surface p-4 border-b border-border/80">
       {/* User Profile Card Row + Share Button */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-start gap-3 min-w-0 flex-1">
-          {/* Avatar Circle */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          {/* Avatar Container */}
           <div
             onClick={() => navigate('/dashboard/profile')}
-            className="relative w-14 h-14 rounded-2xl bg-surface-alt border border-border shadow-2xs shrink-0 overflow-hidden cursor-pointer flex items-center justify-center text-fg-muted font-bold text-xl hover:border-accent/40 transition-colors"
+            className={`relative w-14 h-14 ${getAvatarShapeClass(profile?.avatarShape)} ring-1 ring-border/60 shrink-0 overflow-hidden cursor-pointer flex items-center justify-center text-fg-muted font-bold text-xl hover:ring-accent transition-all shadow-2xs`}
           >
             {profile?.avatarUrl ? (
               <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -58,8 +64,8 @@ export default function MobileStudioHeader({ profile, links = [], publicUrl, tit
           </div>
 
           {/* Username & Bio & Dynamic User Links Shortcuts */}
-          <div className="flex-1 min-w-0 flex flex-col gap-1">
-            <h2 className="text-base font-extrabold text-fg truncate">
+          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+            <h2 className="text-base font-extrabold text-fg truncate leading-tight">
               {profile?.displayName || profile?.username || 'User'}
             </h2>
 
@@ -76,17 +82,17 @@ export default function MobileStudioHeader({ profile, links = [], publicUrl, tit
             </button>
 
             {/* Dynamic Social Icons Row (Respecting User Configured Links + Design System Colors) */}
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex items-center gap-1.5 pt-1">
               {activeUserLinks.map((link) => (
                 <button
                   key={link._id || link.id || link.url}
                   type="button"
                   onClick={() => navigate('/dashboard')}
-                  className="relative w-7 h-7 rounded-xl bg-surface-alt border border-border/80 flex items-center justify-center text-fg hover:border-accent/40 hover:text-accent hover:scale-105 transition-all cursor-pointer shadow-2xs"
+                  className="relative w-6 h-6 rounded-lg bg-surface-alt border border-border/80 flex items-center justify-center text-fg hover:border-accent/40 hover:text-accent hover:scale-105 transition-all cursor-pointer shadow-2xs"
                   title={link.title || link.platform}
                 >
-                  <div className="w-3.5 h-3.5 flex items-center justify-center text-fg-muted">
-                    {getPlatformIcon(link.platform || link.icon || link.url, 'w-3.5 h-3.5')}
+                  <div className="w-3 h-3 flex items-center justify-center text-fg-muted">
+                    {getPlatformIcon(link.platform || link.icon || link.url, 'w-3 h-3')}
                   </div>
                 </button>
               ))}
@@ -95,24 +101,25 @@ export default function MobileStudioHeader({ profile, links = [], publicUrl, tit
               <button
                 type="button"
                 onClick={handleAddLinkClick}
-                className="w-7 h-7 rounded-xl border border-dashed border-border text-fg-subtle hover:text-accent hover:border-accent/60 hover:bg-surface-alt transition-colors cursor-pointer flex items-center justify-center"
+                className="w-6 h-6 rounded-lg border border-dashed border-border text-fg-subtle hover:text-accent hover:border-accent/60 hover:bg-surface-alt transition-colors cursor-pointer flex items-center justify-center"
                 title="Add Link"
               >
-                <HiPlus className="w-3.5 h-3.5" />
+                <HiPlus className="w-3 h-3" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Share Button (Aligned Top-Right of Profile Card Row) */}
+        {/* Share Button (Vertically Centered & Compact) */}
         <button
           type="button"
           onClick={handleShare}
-          className="p-2 rounded-xl bg-surface-alt/70 border border-border/80 text-fg hover:bg-surface-alt hover:border-accent/40 transition-all cursor-pointer shadow-2xs shrink-0"
+          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-surface-alt border border-border/80 text-fg hover:bg-surface hover:border-accent/40 text-xs font-bold transition-all cursor-pointer shadow-2xs shrink-0"
           aria-label="Share"
           title="Share Profile"
         >
-          <HiArrowUpTray className="w-5 h-5" />
+          <HiArrowUpTray className="w-3.5 h-3.5 text-accent" />
+          <span>Share</span>
         </button>
       </div>
 

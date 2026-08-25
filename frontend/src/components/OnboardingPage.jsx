@@ -12,7 +12,7 @@ import Logo from './ui/Logo';
 import { THEME_PRESETS } from '../utils/themePresets';
 import { LAYOUT_STYLES } from '../utils/themeStyles';
 import { PLATFORM_PRESETS, getPlatformPreset, getPlatformIcon } from './SocialIcons';
-import { HiPlus, HiTrash, HiXMark, HiChevronDown, HiChevronUp, HiSwatch } from 'react-icons/hi2';
+import { HiPlus, HiTrash, HiXMark, HiChevronDown, HiChevronUp, HiSwatch, HiMagnifyingGlass } from 'react-icons/hi2';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -48,6 +48,7 @@ export default function OnboardingPage() {
   // Modal State
   const [pickerOpen, setPickerOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
+  const [platformSearch, setPlatformSearch] = useState('');
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
   const [avatarError, setAvatarError] = useState(false);
@@ -170,11 +171,12 @@ export default function OnboardingPage() {
       setEditingIndex(null);
     } else {
       // Add new link with chosen platform
+      const isContactMethod = platformObj.id === 'email' || platformObj.id === 'phone' || platformObj.icon === 'email' || platformObj.icon === 'phone';
       setInitialLinks((prev) => [
         ...prev,
         {
           title: platformObj.name,
-          url: platformObj.baseUrl || 'https://',
+          url: isContactMethod ? '' : (platformObj.baseUrl || 'https://'),
           icon: platformObj.icon || platformObj.id,
         },
       ]);
@@ -221,14 +223,26 @@ export default function OnboardingPage() {
         const validLinks = initialLinks.filter((l) => l.url && l.url.trim());
         if (validLinks.length > 0) {
           await Promise.allSettled(
-            validLinks.map((link, i) =>
-              ApiService.createLink({
+            validLinks.map((link, i) => {
+              const clean = link.url.trim();
+              let finalUrl = clean;
+              if (link.icon === 'email') {
+                const emailClean = clean.replace(/^mailto:/i, '').replace(/^https?:\/\//i, '');
+                finalUrl = `mailto:${emailClean}`;
+              } else if (link.icon === 'phone') {
+                const phoneClean = clean.replace(/^tel:/i, '').replace(/^https?:\/\//i, '');
+                finalUrl = `tel:${phoneClean}`;
+              } else if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
+                finalUrl = `https://${clean}`;
+              }
+
+              return ApiService.createLink({
                 title: link.title || 'My Link',
-                url: link.url.startsWith('http') ? link.url.trim() : `https://${link.url.trim()}`,
+                url: finalUrl,
                 icon: link.icon || 'globe',
                 position: i,
-              })
-            )
+              });
+            })
           );
         }
 
@@ -565,10 +579,16 @@ export default function OnboardingPage() {
                           </button>
                         </div>
                         <input
-                          type="text"
+                          type={link.icon === 'email' ? 'email' : link.icon === 'phone' ? 'tel' : 'text'}
                           value={link.url}
                           onChange={(e) => handleLinkChange(idx, 'url', e.target.value)}
-                          placeholder="https://..."
+                          placeholder={
+                            link.icon === 'email'
+                              ? 'name@example.com'
+                              : link.icon === 'phone'
+                              ? '+212 600-000000'
+                              : 'https://...'
+                          }
                           className="w-full px-2.5 py-1.5 rounded-lg bg-surface border border-border text-xs text-fg font-mono focus:outline-none focus:border-emerald-500"
                         />
                       </div>
@@ -789,21 +809,52 @@ export default function OnboardingPage() {
                   onClick={() => {
                     setPickerOpen(false);
                     setEditingIndex(null);
+                    setPlatformSearch('');
                   }}
-                  className="p-1.5 rounded-full text-fg-muted hover:text-fg hover:bg-surface-alt"
+                  className="p-1.5 rounded-full text-fg-muted hover:text-fg hover:bg-surface-alt cursor-pointer"
                 >
                   <HiXMark className="w-4 h-4" />
                 </button>
               </div>
 
+              {/* Search Bar */}
+              <div className="relative mb-3">
+                <HiMagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle pointer-events-none" />
+                <input
+                  type="text"
+                  value={platformSearch}
+                  onChange={(e) => setPlatformSearch(e.target.value)}
+                  placeholder="Search platform (e.g. GitHub, Email, Portfolio...)"
+                  className="w-full pl-9 pr-8 py-2 rounded-xl bg-surface-alt border border-border text-xs text-fg placeholder:text-fg-subtle focus:outline-none focus:border-emerald-500 transition-colors"
+                  autoFocus
+                />
+                {platformSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setPlatformSearch('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-fg-subtle hover:text-fg hover:bg-surface cursor-pointer"
+                    title="Clear search"
+                  >
+                    <HiXMark className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
               {/* Grid of Platforms */}
               <div className="grid grid-cols-2 gap-2.5 max-h-72 overflow-y-auto pr-1">
-                {PLATFORM_PRESETS.map((preset) => (
+                {PLATFORM_PRESETS.filter((preset) => {
+                  const q = platformSearch.trim().toLowerCase();
+                  if (!q) return true;
+                  return preset.name.toLowerCase().includes(q) || preset.id.toLowerCase().includes(q);
+                }).map((preset) => (
                   <button
                     key={preset.id}
                     type="button"
-                    onClick={() => handleSelectPlatform(preset)}
-                    className="flex items-center gap-2.5 p-2.5 rounded-2xl border border-border bg-surface-alt hover:bg-nav-hover hover:border-emerald-500/60 text-xs font-bold text-fg transition-all text-left group"
+                    onClick={() => {
+                      handleSelectPlatform(preset);
+                      setPlatformSearch('');
+                    }}
+                    className="flex items-center gap-2.5 p-2.5 rounded-2xl border border-border bg-surface-alt hover:bg-nav-hover hover:border-emerald-500/60 text-xs font-bold text-fg transition-all text-left group cursor-pointer"
                   >
                     <div className="w-7 h-7 rounded-xl bg-surface border border-border flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
                       {getPlatformIcon(preset.icon || preset.id, 'w-4 h-4')}
@@ -812,6 +863,16 @@ export default function OnboardingPage() {
                   </button>
                 ))}
               </div>
+
+              {PLATFORM_PRESETS.filter((preset) => {
+                const q = platformSearch.trim().toLowerCase();
+                if (!q) return true;
+                return preset.name.toLowerCase().includes(q) || preset.id.toLowerCase().includes(q);
+              }).length === 0 && (
+                <div className="py-6 text-center text-xs text-fg-subtle">
+                  No platforms matching <span className="font-semibold text-fg">"{platformSearch}"</span>
+                </div>
+              )}
             </div>
           </div>
         </>
