@@ -10,6 +10,7 @@ import {
 } from 'react-icons/hi2';
 import { useToast } from '../../contexts/ToastContext';
 import { getPlatformIcon } from '../SocialIcons';
+import { getProfileAvatarUrl } from '../../utils/cloudinary';
 
 function getAvatarShapeClass(shape) {
   if (shape === 'square') return 'rounded-lg';
@@ -57,7 +58,13 @@ export default function MobileStudioHeader({ profile, links = [], publicUrl, tit
             className={`relative w-14 h-14 ${getAvatarShapeClass(profile?.avatarShape)} ring-1 ring-border/60 shrink-0 overflow-hidden cursor-pointer flex items-center justify-center text-fg-muted font-bold text-xl hover:ring-accent transition-all shadow-2xs`}
           >
             {profile?.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              <img
+                src={getProfileAvatarUrl(profile.avatarUrl)}
+                alt="Avatar"
+                className="w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
+              />
             ) : (
               <HiUser className="w-7 h-7 opacity-60" />
             )}

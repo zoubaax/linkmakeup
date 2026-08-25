@@ -8,6 +8,7 @@ import ThemeToggle from '../ThemeToggle';
 import { useCommandPaletteShortcut } from '../../hooks/useKeyboardShortcut';
 import { useAuth } from '../../contexts/AuthContext';
 import { PROFILE_DETAILS_PATH } from '../../config/dashboardNav';
+import { getProfileAvatarUrl } from '../../utils/cloudinary';
 import StudioNav from './StudioNav';
 
 const PAGE_TITLES = {
@@ -133,10 +134,12 @@ export default function AppLayout({ children }) {
               >
                 {profile?.avatarUrl ? (
                   <img
-                    src={profile.avatarUrl}
+                    src={getProfileAvatarUrl(profile.avatarUrl)}
                     alt="User"
                     className="w-7 h-7 rounded-full object-cover border border-border shrink-0"
                     referrerPolicy="no-referrer"
+                    loading="eager"
+                    decoding="async"
                   />
                 ) : (
                   <div className="w-7 h-7 rounded-full bg-emerald-600 border border-emerald-500 flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-xs">
