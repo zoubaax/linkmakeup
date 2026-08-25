@@ -279,7 +279,7 @@ export default function LinkManager({ links, onLinksUpdated }) {
                     </div>
                     <input
                       type={link.icon === 'email' ? 'email' : link.icon === 'phone' ? 'tel' : 'url'}
-                      placeholder={link.icon === 'email' ? 'Email address' : link.icon === 'phone' ? 'Phone number' : 'URL'}
+                      placeholder={link.icon === 'email' ? 'name@example.com' : link.icon === 'phone' ? '+212 600-000000' : 'https://...'}
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
                       className={`${inputClass} py-2 text-xs`}
@@ -362,7 +362,13 @@ export default function LinkManager({ links, onLinksUpdated }) {
                     {selectedPreset ? `Add ${selectedPreset.name}` : 'Add a Link'}
                   </h4>
                   <p className="text-xs text-fg-subtle truncate">
-                    {selectedPreset ? 'Enter your URL or username below' : 'Choose a platform from our list'}
+                    {selectedPreset
+                      ? selectedPreset.id === 'email'
+                        ? 'Enter your email address below'
+                        : selectedPreset.id === 'phone'
+                        ? 'Enter your phone number below'
+                        : 'Enter your URL or username below'
+                      : 'Choose a platform from our list'}
                   </p>
                 </div>
               </div>
@@ -463,7 +469,15 @@ export default function LinkManager({ links, onLinksUpdated }) {
                       </label>
                       <input
                         type={selectedPreset.id === 'email' ? 'email' : selectedPreset.id === 'phone' ? 'tel' : 'text'}
-                        placeholder={selectedPreset.baseUrl ? `${selectedPreset.baseUrl}yourusername` : 'https://example.com'}
+                        placeholder={
+                          selectedPreset.id === 'email'
+                            ? 'name@example.com'
+                            : selectedPreset.id === 'phone'
+                            ? '+212 600-000000'
+                            : selectedPreset.baseUrl
+                            ? `${selectedPreset.baseUrl}yourusername`
+                            : 'https://example.com'
+                        }
                         value={newUrl}
                         onChange={(e) => handleNewUrlChange(e.target.value)}
                         required
