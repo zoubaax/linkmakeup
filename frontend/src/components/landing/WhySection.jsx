@@ -1,5 +1,5 @@
 import ScrollStack, { ScrollStackItem } from '../ui/ScrollStack';
-import meImg from '../../assets/me.JPG';
+import meImg from '../../assets/me.jpg';
 
 const features = [
   {
