@@ -122,8 +122,15 @@ export default function Footer() {
             © {new Date().getFullYear()} Link Make Up. All rights reserved.
           </div>
           <div>
-            <a href="https://www.instagram.com/linkmake.up" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors font-medium">
-              @linkmake.up
+            <a
+              href="https://www.instagram.com/linkmake.up"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 text-slate-400 hover:text-emerald-400 transition-all font-medium group"
+              aria-label="LinkMakeup on Instagram"
+            >
+              <FiInstagram className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform" />
+              <span>linkmake.up</span>
             </a>
           </div>
         </div>

@@ -24,13 +24,13 @@ export default function LandingPage() {
   }, [loading, user, profile, navigate]);
 
   return (
-    <div className="min-h-screen bg-[var(--lm-app)] text-[var(--lm-fg)] font-sans p-4 sm:p-8 flex flex-col justify-between selection:bg-emerald-600 selection:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--lm-app)] text-[var(--lm-fg)] font-sans p-3 sm:p-8 flex flex-col justify-between selection:bg-emerald-600 selection:text-white transition-colors duration-300">
       {/* 1. Navbar Header */}
       <Header user={user} profile={profile} />
 
       {/* Main Landmark for SEO accessibility */}
-      <main id="main-content" className="flex-1 flex flex-col justify-between space-y-16 py-6">
-        {/* 2. Floating Hero Section (With 3D NFC Card Showcase) */}
+      <main id="main-content" className="flex-1 flex flex-col justify-between space-y-10 sm:space-y-16 py-2 sm:py-6">
+        {/* 2. Floating Hero Section */}
         <HeroSection />
 
         {/* 3. Infinite Logo Ticker (Platform Ecosystem Marquee) */}

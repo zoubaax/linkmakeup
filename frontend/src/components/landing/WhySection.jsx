@@ -1,11 +1,12 @@
 import ScrollStack, { ScrollStackItem } from '../ui/ScrollStack';
+import meImg from '../../assets/me.JPG';
 
 const features = [
   {
     number: '01',
     title: 'Always context-aware',
     subtitle: 'SUBDOMAIN ENGINE',
-    detail: 'LinkMakeup remembers your preferences, custom subdomains, and link priorities so your profile is uniquely yours.',
+    detail: 'Link Make Up remembers your preferences, custom subdomains, and link priorities so your profile is uniquely yours.',
     type: 'context',
     gradient: 'from-emerald-500/10 via-teal-500/5 to-transparent',
     border: 'border-emerald-500/30 dark:border-emerald-500/40',
@@ -42,24 +43,41 @@ const features = [
 function FeaturePreview({ type }) {
   if (type === 'context') {
     return (
-      <div className="w-full p-5 rounded-2xl bg-slate-50/90 dark:bg-zinc-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-zinc-700/80 shadow-lg space-y-3.5">
-        <div className="flex items-center gap-3">
-          <span className="w-9 h-9 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center text-xs font-black shadow-md shadow-emerald-500/20">
-            LM
-          </span>
-          <div>
-            <div className="text-xs font-bold text-slate-900 dark:text-white">john.linkmakeup.com</div>
-            <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
-              Subdomain Active • SSL Ready
+      <a
+        href="https://zoubaa.linkmakeup.com"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block w-full p-5 rounded-2xl bg-slate-50/90 dark:bg-zinc-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-zinc-700/80 shadow-lg space-y-3.5 hover:border-emerald-500/60 transition-all group cursor-pointer text-left"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img
+              src={meImg}
+              alt="Zoubaa"
+              className="w-9 h-9 rounded-xl object-cover border border-emerald-500/40 shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform"
+            />
+            <div>
+              <div className="text-xs font-bold text-slate-900 dark:text-white group-hover:text-emerald-500 transition-colors flex items-center gap-1.5">
+                <span>zoubaa.linkmakeup.com</span>
+                <svg className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+              </div>
+              <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                Subdomain Active • SSL Ready
+              </div>
             </div>
           </div>
+          <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+            Live
+          </span>
         </div>
         <div className="p-3 rounded-xl bg-white dark:bg-zinc-800/80 border border-slate-200/80 dark:border-zinc-700/60 text-xs flex items-center justify-between shadow-xs">
           <span className="text-slate-500 dark:text-slate-400 font-medium">Active Theme:</span>
           <span className="font-bold text-emerald-600 dark:text-emerald-400">Emerald Luxe</span>
         </div>
-      </div>
+      </a>
     );
   }
 
