@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { getAuthenticatedHomePath } from '../utils/authRedirect';
+import SEOHead from './common/SEOHead';
 import Header from './landing/Header';
 import HeroSection from './landing/HeroSection';
 import LogoTicker from './landing/LogoTicker';
@@ -16,8 +17,6 @@ export default function LandingPage() {
   const { user, profile, loading } = useAuth();
 
   useEffect(() => {
-    document.title = 'LinkMakeup — 100% Free Link in Bio Tool for Creators & Developers';
-
     if (!loading && user) {
       navigate(getAuthenticatedHomePath(profile), { replace: true });
     }
@@ -25,6 +24,13 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[var(--lm-app)] text-[var(--lm-fg)] font-sans p-3 sm:p-8 flex flex-col justify-between selection:bg-emerald-600 selection:text-white transition-colors duration-300">
+      <SEOHead
+        title="Link Make Up — The link page that works with you, not just for you"
+        description="Link Make Up is the free link in bio and digital identity tool for creators, developers, and founders. Claim your custom subdomain, digital business card, and share your links."
+        canonicalUrl="https://www.linkmakeup.com/"
+        ogImage="https://www.linkmakeup.com/card-logo.png"
+      />
+
       {/* 1. Navbar Header */}
       <Header user={user} profile={profile} />
 
