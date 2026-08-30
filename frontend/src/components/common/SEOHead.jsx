@@ -13,7 +13,7 @@ export default function SEOHead({
   keywords = "Link Make Up, link in bio, digital business card, NFC business card, carte de visite digitale Maroc, carte NFC Maroc, personal subdomain, online CV, portfolio builder",
   canonicalUrl = "https://www.linkmakeup.com/",
   ogType = "website",
-  ogImage = "https://www.linkmakeup.com/card-logo.png",
+  ogImage = "https://www.linkmakeup.com/og-image.png",
   noindex = false,
   jsonLd = null
 }) {

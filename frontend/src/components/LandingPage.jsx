@@ -28,7 +28,7 @@ export default function LandingPage() {
         title="Link Make Up — The link page that works with you, not just for you"
         description="Link Make Up is the free link in bio and digital identity tool for creators, developers, and founders. Claim your custom subdomain, digital business card, and share your links."
         canonicalUrl="https://www.linkmakeup.com/"
-        ogImage="https://www.linkmakeup.com/card-logo.png"
+        ogImage="https://www.linkmakeup.com/og-image.png"
       />
 
       {/* 1. Navbar Header */}
