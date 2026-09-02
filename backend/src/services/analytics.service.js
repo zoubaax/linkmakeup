@@ -382,8 +382,13 @@ export class AnalyticsService {
     const filters = [];
 
     if (search) {
-      const pattern = `%${search}%`;
-      filters.push(sql`(${profiles.username} ilike ${pattern} or ${profiles.displayName} ilike ${pattern})`);
+      const tokens = String(search).trim().split(/\s+/).filter(Boolean).slice(0, 5);
+      const tokenClauses = tokens.map((tok) => {
+        const pat = `%${String(tok).replace(/[%_\\]/g, (m) => `\\${m}`)}%`;
+        return sql`(${profiles.username} ilike ${pat} or ${profiles.displayName} ilike ${pat} or ${profiles.bio} ilike ${pat})`;
+      });
+      if (tokenClauses.length === 1) filters.push(tokenClauses[0]);
+      else if (tokenClauses.length > 1) filters.push(and(...tokenClauses));
     }
     if (status === 'live') {
       filters.push(eq(profiles.isSuspended, false));
@@ -448,8 +453,13 @@ export class AnalyticsService {
     const filters = [];
 
     if (search) {
-      const pattern = `%${search}%`;
-      filters.push(sql`(${profiles.username} ilike ${pattern} or ${profiles.displayName} ilike ${pattern})`);
+      const tokens = String(search).trim().split(/\s+/).filter(Boolean).slice(0, 5);
+      const tokenClauses = tokens.map((tok) => {
+        const pat = `%${String(tok).replace(/[%_\\]/g, (m) => `\\${m}`)}%`;
+        return sql`(${profiles.username} ilike ${pat} or ${profiles.displayName} ilike ${pat} or ${profiles.bio} ilike ${pat})`;
+      });
+      if (tokenClauses.length === 1) filters.push(tokenClauses[0]);
+      else if (tokenClauses.length > 1) filters.push(and(...tokenClauses));
     }
     if (status === 'live') {
       filters.push(eq(profiles.isSuspended, false));

@@ -78,9 +78,32 @@ export function getFaviconUrl(iconOrDomain) {
   return `${env.apiUrl}/favicon?domain=${encodeURIComponent(domain)}`;
 }
 
+export function getFaviconFallbackUrls(iconOrDomain) {
+  const primary = getFaviconUrl(iconOrDomain);
+  if (!primary) return [];
+  // Extract domain for fallbacks
+  let domain = null;
+  if (iconOrDomain.startsWith('favicon:')) domain = iconOrDomain.slice('favicon:'.length);
+  else domain = getDomainFromUrl(iconOrDomain);
+  if (!domain) return [primary];
+
+  const fallbacks = [primary];
+  // Direct Google S2 (no backend) + DuckDuckGo icons + direct favicon.ico
+  // These bypass backend CORS/proxy issues on subdomains and Vercel cold starts
+  fallbacks.push(`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`);
+  fallbacks.push(`https://icons.duckduckgo.com/ip3/${encodeURIComponent(domain)}.ico`);
+  fallbacks.push(`https://${domain}/favicon.ico`);
+  return [...new Set(fallbacks)];
+}
+
+export function getFaviconSrcList(iconOrDomain) {
+  return getFaviconFallbackUrls(iconOrDomain);
+}
+
 export function resolveLinkIcon(icon, url) {
   if (isFaviconIcon(icon)) {
-    return { type: 'favicon', src: getFaviconUrl(icon) };
+    const srcList = getFaviconSrcList(icon);
+    return { type: 'favicon', src: srcList[0] || null, srcList };
   }
 
   if (isPlatformIcon(icon) && icon.toLowerCase() !== 'portfolio' && icon.toLowerCase() !== 'website') {
@@ -89,7 +112,8 @@ export function resolveLinkIcon(icon, url) {
 
   const domain = getDomainFromUrl(url);
   if (domain) {
-    return { type: 'favicon', src: getFaviconUrl(`favicon:${domain}`) };
+    const srcList = getFaviconSrcList(`favicon:${domain}`);
+    return { type: 'favicon', src: srcList[0] || null, srcList };
   }
 
   return { type: 'platform', icon: icon || 'website' };

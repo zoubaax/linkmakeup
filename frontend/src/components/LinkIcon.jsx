@@ -1,21 +1,25 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { getPlatformIcon, getPlatformContainerStyle } from './SocialIcons';
 import { resolveLinkIcon } from '../utils/linkIcon';
 
 export function LinkIcon({ icon, title, url, className = 'w-4 h-4', imgClassName = '' }) {
-  const [failed, setFailed] = useState(false);
   const resolved = resolveLinkIcon(icon, url);
+  const srcList = useMemo(() => resolved.srcList || (resolved.src ? [resolved.src] : []), [resolved.src, resolved.srcList]);
+  const [srcIndex, setSrcIndex] = useState(0);
 
-  if (!failed && resolved.type === 'favicon' && resolved.src) {
+  if (resolved.type === 'favicon' && srcList.length > 0 && srcIndex < srcList.length) {
     return (
       <img
-        src={resolved.src}
+        key={srcList[srcIndex]}
+        src={srcList[srcIndex]}
         alt=""
         className={imgClassName || `${className} rounded-sm object-contain`}
-        crossOrigin="anonymous"
-        onError={() => setFailed(true)}
+        // No crossOrigin for display — avoids CORS taint on subdomains (user.linkmakeup.com → api.linkmakeup.com).
+        // html-to-image export inlines via fetch separately.
+        onError={() => setSrcIndex((i) => i + 1)}
         loading="lazy"
         decoding="async"
+        referrerPolicy="no-referrer"
       />
     );
   }

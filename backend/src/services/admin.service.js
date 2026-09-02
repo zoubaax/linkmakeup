@@ -25,13 +25,38 @@ function buildPagination(total, page, limit) {
   };
 }
 
+function escapeLikePattern(str) {
+  return String(str).replace(/[%_\\]/g, (m) => `\\${m}`);
+}
+
+function tokenizeSearch(search) {
+  return String(search || '')
+    .trim()
+    .split(/\s+/)
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 5); // cap tokens to avoid explosion
+}
+
+function buildTokenOrClause(tokens, columns) {
+  if (tokens.length === 0) return undefined;
+  // Each token must match at least one column (AND across tokens, OR across columns)
+  const tokenClauses = tokens.map((tok) => {
+    const pattern = `%${escapeLikePattern(tok)}%`;
+    const colClauses = columns.map((col) => ilike(col, pattern));
+    return colClauses.length === 1 ? colClauses[0] : or(...colClauses);
+  });
+  return tokenClauses.length === 1 ? tokenClauses[0] : and(...tokenClauses);
+}
+
 /** Shared WHERE builder for the users list (search + onboarding status). */
 function buildUsersWhere({ search, status }) {
   const filters = [];
 
   if (search) {
-    const pattern = `%${search}%`;
-    filters.push(or(ilike(users.email, pattern), ilike(users.name, pattern)));
+    const tokens = tokenizeSearch(search);
+    const clause = buildTokenOrClause(tokens, [users.email, users.name, profiles.username, profiles.displayName]);
+    if (clause) filters.push(clause);
   }
 
   if (status === 'with_profile') {
@@ -48,8 +73,9 @@ function buildProfilesWhere({ search, status }) {
   const filters = [];
 
   if (search) {
-    const pattern = `%${search}%`;
-    filters.push(or(ilike(profiles.username, pattern), ilike(profiles.displayName, pattern), ilike(users.email, pattern)));
+    const tokens = tokenizeSearch(search);
+    const clause = buildTokenOrClause(tokens, [profiles.username, profiles.displayName, users.email, profiles.bio]);
+    if (clause) filters.push(clause);
   }
 
   if (status === 'live') {
@@ -66,15 +92,9 @@ function buildLinksWhere({ search, status }) {
   const filters = [];
 
   if (search) {
-    const pattern = `%${search}%`;
-    filters.push(
-      or(
-        ilike(links.title, pattern),
-        ilike(links.url, pattern),
-        ilike(profiles.username, pattern),
-        ilike(users.email, pattern)
-      )
-    );
+    const tokens = tokenizeSearch(search);
+    const clause = buildTokenOrClause(tokens, [links.title, links.url, links.subtitle, links.icon, profiles.username, users.email]);
+    if (clause) filters.push(clause);
   }
 
   if (status === 'active') {
@@ -172,7 +192,14 @@ export class AdminService {
       return { users: [], profiles: [], links: [] };
     }
 
-    const pattern = `%${cleanQuery}%`;
+    const tokens = tokenizeSearch(cleanQuery);
+    if (tokens.length === 0) return { users: [], profiles: [], links: [] };
+
+    // Build ranked WHERE clauses with token AND + column OR, plus ordering by relevance
+    const buildRankedWhere = (cols) => buildTokenOrClause(tokens, cols);
+
+    // Relevance ordering: exact email/username match ranks higher
+    const exactLower = cleanQuery.toLowerCase();
 
     const [userItems, profileItems, linkItems] = await Promise.all([
       db
@@ -185,7 +212,8 @@ export class AdminService {
         })
         .from(users)
         .leftJoin(profiles, eq(profiles.userId, users.id))
-        .where(or(ilike(users.email, pattern), ilike(users.name, pattern)))
+        .where(buildRankedWhere([users.email, users.name, profiles.username, profiles.displayName]))
+        .orderBy(sql`case when lower(${users.email}) = ${exactLower} then 0 when lower(${users.email}) like ${`${exactLower}%`} then 1 else 2 end`, desc(users.createdAt))
         .limit(limit),
 
       db
@@ -200,7 +228,8 @@ export class AdminService {
         })
         .from(profiles)
         .leftJoin(users, eq(users.id, profiles.userId))
-        .where(or(ilike(profiles.username, pattern), ilike(profiles.displayName, pattern)))
+        .where(buildRankedWhere([profiles.username, profiles.displayName, users.email, profiles.bio]))
+        .orderBy(sql`case when lower(${profiles.username}) = ${exactLower} then 0 when lower(${profiles.username}) like ${`${exactLower}%`} then 1 else 2 end`, desc(profiles.createdAt))
         .limit(limit),
 
       db
@@ -215,7 +244,8 @@ export class AdminService {
         .from(links)
         .leftJoin(users, eq(users.id, links.userId))
         .leftJoin(profiles, eq(profiles.userId, links.userId))
-        .where(or(ilike(links.title, pattern), ilike(links.url, pattern)))
+        .where(buildRankedWhere([links.title, links.url, links.subtitle, links.icon, profiles.username, users.email]))
+        .orderBy(sql`case when lower(${links.title}) = ${exactLower} then 0 when lower(${links.title}) like ${`${exactLower}%`} then 1 else 2 end`, desc(links.createdAt))
         .limit(limit),
     ]);
 

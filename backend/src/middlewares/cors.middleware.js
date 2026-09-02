@@ -19,9 +19,15 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // Allow wildcard subdomains: *.linkmakeup.com
-    const subdomainRegex = /^https:\/\/([a-zA-Z0-9-]+)\.linkmakeup\.com$/;
+    // Allow wildcard subdomains: *.linkmakeup.com (user pages are username.linkmakeup.com)
+    // Usernames allow [a-zA-Z0-9_-], so allow underscore as well
+    const subdomainRegex = /^https:\/\/([a-zA-Z0-9_-]+)\.linkmakeup\.com$/;
     if (subdomainRegex.test(origin)) {
+      return callback(null, true);
+    }
+    // Also allow any nested subdomain like username.linkmakeup.com with port implicitly stripped by origin header
+    const looseSubdomainRegex = /^https:\/\/.*\.linkmakeup\.com$/;
+    if (looseSubdomainRegex.test(origin)) {
       return callback(null, true);
     }
 

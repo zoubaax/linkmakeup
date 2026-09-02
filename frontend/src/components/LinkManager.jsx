@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { HiGlobeAlt, HiComputerDesktop } from 'react-icons/hi2';
 import ApiService from '../services/api';
 import { useToast } from '../contexts/ToastContext';
 import { PLATFORM_PRESETS, getDefaultSubtitle, getPlatformIcon } from './SocialIcons';
 import { LinkIcon } from './LinkIcon';
 import { getFaviconIconValue, iconForLinkUrl, isPlatformIcon } from '../utils/linkIcon';
+import { filterAndRankPresets, highlightMatch } from '../utils/search';
 
 const inputClass =
   'w-full px-4 py-3 bg-surface-alt border border-border rounded-xl text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-subtle transition-all';
@@ -15,6 +16,8 @@ export default function LinkManager({ links, onLinksUpdated }) {
   const [selectedPreset, setSelectedPreset] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState(null);
+  const [highlightedPresetIdx, setHighlightedPresetIdx] = useState(0);
+  const searchInputRef = useRef(null);
 
   // Form states
   const [newTitle, setNewTitle] = useState('');
@@ -41,6 +44,7 @@ export default function LinkManager({ links, onLinksUpdated }) {
   const openAddModal = () => {
     setSelectedPreset(null);
     setSearchQuery('');
+    setHighlightedPresetIdx(0);
     setNewTitle('');
     setNewUrl('');
     setNewIcon('website');
@@ -53,6 +57,7 @@ export default function LinkManager({ links, onLinksUpdated }) {
     setIsModalOpen(false);
     setSelectedPreset(null);
     setSearchQuery('');
+    setHighlightedPresetIdx(0);
     setErrorMsg('');
   };
 
@@ -198,13 +203,21 @@ export default function LinkManager({ links, onLinksUpdated }) {
     }
   };
 
-  const allPresets = PLATFORM_PRESETS;
+  const rankedPresets = useMemo(() => filterAndRankPresets(PLATFORM_PRESETS, searchQuery), [searchQuery]);
+  const filteredPresets = rankedPresets.map((r) => r.preset);
+  const presetScores = useMemo(() => new Map(rankedPresets.map((r) => [r.preset.id, r.score])), [rankedPresets]);
 
-  const filteredPresets = allPresets.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.id.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    setHighlightedPresetIdx(0);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (isModalOpen && !selectedPreset) {
+      // auto-focus search when modal opens
+      const t = setTimeout(() => searchInputRef.current?.focus(), 50);
+      return () => clearTimeout(t);
+    }
+  }, [isModalOpen, selectedPreset]);
 
   return (
     <section id="links" aria-labelledby="links-heading" className="scroll-mt-24 bg-surface border border-border rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow">
@@ -395,42 +408,86 @@ export default function LinkManager({ links, onLinksUpdated }) {
               {!selectedPreset ? (
                 /* STEP 1: SELECT PLATFORM PRESET */
                 <div className="flex flex-col gap-4">
-                  {/* Search Bar */}
+                  {/* Intelligent Search Bar */}
                   <div className="relative">
                     <svg className="w-4 h-4 absolute left-3.5 top-3.5 text-fg-subtle pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input
+                      ref={searchInputRef}
                       type="text"
-                      placeholder="Search platform (e.g. Snapchat, Discord, Telegram...)"
+                      placeholder="Try “ig”, “yt”, “x”, “insta”… — fuzzy & alias aware"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className={`${inputClass} pl-10 py-2.5`}
+                      onKeyDown={(e) => {
+                        if (!filteredPresets.length) return;
+                        if (e.key === 'ArrowDown') { e.preventDefault(); setHighlightedPresetIdx((i) => (i + 1) % filteredPresets.length); }
+                        else if (e.key === 'ArrowUp') { e.preventDefault(); setHighlightedPresetIdx((i) => (i - 1 + filteredPresets.length) % filteredPresets.length); }
+                        else if (e.key === 'Enter') { e.preventDefault(); const p = filteredPresets[highlightedPresetIdx]; if (p) handleSelectPreset(p); }
+                      }}
+                      className={`${inputClass} pl-10 pr-10 py-2.5`}
                     />
-                  </div>
-
-                  {/* Platform Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                    {filteredPresets.map((preset) => (
+                    {searchQuery ? (
                       <button
-                        key={preset.id}
                         type="button"
-                        onClick={() => handleSelectPreset(preset)}
-                        className="flex items-center gap-3 p-3 rounded-2xl border border-border bg-surface-alt hover:bg-surface hover:border-primary hover:shadow-sm transition-all group text-left cursor-pointer"
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full text-fg-subtle hover:text-fg hover:bg-surface-muted transition-colors"
+                        aria-label="Clear search"
                       >
-                        <div className="w-9 h-9 rounded-xl bg-surface-muted border border-border text-fg group-hover:bg-primary group-hover:text-primary-fg group-hover:border-primary flex items-center justify-center shrink-0 shadow-xs transition-all">
-                          {getPlatformIcon(preset.id, 'w-4 h-4')}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-bold text-xs text-fg group-hover:text-primary truncate transition-colors">{preset.name}</p>
-                        </div>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                       </button>
-                    ))}
+                    ) : (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-1 text-[10px] font-medium text-fg-subtle bg-surface border border-border px-1.5 py-0.5 rounded">
+                        {filteredPresets.length} platforms
+                      </span>
+                    )}
+                  </div>
+                  {searchQuery && (
+                    <p className="text-[11px] text-fg-subtle -mt-1">
+                      Found <strong className="text-fg">{filteredPresets.length}</strong> match{filteredPresets.length !== 1 ? 'es' : ''} · typo & alias tolerant
+                      {filteredPresets.length > 0 && presetScores.get(filteredPresets[0].id) < 80 ? <span className="ml-1 text-amber-600 dark:text-amber-400">· showing fuzzy results</span> : null}
+                    </p>
+                  )}
+
+                  {/* Platform Grid – ranked */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    {filteredPresets.map((preset, idx) => {
+                      const score = presetScores.get(preset.id) ?? 0;
+                      const isHighlighted = idx === highlightedPresetIdx;
+                      const parts = searchQuery ? highlightMatch(preset.name, searchQuery) : null;
+                      return (
+                        <button
+                          key={preset.id}
+                          type="button"
+                          onClick={() => handleSelectPreset(preset)}
+                          onMouseEnter={() => setHighlightedPresetIdx(idx)}
+                          className={`flex items-center gap-3 p-3 rounded-2xl border text-left cursor-pointer transition-all group ${
+                            isHighlighted ? 'bg-accent-subtle border-accent shadow-sm' : 'bg-surface-alt border-border hover:bg-surface hover:border-primary hover:shadow-sm'
+                          }`}
+                        >
+                          <div className={`w-9 h-9 rounded-xl border flex items-center justify-center shrink-0 shadow-xs transition-all ${isHighlighted ? 'bg-primary text-primary-fg border-primary' : 'bg-surface-muted border-border text-fg group-hover:bg-primary group-hover:text-primary-fg group-hover:border-primary'}`}>
+                            {getPlatformIcon(preset.id, 'w-4 h-4')}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className={`font-bold text-xs truncate transition-colors ${isHighlighted ? 'text-primary' : 'text-fg group-hover:text-primary'}`}>
+                              {parts ? parts.map((seg, i) => (
+                                <span key={i} className={seg.match ? 'bg-amber-200 dark:bg-amber-500/30 rounded px-0.5' : ''}>{seg.text}</span>
+                              )) : preset.name}
+                            </p>
+                            {searchQuery && score < 92 && score >= 55 ? (
+                              <span className="text-[10px] text-fg-subtle">fuzzy</span>
+                            ) : null}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
 
                   {filteredPresets.length === 0 && (
-                    <div className="py-8 text-center text-fg-subtle text-xs">
-                      No matching platform found.
+                    <div className="py-8 text-center border border-dashed border-border rounded-2xl bg-surface-alt/50">
+                      <p className="text-sm font-bold text-fg">No matching platform found</p>
+                      <p className="text-xs text-fg-subtle mt-1">Try a different spelling — search understands “ig” → Instagram, “yt” → YouTube, “x” → X (Twitter)</p>
+                      <button type="button" onClick={() => setSearchQuery('')} className="mt-3 text-xs font-semibold text-primary hover:underline">Clear search</button>
                     </div>
                   )}
                 </div>

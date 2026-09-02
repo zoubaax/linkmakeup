@@ -12,10 +12,14 @@ export class FaviconController {
       return res.status(404).json({ success: false, message: 'Favicon not found.' });
     }
 
+    // Public image — allow any subdomain/page to embed via <img>. Must not require CORS preflight.
+    // Explicitly allow all origins for this public asset so subdomain (username.linkmakeup.com) never blocks.
     res.set({
       'Content-Type': favicon.contentType,
       'Cache-Control': 'public, max-age=86400, stale-while-revalidate=604800',
       'Cross-Origin-Resource-Policy': 'cross-origin',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
     });
 
     return res.send(favicon.buffer);

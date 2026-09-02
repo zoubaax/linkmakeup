@@ -9,11 +9,26 @@ export function useAdminList(fetcher, { status = 'all', limit: initialLimit = 10
   const [items, setItems] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [searchInput, setSearchInput] = useState('');
-  const debouncedSearch = useDebouncedValue(searchInput);
+  const debouncedSearch = useDebouncedValue(searchInput, 300);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(initialLimit);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Capture "/" to focus search, Esc to clear – intelligent shortcut
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === '/' && !e.ctrlKey && !e.metaKey && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        document.querySelector('input[type="search"]')?.focus();
+      }
+      if (e.key === 'Escape' && searchInput) {
+        setSearchInput('');
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [searchInput]);
 
   useEffect(() => {
     setPage(1);
@@ -123,7 +138,7 @@ export default function AdminDataTable({
           {actions && <div className="shrink-0">{actions}</div>}
           {showSearch && (
             <div className="relative w-full lg:max-w-sm">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-fg-subtle pointer-events-none" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
@@ -131,13 +146,25 @@ export default function AdminDataTable({
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full rounded-xl border border-border bg-surface-alt/70 pl-10 pr-4 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30"
+                className="w-full rounded-xl border border-border bg-surface-alt/70 pl-10 pr-10 py-2.5 text-sm text-fg placeholder:text-fg-subtle focus:outline-none focus:ring-2 focus:ring-accent/30"
               />
-              {isSearching && (
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-medium text-fg-subtle">
-                  Searching…
-                </span>
-              )}
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                {isSearching ? (
+                  <span className="text-[11px] font-medium text-fg-subtle px-1">Searching…</span>
+                ) : search ? (
+                  <button
+                    type="button"
+                    onClick={() => onSearchChange('')}
+                    className="p-1 rounded-full text-fg-subtle hover:text-fg hover:bg-surface-muted transition-colors"
+                    aria-label="Clear search"
+                    title="Clear (Esc)"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
+                ) : (
+                  <kbd className="hidden sm:inline text-[10px] font-medium text-fg-subtle bg-surface border border-border px-1 py-0.5 rounded">/</kbd>
+                )}
+              </div>
             </div>
           )}
         </div>

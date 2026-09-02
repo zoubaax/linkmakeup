@@ -10,7 +10,7 @@ function isValidDomain(domain) {
   return DOMAIN_RE.test(normalized);
 }
 
-async function fetchPageHtml(url, timeoutMs = 5000) {
+async function fetchPageHtml(url, timeoutMs = 3000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -33,7 +33,7 @@ async function fetchPageHtml(url, timeoutMs = 5000) {
   }
 }
 
-async function fetchImage(url, timeoutMs = 8000) {
+async function fetchImage(url, timeoutMs = 5000) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -105,11 +105,14 @@ export class FaviconService {
       // ignore HTML parse error
     }
 
+    // Prioritize Google + DuckDuckGo (reliable, no HTML fetch needed) before direct /favicon.ico which often 404s or times out on serverless.
+    // Order: extracted HTML icon (if any) → Google S2 → DuckDuckGo → direct favicon files
     candidates.push(
+      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`,
+      `https://icons.duckduckgo.com/ip3/${encodeURIComponent(domain)}.ico`,
       `https://${domain}/favicon.ico`,
       `https://${domain}/favicon.png`,
-      `https://${domain}/favicon.svg`,
-      `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`
+      `https://${domain}/favicon.svg`
     );
 
     for (const url of candidates) {
