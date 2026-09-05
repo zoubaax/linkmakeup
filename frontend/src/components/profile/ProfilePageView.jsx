@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LinkIcon, getLinkIconContainerStyle } from '../LinkIcon';
 import { normalizeThemeConfig } from '../../utils/themePresets';
@@ -18,25 +19,53 @@ const scaleIn = (delay = 0) => ({
   animationDelay: `${delay}ms`,
 });
 
-/* ─── Link arrow ─── */
-function LinkArrow({ visuals, compact, accent }) {
+/* ─── Link arrow — beautiful flight + hover nudge ─── */
+function LinkArrow({ visuals, compact, accent, isClicking }) {
+  // neo uses plain text arrow → wrap for motion
   if (visuals.layoutStyle === 'neo') {
-    return <span style={visuals.linkArrow.style} className={visuals.linkArrow.className}>→</span>;
-  }
-  if (visuals.layoutStyle === 'minimal') {
     return (
-      <div className={visuals.linkArrow.className} style={visuals.linkArrow.style}>
-        <svg className={compact ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7V17" />
-        </svg>
-      </div>
+      <span
+        style={visuals.linkArrow.style}
+        className={`${visuals.linkArrow.className} ppv-arrow inline-block will-change-transform ${isClicking ? 'ppv-arrow-flying' : 'group-hover:translate-x-0.5'}`}
+      >
+        →
+      </span>
     );
   }
+  const sizeCls = compact ? 'w-3.5 h-3.5' : 'w-4 h-4';
+  const wrapSize = compact ? 'w-7 h-7' : 'w-8 h-8';
+  // minimal diagonal vs classic chevron
+  const isDiagonal = visuals.layoutStyle === 'minimal';
   return (
-    <div className={visuals.linkArrow.className} style={visuals.linkArrow.style}>
-      <svg className={compact ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-      </svg>
+    <div
+      style={visuals.linkArrow.style}
+      className={`${visuals.linkArrow.className} ${wrapSize} ppv-arrow-wrap relative overflow-hidden shrink-0 flex items-center justify-center rounded-full will-change-transform ${isClicking ? 'ppv-arrow-wrap-clicking' : ''}`}
+    >
+      {/* arrow icon — flies out on click */}
+      <span className={`ppv-arrow ppv-arrow-main inline-flex items-center justify-center ${sizeCls} will-change-transform ${isClicking ? 'ppv-arrow-flying' : ''}`}>
+        <svg className={sizeCls} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+          {isDiagonal ? (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7V17" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          )}
+        </svg>
+      </span>
+      {/* ghost arrow that slides in after fly-out — creates “pass-through” */}
+      <span
+        aria-hidden="true"
+        className={`ppv-arrow ppv-arrow-ghost absolute inset-0 flex items-center justify-center ${sizeCls} will-change-transform ${isClicking ? 'ppv-arrow-ghost-in' : 'opacity-0 -translate-x-3'}`}
+      >
+        <svg className={sizeCls} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+          {isDiagonal ? (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M7 17L17 7M17 7H7M17 7V17" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          )}
+        </svg>
+      </span>
+      {/* subtle accent pulse ring on click */}
+      {isClicking && <span aria-hidden="true" className="ppv-arrow-ring absolute inset-0 rounded-full" style={{ borderColor: accent }} />}
     </div>
   );
 }
@@ -66,6 +95,8 @@ export default function ProfilePageView({
   const visuals = getThemeVisuals(theme, { compact });
   const activeLinks = links.filter((link) => link.isActive !== false);
   const avatarSrc = getProfileAvatarUrl(profile?.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile?.username || 'user')}`;
+  const [clickedId, setClickedId] = useState(null);
+  const [ripplePos, setRipplePos] = useState({ x: 50, y: 50 });
 
   const cleanClassName = (cls = '') => cls.replace(/rounded-(full|none|2xl|xl|lg|md|sm)/g, '');
 
@@ -107,6 +138,68 @@ export default function ProfilePageView({
           50%       { opacity: 0.6;  transform: scale(1.05); }
         }
         .ppv-link:active { transform: scale(0.97) !important; }
+        @keyframes ppv-click-ripple {
+          from { transform: translate(-50%, -50%) scale(0); opacity: 0.45; }
+          to   { transform: translate(-50%, -50%) scale(4); opacity: 0; }
+        }
+        @keyframes ppv-click-bounce {
+          0%   { transform: scale(1); }
+          28%  { transform: scale(0.96); }
+          55%  { transform: scale(1.03); }
+          100% { transform: scale(1); }
+        }
+        @keyframes ppv-click-shimmer {
+          from { transform: translateX(-100%); }
+          to   { transform: translateX(200%); }
+        }
+        .ppv-link.ppv-clicking {
+          animation: ppv-click-bounce 420ms cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        .ppv-link.ppv-clicking::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--ppv-accent) 18%, transparent) 0%, transparent 70%);
+          opacity: 0.9;
+          pointer-events: none;
+        }
+        /* ── arrow beauty ── */
+        .ppv-link:hover .ppv-arrow-wrap:not(.ppv-arrow-wrap-clicking) .ppv-arrow-main {
+          transform: translateX(3px);
+        }
+        .ppv-link:hover .ppv-arrow-wrap:not(.ppv-arrow-wrap-clicking) {
+          background: color-mix(in srgb, var(--ppv-accent) 10%, transparent);
+        }
+        .ppv-arrow { transition: transform 260ms cubic-bezier(0.22,1,0.36,1), opacity 260ms ease; }
+        @keyframes ppv-arrow-fly {
+          0%   { transform: translateX(0) translateY(0) scale(1); opacity: 1; }
+          28%  { transform: translateX(6px) translateY(-2px) scale(1.08); opacity: 1; }
+          45%  { transform: translateX(18px) translateY(-6px) scale(0.85); opacity: 0; }
+          46%  { transform: translateX(-14px) translateY(4px) scale(0.85); opacity: 0; }
+          100% { transform: translateX(0) translateY(0) scale(1); opacity: 1; }
+        }
+        @keyframes ppv-arrow-ghost-in {
+          0%   { transform: translateX(-12px); opacity: 0; }
+          48%  { transform: translateX(-12px); opacity: 0; }
+          68%  { transform: translateX(0); opacity: 1; }
+          100% { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes ppv-arrow-ring {
+          0%   { transform: scale(0.7); opacity: 0; }
+          30%  { opacity: 0.35; }
+          100% { transform: scale(1.6); opacity: 0; }
+        }
+        .ppv-arrow-flying { animation: ppv-arrow-fly 560ms cubic-bezier(0.22,1,0.36,1) forwards; }
+        .ppv-arrow-ghost-in { animation: ppv-arrow-ghost-in 560ms cubic-bezier(0.22,1,0.36,1) forwards; }
+        .ppv-arrow-ring {
+          border: 1.5px solid currentColor;
+          animation: ppv-arrow-ring 560ms ease-out forwards;
+          pointer-events: none;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ppv-arrow-flying, .ppv-arrow-ghost-in, .ppv-arrow-ring, .ppv-link.ppv-clicking { animation: none !important; }
+        }
       `}</style>
 
       <div style={visuals.page.style} className={`relative min-h-full ${visuals.page.className} ${className}`}>
@@ -185,19 +278,54 @@ export default function ProfilePageView({
                 {compact ? 'Add links to preview' : 'No links added yet.'}
               </p>
             ) : (
-              activeLinks.map((link, idx) => (
+              activeLinks.map((link, idx) => {
+                const isClicking = clickedId === link.id;
+                return (
                 <a
                   key={link.id}
                   href={link.url}
                   target="_blank"
                   rel="noreferrer"
-                  onClick={() => onLinkClick?.(link)}
-                  style={{ ...visuals.link.style, ...fadeUp(300 + idx * 60) }}
-                  className={`ppv-link ${visuals.link.className}`}
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey || e.button === 1) { onLinkClick?.(link); return; }
+                    e.preventDefault();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setRipplePos({ x: ((e.clientX - rect.left) / rect.width) * 100, y: ((e.clientY - rect.top) / rect.height) * 100 });
+                    setClickedId(link.id);
+                    onLinkClick?.(link);
+                    setTimeout(() => {
+                      window.open(link.url, '_blank', 'noopener,noreferrer');
+                      setTimeout(() => setClickedId((cur) => (cur === link.id ? null : cur)), 650);
+                    }, 420);
+                  }}
+                  style={{ ...visuals.link.style, ...(isClicking ? {} : fadeUp(300 + idx * 60)), '--ppv-accent': accent }}
+                  className={`ppv-link group relative overflow-hidden isolate ${visuals.link.className} ${isClicking ? 'ppv-clicking' : ''}`}
                 >
+                  {/* click ripple */}
+                  {isClicking && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute w-20 h-20 -ml-10 -mt-10 rounded-full"
+                      style={{
+                        left: `${ripplePos.x}%`,
+                        top: `${ripplePos.y}%`,
+                        background: `radial-gradient(circle, color-mix(in srgb, ${accent} 30%, transparent) 0%, transparent 65%)`,
+                        animation: 'ppv-click-ripple 520ms ease-out forwards',
+                      }}
+                    />
+                  )}
+                  {/* shimmer sweep */}
+                  {isClicking && (
+                    <span aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
+                      <span
+                        className="absolute inset-y-0 w-1/3 -skew-x-12 opacity-20"
+                        style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)`, animation: 'ppv-click-shimmer 520ms ease-out forwards' }}
+                      />
+                    </span>
+                  )}
                   {/* Icon */}
                   <div
-                    className={`${getLinkIconContainerStyle(link.icon, link.title, link.url)} ${visuals.linkIcon.className}`}
+                    className={`${getLinkIconContainerStyle(link.icon, link.title, link.url)} ${visuals.linkIcon.className} relative z-10 transition-transform duration-200 ${isClicking ? 'scale-110' : 'group-hover:scale-[1.03]'}`}
                     style={visuals.linkIcon.style}
                   >
                     <LinkIcon
@@ -210,7 +338,7 @@ export default function ProfilePageView({
                   </div>
 
                   {/* Title + subtitle */}
-                  <div className="flex-1 text-left min-w-0 px-1">
+                  <div className="flex-1 text-left min-w-0 px-1 relative z-10">
                     <span style={visuals.text.style} className={`${visuals.linkTitle.className} block truncate`}>
                       {link.title}
                     </span>
@@ -224,10 +352,16 @@ export default function ProfilePageView({
                     })()}
                   </div>
 
-                  {/* Arrow */}
-                  <LinkArrow visuals={visuals} compact={compact} accent={accent} />
+                  {/* Arrow — beautiful */}
+                  <span className="relative z-10 shrink-0">
+                    <LinkArrow visuals={visuals} compact={compact} accent={accent} isClicking={isClicking} />
+                  </span>
+                  {isClicking && (
+                    <span className="absolute inset-0 rounded-[inherit] border-2 pointer-events-none" style={{ borderColor: accent, opacity: 0.35 }} />
+                  )}
                 </a>
-              ))
+                );
+              })
             )}
           </div>
 
