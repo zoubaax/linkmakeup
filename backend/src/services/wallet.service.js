@@ -127,7 +127,14 @@ export class WalletService {
     const username = profile?.username || 'card';
     const bio = profile?.bio || 'Connect with me on LinkMakeup';
     const targetUrl = publicUrl || `https://linkmakeup.com/${username}`;
-    const avatarUrl = profile?.avatar;
+    let avatarUrl = profile?.avatarUrl || profile?.avatar;
+
+    if (avatarUrl && typeof avatarUrl === 'string' && avatarUrl.includes('res.cloudinary.com/')) {
+      avatarUrl = avatarUrl
+        .replace(/\/image\/upload\/(?:c_[^/]+,)*([a-z0-9_,]+)?\//, '/image/upload/c_fill,g_auto,w_360,h_360,f_jpg,q_80/')
+        .replace(/\/f_auto\//g, '/f_jpg/')
+        .replace(/\/q_auto\//g, '/q_80/');
+    }
 
     const nameParts = displayName.trim().split(' ');
     const firstName = nameParts[0] || '';

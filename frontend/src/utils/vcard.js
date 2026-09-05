@@ -11,6 +11,59 @@ async function getBase64Photo(url) {
       return parts.length > 1 ? parts[1] : null;
     }
 
+    // If Cloudinary URL, force JPEG conversion & resize for optimal vCard embedding
+    let targetUrl = url;
+    if (typeof url === 'string' && url.includes('res.cloudinary.com/')) {
+      targetUrl = url
+        .replace(/\/image\/upload\/(?:c_[^/]+,)*([a-z0-9_,]+)?\//, '/image/upload/c_fill,g_auto,w_360,h_360,f_jpg,q_80/')
+        .replace(/\/f_auto\//g, '/f_jpg/')
+        .replace(/\/q_auto\//g, '/q_80/');
+    }
+
+    // Method 1: Fetch as blob and create local ObjectURL (bypasses canvas taint issues)
+    try {
+      const response = await fetch(targetUrl, { mode: 'cors' });
+      if (response.ok) {
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+
+        const base64 = await new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            try {
+              const canvas = document.createElement('canvas');
+              const size = 300;
+              canvas.width = size;
+              canvas.height = size;
+              const ctx = canvas.getContext('2d');
+
+              const minDim = Math.min(img.naturalWidth || size, img.naturalHeight || size);
+              const sx = ((img.naturalWidth || size) - minDim) / 2;
+              const sy = ((img.naturalHeight || size) - minDim) / 2;
+              ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+              resolve(dataUrl.split(',')[1] || null);
+            } catch {
+              resolve(null);
+            } finally {
+              URL.revokeObjectURL(objectUrl);
+            }
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(objectUrl);
+            resolve(null);
+          };
+          img.src = objectUrl;
+        });
+
+        if (base64) return base64;
+      }
+    } catch {
+      // Fallback to Image element
+    }
+
+    // Method 2: Direct Image element with crossOrigin anonymous
     return await new Promise((resolve) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
@@ -35,7 +88,7 @@ async function getBase64Photo(url) {
         }
       };
       img.onerror = () => resolve(null);
-      img.src = url;
+      img.src = targetUrl;
     });
   } catch {
     return null;
