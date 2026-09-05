@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { HiXMark, HiUserPlus, HiCheck } from 'react-icons/hi2';
+import { HiXMark, HiUserPlus, HiCheck, HiShare } from 'react-icons/hi2';
 import { LinkIcon, getLinkIconContainerStyle } from '../LinkIcon';
 import { normalizeThemeConfig } from '../../utils/themePresets';
 import { getThemeVisuals } from '../../utils/themeStyles';
@@ -102,6 +102,7 @@ export default function ProfilePageView({
   const [ripplePos, setRipplePos] = useState({ x: 50, y: 50 });
   const [isPhotoOpen, setIsPhotoOpen] = useState(false);
   const [isContactSaved, setIsContactSaved] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     if (!isPhotoOpen) return;
@@ -118,6 +119,29 @@ export default function ProfilePageView({
     setIsContactSaved(true);
     await downloadVCard({ profile, links, publicUrl, photoUrl: avatarSrc });
     setTimeout(() => setIsContactSaved(false), 2400);
+  };
+
+  const handleShare = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const shareUrl = publicUrl || (typeof window !== 'undefined' ? window.location.href : '');
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: profile?.displayName || profile?.username || 'LinkMakeup',
+          text: profile?.bio || `Connect with ${profile?.displayName || 'me'} on LinkMakeup`,
+          url: shareUrl,
+        });
+        return;
+      } catch {
+        // Fallback to clipboard
+      }
+    }
+    if (typeof navigator !== 'undefined' && navigator.clipboard && shareUrl) {
+      await navigator.clipboard.writeText(shareUrl);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2400);
+    }
   };
 
   const cleanClassName = (cls = '') => cls.replace(/rounded-(full|none|2xl|xl|lg|md|sm)/g, '');
@@ -149,10 +173,22 @@ export default function ProfilePageView({
 
     if (layout === 'minimal') {
       return {
-        className: `inline-flex items-center justify-center font-semibold rounded-full border transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-xs ${
-          compact ? 'px-3 py-1 text-[10px] gap-1.5' : 'px-4.5 py-2 text-xs gap-2'
+        primaryClass: `inline-flex items-center gap-2 font-semibold rounded-full border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-xs ${
+          compact ? 'px-3 py-1.5 text-[10px]' : 'px-4.5 py-2 text-xs'
         }`,
-        style: {
+        primaryStyle: {
+          backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+          borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)',
+          color: theme.textColor,
+        },
+        iconBadgeStyle: {
+          backgroundColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)',
+          color: theme.textColor,
+        },
+        secondaryClass: `inline-flex items-center justify-center rounded-full border transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] cursor-pointer shadow-xs ${
+          compact ? 'w-7 h-7' : 'w-9 h-9'
+        }`,
+        secondaryStyle: {
           backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
           borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)',
           color: theme.textColor,
@@ -162,10 +198,22 @@ export default function ProfilePageView({
 
     if (layout === 'glass') {
       return {
-        className: `inline-flex items-center justify-center font-bold rounded-2xl border backdrop-blur-xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-md ${
-          compact ? 'px-3 py-1 text-[10px] gap-1.5' : 'px-4.5 py-2 text-xs gap-2'
+        primaryClass: `inline-flex items-center gap-2 font-bold rounded-2xl border backdrop-blur-xl transition-all duration-200 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] cursor-pointer shadow-sm ${
+          compact ? 'px-3 py-1.5 text-[10px]' : 'px-4.5 py-2 text-xs'
         }`,
-        style: {
+        primaryStyle: {
+          backgroundColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.7)',
+          borderColor: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.9)',
+          color: theme.textColor,
+        },
+        iconBadgeStyle: {
+          backgroundColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.9)',
+          color: accent,
+        },
+        secondaryClass: `inline-flex items-center justify-center rounded-2xl border backdrop-blur-xl transition-all duration-200 hover:scale-[1.05] hover:shadow-lg active:scale-[0.95] cursor-pointer shadow-sm ${
+          compact ? 'w-7 h-7' : 'w-9 h-9'
+        }`,
+        secondaryStyle: {
           backgroundColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.7)',
           borderColor: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.9)',
           color: theme.textColor,
@@ -175,38 +223,77 @@ export default function ProfilePageView({
 
     if (layout === 'maximal') {
       return {
-        className: `inline-flex items-center justify-center font-black uppercase tracking-wider rounded-2xl border-[2px] transition-all duration-200 hover:scale-[1.04] active:scale-[0.98] cursor-pointer shadow-lg ${
-          compact ? 'px-3.5 py-1.5 text-[10px] gap-1.5' : 'px-5 py-2 text-xs gap-2'
+        primaryClass: `inline-flex items-center gap-2 font-black uppercase tracking-wider rounded-2xl border-[2px] transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-lg ${
+          compact ? 'px-3.5 py-1.5 text-[10px]' : 'px-5 py-2 text-xs'
         }`,
-        style: {
+        primaryStyle: {
           backgroundColor: accent,
           borderColor: accent,
           color: '#ffffff',
-          boxShadow: `0 4px 18px ${accent}40`,
+          boxShadow: `0 4px 18px ${accent}45`,
+        },
+        iconBadgeStyle: {
+          backgroundColor: 'rgba(255,255,255,0.25)',
+          color: '#ffffff',
+        },
+        secondaryClass: `inline-flex items-center justify-center rounded-2xl border-[2px] font-black transition-all duration-200 hover:scale-[1.05] active:scale-[0.95] cursor-pointer shadow-md ${
+          compact ? 'w-8 h-8' : 'w-9 h-9'
+        }`,
+        secondaryStyle: {
+          backgroundColor: theme.cardColor,
+          borderColor: accent,
+          color: accent,
+          boxShadow: `0 4px 14px ${accent}25`,
         },
       };
     }
 
     if (layout === 'neo') {
       return {
-        className: `inline-flex items-center justify-center font-black uppercase tracking-wide rounded-none border-[2.5px] transition-all duration-150 hover:translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 cursor-pointer ${
-          compact ? 'px-3 py-1 text-[10px] gap-1.5' : 'px-4.5 py-2 text-xs gap-2'
+        primaryClass: `inline-flex items-center gap-2 font-black uppercase tracking-wide rounded-none border-[2.5px] transition-all duration-150 hover:translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 cursor-pointer ${
+          compact ? 'px-3 py-1.5 text-[10px]' : 'px-4.5 py-2 text-xs'
         }`,
-        style: {
+        primaryStyle: {
           backgroundColor: accent,
           borderColor: theme.textColor,
           color: '#ffffff',
-          boxShadow: compact ? `3px 3px 0 0 ${theme.textColor}` : `4px 4px 0 0 ${theme.textColor}`,
+          boxShadow: compact ? `2.5px 2.5px 0 0 ${theme.textColor}` : `3.5px 3.5px 0 0 ${theme.textColor}`,
+        },
+        iconBadgeStyle: {
+          backgroundColor: 'rgba(0,0,0,0.2)',
+          color: '#ffffff',
+        },
+        secondaryClass: `inline-flex items-center justify-center rounded-none border-[2.5px] font-black transition-all duration-150 hover:translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 cursor-pointer ${
+          compact ? 'w-7 h-7' : 'w-9 h-9'
+        }`,
+        secondaryStyle: {
+          backgroundColor: theme.cardColor,
+          borderColor: theme.textColor,
+          color: theme.textColor,
+          boxShadow: compact ? `2.5px 2.5px 0 0 ${theme.textColor}` : `3.5px 3.5px 0 0 ${theme.textColor}`,
         },
       };
     }
 
     // Classic default
     return {
-      className: `inline-flex items-center justify-center font-bold rounded-full border transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-sm ${
-        compact ? 'px-3.5 py-1.5 text-[10px] gap-1.5' : 'px-4.5 py-2 text-xs gap-2'
+      primaryClass: `inline-flex items-center gap-2 font-bold rounded-full border transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98] cursor-pointer shadow-sm ${
+        compact ? 'px-3.5 py-1.5 text-[10px]' : 'px-4.5 py-2 text-xs'
       }`,
-      style: {
+      primaryStyle: {
+        backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)',
+        borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.1)',
+        color: theme.textColor,
+        boxShadow: isDark ? '0 4px 14px rgba(0,0,0,0.3)' : '0 4px 14px rgba(0,0,0,0.06)',
+      },
+      iconBadgeStyle: {
+        backgroundColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.06)',
+        color: theme.textColor,
+      },
+      secondaryClass: `inline-flex items-center justify-center rounded-full border transition-all duration-200 hover:scale-[1.05] hover:shadow-md active:scale-[0.95] cursor-pointer shadow-sm ${
+        compact ? 'w-7 h-7' : 'w-9 h-9'
+      }`,
+      secondaryStyle: {
         backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)',
         borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.1)',
         color: theme.textColor,
@@ -370,26 +457,50 @@ export default function ProfilePageView({
               </div>
             )}
 
-            {/* Save Contact Button */}
-            <div style={fadeUp(280)} className={compact ? 'mt-2.5' : 'mt-4'}>
+            {/* ── Profile Action Bar (Save Contact + Quick Share) ── */}
+            <div style={fadeUp(280)} className={`flex items-center justify-center gap-2 ${compact ? 'mt-2.5' : 'mt-4'}`}>
+              {/* Primary: Save Contact */}
               <button
                 type="button"
                 onClick={handleSaveContact}
-                className={contactBtn.className}
-                style={contactBtn.style}
-                title="Save contact card to phone"
+                className={`${contactBtn.primaryClass} group relative overflow-hidden`}
+                style={contactBtn.primaryStyle}
+                title="Save contact card to phone (.vcf)"
                 aria-label="Save contact to phone"
               >
+                {/* Subtle shimmer sweep on hover */}
+                <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+
                 {isContactSaved ? (
                   <>
-                    <HiCheck className={compact ? 'w-3 h-3 text-emerald-400 shrink-0' : 'w-4 h-4 text-emerald-400 shrink-0'} />
-                    <span>Contact Saved!</span>
+                    <span className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0`}>
+                      <HiCheck className={compact ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'} />
+                    </span>
+                    <span className="font-bold text-emerald-400">Contact Saved!</span>
                   </>
                 ) : (
                   <>
-                    <HiUserPlus className={compact ? 'w-3 h-3 shrink-0' : 'w-4 h-4 shrink-0'} />
-                    <span>Save Contact</span>
+                    <span className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-110`} style={contactBtn.iconBadgeStyle}>
+                      <HiUserPlus className={compact ? 'w-2.5 h-2.5' : 'w-3 h-3'} />
+                    </span>
+                    <span className="tracking-wide">Save Contact</span>
                   </>
+                )}
+              </button>
+
+              {/* Secondary: Quick Share / Copy */}
+              <button
+                type="button"
+                onClick={handleShare}
+                className={`${contactBtn.secondaryClass} group relative`}
+                style={contactBtn.secondaryStyle}
+                title={isCopied ? 'Link copied!' : 'Share profile link'}
+                aria-label="Share profile link"
+              >
+                {isCopied ? (
+                  <HiCheck className={compact ? 'w-3.5 h-3.5 text-emerald-400' : 'w-4 h-4 text-emerald-400'} />
+                ) : (
+                  <HiShare className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} transition-transform duration-200 group-hover:scale-110`} />
                 )}
               </button>
             </div>
