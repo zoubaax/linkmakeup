@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { HiXMark, HiUserPlus, HiCheck } from 'react-icons/hi2';
 import { LinkIcon, getLinkIconContainerStyle } from '../LinkIcon';
 import { normalizeThemeConfig } from '../../utils/themePresets';
 import { getThemeVisuals } from '../../utils/themeStyles';
@@ -7,6 +8,7 @@ import ProfileBrandingFooter from './ProfileBrandingFooter';
 import { StatusPill } from '../StatusPill';
 import { getDefaultSubtitle } from '../SocialIcons';
 import { getProfileAvatarUrl } from '../../utils/cloudinary';
+import { downloadVCard } from '../../utils/vcard';
 
 /* ─── Staggered entrance animation styles ─── */
 const fadeUp = (delay = 0) => ({
@@ -89,6 +91,7 @@ export default function ProfilePageView({
   compact = false,
   showFooter = false,
   className = '',
+  publicUrl,
   onLinkClick,
 }) {
   const theme = normalizeThemeConfig(themeInput);
@@ -97,6 +100,25 @@ export default function ProfilePageView({
   const avatarSrc = getProfileAvatarUrl(profile?.avatarUrl) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile?.username || 'user')}`;
   const [clickedId, setClickedId] = useState(null);
   const [ripplePos, setRipplePos] = useState({ x: 50, y: 50 });
+  const [isPhotoOpen, setIsPhotoOpen] = useState(false);
+  const [isContactSaved, setIsContactSaved] = useState(false);
+
+  useEffect(() => {
+    if (!isPhotoOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setIsPhotoOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPhotoOpen]);
+
+  const handleSaveContact = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsContactSaved(true);
+    await downloadVCard({ profile, links, publicUrl, photoUrl: avatarSrc });
+    setTimeout(() => setIsContactSaved(false), 2400);
+  };
 
   const cleanClassName = (cls = '') => cls.replace(/rounded-(full|none|2xl|xl|lg|md|sm)/g, '');
 
@@ -120,6 +142,80 @@ export default function ProfilePageView({
   const avatarRadiusStyle = getAvatarRadiusStyle(profile?.avatarShape, compact);
   const avatarDimensionStyle = getAvatarDimensionStyle(profile?.avatarSize, compact);
   const accent = theme.accentColor;
+
+  const getContactBtnConfig = () => {
+    const layout = visuals.layoutStyle || 'classic';
+    const isDark = visuals.isDark;
+
+    if (layout === 'minimal') {
+      return {
+        className: `inline-flex items-center justify-center font-semibold rounded-full border transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-xs ${
+          compact ? 'px-3 py-1 text-[10px] gap-1.5' : 'px-4.5 py-2 text-xs gap-2'
+        }`,
+        style: {
+          backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+          borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)',
+          color: theme.textColor,
+        },
+      };
+    }
+
+    if (layout === 'glass') {
+      return {
+        className: `inline-flex items-center justify-center font-bold rounded-2xl border backdrop-blur-xl transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-md ${
+          compact ? 'px-3 py-1 text-[10px] gap-1.5' : 'px-4.5 py-2 text-xs gap-2'
+        }`,
+        style: {
+          backgroundColor: isDark ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.7)',
+          borderColor: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.9)',
+          color: theme.textColor,
+        },
+      };
+    }
+
+    if (layout === 'maximal') {
+      return {
+        className: `inline-flex items-center justify-center font-black uppercase tracking-wider rounded-2xl border-[2px] transition-all duration-200 hover:scale-[1.04] active:scale-[0.98] cursor-pointer shadow-lg ${
+          compact ? 'px-3.5 py-1.5 text-[10px] gap-1.5' : 'px-5 py-2 text-xs gap-2'
+        }`,
+        style: {
+          backgroundColor: accent,
+          borderColor: accent,
+          color: '#ffffff',
+          boxShadow: `0 4px 18px ${accent}40`,
+        },
+      };
+    }
+
+    if (layout === 'neo') {
+      return {
+        className: `inline-flex items-center justify-center font-black uppercase tracking-wide rounded-none border-[2.5px] transition-all duration-150 hover:translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0 active:translate-y-0 cursor-pointer ${
+          compact ? 'px-3 py-1 text-[10px] gap-1.5' : 'px-4.5 py-2 text-xs gap-2'
+        }`,
+        style: {
+          backgroundColor: accent,
+          borderColor: theme.textColor,
+          color: '#ffffff',
+          boxShadow: compact ? `3px 3px 0 0 ${theme.textColor}` : `4px 4px 0 0 ${theme.textColor}`,
+        },
+      };
+    }
+
+    // Classic default
+    return {
+      className: `inline-flex items-center justify-center font-bold rounded-full border transition-all duration-200 hover:scale-[1.03] active:scale-[0.98] cursor-pointer shadow-sm ${
+        compact ? 'px-3.5 py-1.5 text-[10px] gap-1.5' : 'px-4.5 py-2 text-xs gap-2'
+      }`,
+      style: {
+        backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.95)',
+        borderColor: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.1)',
+        color: theme.textColor,
+        boxShadow: isDark ? '0 4px 14px rgba(0,0,0,0.3)' : '0 4px 14px rgba(0,0,0,0.06)',
+      },
+    };
+  };
+
+  const contactBtn = getContactBtnConfig();
 
   return (
     <>
@@ -224,8 +320,12 @@ export default function ProfilePageView({
 
             {/* Avatar */}
             <div style={{ ...scaleIn(80) }} className="relative flex items-center justify-center">
-              <div
-                className={`${cleanClassName(visuals.avatarWrap.className)} overflow-hidden relative`}
+              <button
+                type="button"
+                onClick={() => setIsPhotoOpen(true)}
+                title="Click to view full photo"
+                aria-label="Click to view photo"
+                className={`${cleanClassName(visuals.avatarWrap.className)} overflow-hidden relative cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 group focus:outline-none focus:ring-2 focus:ring-offset-2`}
                 style={{ ...avatarRadiusStyle, ...avatarDimensionStyle }}
               >
                 {/* Glow pulse ring */}
@@ -237,11 +337,11 @@ export default function ProfilePageView({
                 <img
                   src={avatarSrc}
                   alt={profile?.displayName || 'Profile'}
-                  className={`${cleanClassName(visuals.avatar.className)} overflow-hidden relative z-10`}
+                  className={`${cleanClassName(visuals.avatar.className)} overflow-hidden relative z-10 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105`}
                   style={{ ...visuals.avatar.style, ...avatarRadiusStyle }}
                   referrerPolicy="no-referrer"
                 />
-              </div>
+              </button>
             </div>
 
             {/* Name */}
@@ -269,6 +369,30 @@ export default function ProfilePageView({
                 <StatusPill statusBadge={profile.statusBadge} className={compact ? 'mt-2' : 'mt-3'} />
               </div>
             )}
+
+            {/* Save Contact Button */}
+            <div style={fadeUp(280)} className={compact ? 'mt-2.5' : 'mt-4'}>
+              <button
+                type="button"
+                onClick={handleSaveContact}
+                className={contactBtn.className}
+                style={contactBtn.style}
+                title="Save contact card to phone"
+                aria-label="Save contact to phone"
+              >
+                {isContactSaved ? (
+                  <>
+                    <HiCheck className={compact ? 'w-3 h-3 text-emerald-400 shrink-0' : 'w-4 h-4 text-emerald-400 shrink-0'} />
+                    <span>Contact Saved!</span>
+                  </>
+                ) : (
+                  <>
+                    <HiUserPlus className={compact ? 'w-3 h-3 shrink-0' : 'w-4 h-4 shrink-0'} />
+                    <span>Save Contact</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* ── Links ── */}
@@ -375,6 +499,60 @@ export default function ProfilePageView({
 
         </div>
       </div>
+
+      {/* ── Photo Lightbox Modal ── */}
+      {isPhotoOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+          onClick={() => setIsPhotoOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Profile photo preview"
+        >
+          <div
+            className="relative max-w-sm sm:max-w-md w-full bg-zinc-950/90 border border-white/15 rounded-3xl p-6 shadow-2xl flex flex-col items-center gap-4 text-white animate-scaleIn"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setIsPhotoOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+              aria-label="Close photo"
+            >
+              <HiXMark className="w-5 h-5" />
+            </button>
+
+            {/* Enlarged Photo */}
+            <div
+              className="overflow-hidden border-2 shadow-2xl mt-1 relative flex items-center justify-center bg-black/40"
+              style={{
+                borderRadius: profile?.avatarShape === 'square' ? '16px' : profile?.avatarShape === 'rounded' ? '28px' : '9999px',
+                borderColor: accent || '#10b981',
+                width: 'min(280px, 72vw)',
+                height: 'min(280px, 72vw)',
+              }}
+            >
+              <img
+                src={avatarSrc}
+                alt={profile?.displayName || 'Profile Photo'}
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+
+            {/* Profile info */}
+            <div className="text-center px-2">
+              <h3 className="font-bold text-lg text-white tracking-tight">
+                {profile?.displayName || 'Profile Photo'}
+              </h3>
+              {profile?.username && (
+                <p className="text-xs text-zinc-400 mt-0.5">@{profile.username}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

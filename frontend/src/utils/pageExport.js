@@ -28,8 +28,6 @@ function escapeHtml(value = '') {
 export function buildEmbedCode({ profile, publicUrl }) {
   const title = escapeHtml(profile?.displayName || profile?.username || 'LinkMakeup page');
   const marketingUrl = escapeHtml(getMarketingSiteUrl());
-  const domain = escapeHtml(MARKETING_DOMAIN);
-  const logoUrl = escapeHtml(`${getMarketingSiteUrl()}/favicon.svg`);
 
   return `<div style="max-width:420px;margin:0 auto;font-family:Inter,system-ui,sans-serif">
   <iframe
@@ -42,15 +40,7 @@ export function buildEmbedCode({ profile, publicUrl }) {
     allow="clipboard-write"
   ></iframe>
   <div style="margin:10px 0 0;text-align:center;font-size:11px;color:#71717a;line-height:1.5">
-    <span style="display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:9999px;border:1px solid rgba(113,113,122,0.18);background:rgba(113,113,122,0.06)">
-      <span style="font-size:9px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;opacity:0.55">Powered by</span>
-      <span style="width:1px;height:12px;background:rgba(113,113,122,0.25);border-radius:9999px"></span>
-      <a href="${marketingUrl}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center">
-        <img src="${logoUrl}" alt="LinkMakeup" width="14" height="14" style="display:block" />
-      </a>
-      <a href="${marketingUrl}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;font-weight:600">${domain}</a>
-    </span>
-    <p style="margin:6px 0 0;font-size:9px;opacity:0.55;letter-spacing:0.02em">${escapeHtml(getCopyrightLine())}</p>
+    <a href="${marketingUrl}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;font-size:9px;opacity:0.55;letter-spacing:0.02em">${escapeHtml(getCopyrightLine())}</a>
   </div>
 </div>`;
 }

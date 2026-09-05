@@ -195,6 +195,7 @@ export default function PublicProfile({ usernameOverride } = {}) {
       theme={profile.themeConfig}
       showFooter
       className="min-h-screen"
+      publicUrl={typeof window !== 'undefined' ? window.location.href : undefined}
       onLinkClick={handleLinkClick}
     />
   );
